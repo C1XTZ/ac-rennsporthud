@@ -50,6 +50,8 @@ function script.windowMainSettings(dt)
                     ui.text('\t')
                     ui.sameLine()
                     settings.rpmBarShiftYellow = ui.slider('##ShiftYellow', settings.rpmBarShiftYellow, 0, 100, 'Yellow shift at: ' .. '%.0f%')
+                    ui.text('\t')
+                    ui.sameLine()
                     settings.rpmBarShiftRed = ui.slider('##ShiftRed', settings.rpmBarShiftRed, 0, 100, 'Red shift at: ' .. '%.0f%')
                 end
             end
@@ -78,7 +80,7 @@ function script.windowMain(dt)
     if settings.speedNumMPH then speedNumber = math.round(player.speedKmh / 1.6093440006147) end
 
     if settings.decor then
-        ui.setCursor(vec2(125,43))
+        ui.setCursor(vec2(125, 43))
         ui.childWindow('Decor', vec2(92, 64), app.flags, function()
             ui.drawRectFilled(vec2(0, 0), vec2(14, 63), rgbm(1, 1, 1, 1))
             ui.drawRectFilled(vec2(78, 0), vec2(82, 63), rgbm(1, 1, 1, 1))
@@ -101,7 +103,7 @@ function script.windowMain(dt)
     end
 
     if settings.gears then
-        ui.setCursor(vec2(135, 40))
+        ui.setCursor(vec2(134, 39))
         ui.childWindow('GearNumber', vec2(63, 63), app.flags, function()
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
             ui.dwriteTextAligned(parseGear(player.gear), 60, ui.Alignment.Center, ui.Alignment.Center, vec2(33, 47), rgbm.colors.white)
@@ -110,13 +112,13 @@ function script.windowMain(dt)
     end
 
     if settings.rpmNum and not settings.inputBars then
-        ui.setCursor(vec2(195, 43))
+        ui.setCursor(vec2(196, 42))
         ui.childWindow('RPM Numbers', vec2(150, 50), app.flags, function()
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
             ui.dwriteTextAligned(math.round(player.rpm), 33, ui.Alignment.Start, ui.Alignment.Center, vec2(150, 24), rgbm.colors.white)
             ui.popDWriteFont()
 
-            ui.setCursor(vec2(22, 33))
+            ui.setCursor(vec2(20, 33))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.SemiBold))
             ui.dwriteText('RPM', 14, rgbm.colors.white)
             ui.popDWriteFont()
@@ -124,13 +126,13 @@ function script.windowMain(dt)
     end
 
     if settings.speedNum then
-        ui.setCursor(vec2(47, 43))
+        ui.setCursor(vec2(46, 42))
         ui.childWindow('Speed', vec2(150, 60), app.flags, function()
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
             ui.dwriteTextAligned(speedNumber, 33, ui.Alignment.End, ui.Alignment.Center, vec2(60, 24), rgbm.colors.white)
             ui.popDWriteFont()
 
-            ui.setCursor(vec2(40, 37))
+            ui.setCursor(vec2(42, 37))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.SemiBold))
             ui.dwriteTextAligned(speedText, 14, ui.Alignment.End, ui.Alignment.Center, vec2(38, 10), rgbm.colors.white)
             ui.popDWriteFont()
@@ -140,7 +142,7 @@ function script.windowMain(dt)
     if settings.inputBars and settings.rpmNum then
         local FFBmix = player.ffbFinal
         if FFBmix < 0 then FFBmix = FFBmix * -1 end
-        ui.setCursor(vec2(207, 51))
+        ui.setCursor(vec2(208, 50))
         ui.childWindow('inputBars', vec2(55, 43), app.flags, function()
             ui.drawRectFilled(vec2(0, 0), vec2(15, 42), rgbm(0, 0, 0, 0.5))
             ui.drawRectFilled(vec2(15, 42), vec2(0, math.lerp(0, 42, player.clutch)), rgbm(0, 1, 1, 1))
