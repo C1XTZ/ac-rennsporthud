@@ -25,4 +25,5 @@ Any questions or suggestions feel free to message me here, on Discord or on Twit
 
 ## Credits
 #### Used in Rennsport HUD
-- [IBM Plex Sans](https://fonts.google.com/specimen/IBM+Plex+Sans) designed by Mike Abbink, Bold Monday 
+- [Rennsport Logo](https://www.rennsport.gg/)
+- [IBM Plex Sans](https://fonts.google.com/specimen/IBM+Plex+Sans) designed by Mike Abbink, Bold Monday
