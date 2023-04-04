@@ -12,7 +12,8 @@ local settings = ac.storage {
     speedNumMPH = false,
     inputBars = false,
     changeScale = false,
-    scale = 1
+    scale = 1,
+    compactMode = false
 }
 
 local app = {
@@ -20,15 +21,6 @@ local app = {
     ['font'] = ui.DWriteFont('IBM Plex Sans', '.'),
     ['scale'] = 1
 }
-
---currently only shows your own values even when spectating someone else
---to see the values of other players while spectating use the line below instead
---local player = ac.getCar(ac.getSim().focusedCar)
-local player = ac.getCar(0)
-local rpmBarColor = rgbm(1, 1, 1, 1)
-local speedText = 'KM/H'
-if settings.speedNumMPH then speedText = 'MP/H' end
-if settings.changeScale then app.scale = settings.scale end
 
 function scale(value)
     return app.scale * value
@@ -53,11 +45,14 @@ function script.windowMainSettings(dt)
     ui.tabBar('TabBar', function()
         ui.tabItem('Settings', function()
             if ui.checkbox('Custom App Scaling', settings.changeScale) then settings.changeScale = not settings.changeScale end
+
             if settings.changeScale then
                 ui.text('\t')
                 ui.sameLine()
-                settings.scale = ui.slider('##AppScale', settings.scale, 0.69, 5, 'App Scale: ' .. '%.02f%')
-                if app.scale ~= settings.scale then app.scale = settings.scale end
+                settings.scale = ui.slider('##AppScale', settings.scale, 1, 5, 'App Scale: ' .. '%.01f%')
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Enable Compact Mode', settings.compactMode) then settings.compactMode = not settings.compactMode end
             else
                 app.scale = 1
             end
@@ -69,10 +64,10 @@ function script.windowMainSettings(dt)
                 if settings.rpmBarColor then
                     ui.text('\t')
                     ui.sameLine()
-                    settings.rpmBarShiftYellow = ui.slider('##ShiftYellow', settings.rpmBarShiftYellow, 0, 100, 'Yellow shift at: ' .. '%.0f%')
+                    settings.rpmBarShiftYellow = ui.slider('##ShiftYellow', settings.rpmBarShiftYellow, 0, 100, 'Yellow shift at: ' .. '%.0f%%')
                     ui.text('\t')
                     ui.sameLine()
-                    settings.rpmBarShiftRed = ui.slider('##ShiftRed', settings.rpmBarShiftRed, 0, 100, 'Red shift at: ' .. '%.0f%')
+                    settings.rpmBarShiftRed = ui.slider('##ShiftRed', settings.rpmBarShiftRed, 0, 100, 'Red shift at: ' .. '%.0f%%')
                 end
             end
             if ui.checkbox('Show Speed', settings.speedNum) then settings.speedNum = not settings.speedNum end
@@ -96,17 +91,50 @@ function script.windowMainSettings(dt)
 end
 
 function script.windowMain(dt)
+    local focusedCar = ac.getSim().focusedCar
+    local player
+    if focusedCar > 0 then player = ac.getCar(focusedCar) else player = ac.getCar(0) end
+
+    if settings.changeScale and app.scale ~= settings.scale then app.scale = settings.scale end
+
+    local appsize = scaleVec2(325, 121)
+    local rpmBarHeight = scale(17)
+    local speedNumBoldCursorx = scale(106)
+    local speedNumBoldCursory = scale(28)
+    local speedNumSemiCursorx = scale(84)
+    local speedNumSemiCursory = scale(5)
+    local decorCursorLeftx = scale(38)
+    local decorCursorRightx = scale(35)
+    local decorCursory = scale(41)
+    local decorBarWidth = scale(4)
+    local decorBarHeight = scale(80)
+    local gearsCursorx = scale(17)
+    local gearsCursory = scale(31)
+    local rpmNumCursorx = scale(46)
+    local rpmNumBoldCursory = scale(28)
+    local rpmNumSemiCursory = scale(3)
+    local inputBarCursory = scale(25)
+    local inputBarCursorx = scale(47)
+    local inputBarHeight = scale(43)
+    local inputBarWidth = scale(5)
+    local inputBarGap = scale(5 + inputBarWidth / app.scale)
+
+    if settings.compactMode and settings.changeScale then
+        appsize = scaleVec2(297, 85)
+        rpmBarHeight = scale(10)
+        decorCursory = scale(30)
+        decorBarHeight = scale(51)
+    end
+
     ui.setCursor(0, 22)
-    ui.childWindow('main', scaleVec2(342, 106), function()
+    ui.childWindow('main', appsize, function()
         local centerx = ui.availableSpaceX() / 2
         local centery = ui.availableSpaceY() / 2 + 22 -- +22 because the apps top bar is that thick
-        local rpmMix = player.rpm / player.rpmLimiter
-        local rpmPercentage = math.round(rpmMix * 100)
-        local speedNumber = math.round(player.speedKmh)
-        if settings.speedNumMPH then speedNumber = math.round(player.speedKmh / 1.6093440006147) end
 
         if settings.rpmBar then
-            ui.setCursor(vec2(0, 22))
+            local rpmMix = player.rpm / player.rpmLimiter
+            local rpmPercentage = math.round(rpmMix * 100)
+            local rpmBarColor
             if settings.rpmBarColor and rpmPercentage > settings.rpmBarShiftYellow - 1 and rpmPercentage < settings.rpmBarShiftRed then
                 rpmBarColor = rgbm(1, 1, 0, 1)
             elseif settings.rpmBarColor and rpmPercentage > settings.rpmBarShiftRed - 1 then
@@ -114,68 +142,85 @@ function script.windowMain(dt)
             else
                 rpmBarColor = rgbm(1, 1, 1, 1)
             end
-            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(ui.availableSpaceX(), ui.getCursorY() + scale(20)), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(math.lerp(0, ui.availableSpaceX(), rpmMix), ui.getCursorY() + scale(20)), rpmBarColor)
+            ui.setCursor(vec2(0, 22))
+            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(ui.availableSpaceX(), ui.getCursorY() + rpmBarHeight), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(math.lerp(0, ui.availableSpaceX(), rpmMix), ui.getCursorY() + rpmBarHeight), rpmBarColor)
         end
 
         if settings.speedNum then
-            ui.setCursor(vec2(centerx - scale(105), centery - scale(25)))
+            local speedText
+            local speedNumber
+            if not settings.speedNumMPH then
+                speedText = 'KM/H'
+                speedNumber = math.round(player.speedKmh)
+            else
+                speedText = 'MP/H'
+                speedNumber = math.round(player.speedKmh / 1.6093440006147)
+            end
+
+            ui.setCursor(vec2(centerx - speedNumBoldCursorx, centery - speedNumBoldCursory))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
-            ui.dwriteTextAligned(speedNumber, scale(33), ui.Alignment.End, ui.Alignment.Center, scaleVec2(60, 26), false, rgbm.colors.white)
+            ui.dwriteTextAligned(speedNumber, scale(34), ui.Alignment.End, ui.Alignment.Center, scaleVec2(60, 28), false, rgbm.colors.white)
             ui.popDWriteFont()
 
-            ui.setCursor(vec2(centerx - scale(83), centery + scale(5)))
+            ui.setCursor(vec2(centerx - speedNumSemiCursorx, centery + speedNumSemiCursory))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.SemiBold))
-            ui.dwriteTextAligned(speedText, scale(14), ui.Alignment.End, ui.Alignment.Center, scaleVec2(38, 10), false, rgbm.colors.white)
+            ui.dwriteTextAligned(speedText, scale(14), ui.Alignment.End, ui.Alignment.Center, scaleVec2(38, 13), false, rgbm.colors.white)
             ui.popDWriteFont()
         end
 
         if settings.decor then
-            ui.setCursor(vec2(centerx - scale(36), centery - scale(31)))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + scale(4), ui.getCursorY() + scale(62)), rgbm(1, 1, 1, 1))
-            ui.drawRectFilled(vec2(ui.getCursorX() + scale(68), ui.getCursorY()), vec2(ui.getCursorX() + scale(72), ui.getCursorY() + scale(62)), rgbm(1, 1, 1, 1))
+            ui.setCursor(vec2(centerx - decorCursorLeftx, centery - decorCursory))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + decorBarWidth, ui.getCursorY() + decorBarHeight), rgbm(1, 1, 1, 1))
+            ui.setCursor(vec2(centerx + decorCursorRightx, centery - decorCursory))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + decorBarWidth, ui.getCursorY() + decorBarHeight), rgbm(1, 1, 1, 1))
+        end
+
+        if settings.gears then
+            ui.setCursor(vec2(centerx - gearsCursorx, centery - gearsCursory))
+            ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
+            ui.dwriteTextAligned(parseGear(player.gear), scale(60), ui.Alignment.Center, ui.Alignment.Center, scaleVec2(36, 50), rgbm.colors.white)
+            ui.popDWriteFont()
         end
 
         if settings.rpmNum and not settings.inputBars then
-            ui.setCursor(vec2(centerx + scale(45), centery - scale(25)))
+            ui.setCursor(vec2(centerx + rpmNumCursorx, centery - rpmNumBoldCursory))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
-            ui.dwriteTextAligned(math.round(player.rpm), scale(33), ui.Alignment.Start, ui.Alignment.Center, scaleVec2(150, 26), false, rgbm.colors.white)
+            ui.dwriteTextAligned(math.round(player.rpm), scale(34), ui.Alignment.Start, ui.Alignment.Center, scaleVec2(150, 28), false, rgbm.colors.white)
             ui.popDWriteFont()
 
-            ui.setCursor(vec2(centerx + scale(45), centery + scale(1)))
+            ui.setCursor(vec2(centerx + rpmNumCursorx, centery + rpmNumSemiCursory))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.SemiBold))
             ui.dwriteText('RPM', scale(14), rgbm.colors.white)
             ui.popDWriteFont()
         end
 
-        if settings.gears then
-            ui.setCursor(vec2(centerx - scale(17), centery - scale(28)))
-            ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
-            ui.dwriteTextAligned(parseGear(player.gear), scale(60), ui.Alignment.Center, ui.Alignment.Center, scaleVec2(34, 48), rgbm.colors.white)
-            ui.popDWriteFont()
-        end
-
         if settings.inputBars and settings.rpmNum then
             local FFBmix = player.ffbFinal
-            local barheight = scale(38)
-            local barwidth = scale(5)
-            local barposy = centery - scale(23)
             if FFBmix < 0 then FFBmix = FFBmix * -1 end
-            ui.setCursor(vec2(centerx + scale(46), barposy))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + barheight), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight - math.lerp(barheight, 0, player.clutch)), rgbm(0, 1, 1, 1))
+            local FFBcolor
+            if FFBlerp ~= inputBarHeight then FFBcolor = rgbm(0.65, 0.65, 0.65, 1) else FFBcolor = rgbm(1, 0, 0, 1) end
 
-            ui.setCursor(vec2(centerx + scale(56), barposy))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + barheight), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight - math.lerp(0, barheight, player.brake)), rgbm(1, 0, 0, 1))
+            local clutchLerp = math.lerp(inputBarHeight, 0, player.clutch)
+            local brakeLerp = math.lerp(0, inputBarHeight, player.brake)
+            local gasLerp = math.lerp(0, inputBarHeight, player.gas)
+            local FFBlerp = math.lerp(0, inputBarHeight, FFBmix)
 
-            ui.setCursor(vec2(centerx + scale(66), barposy))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + barheight), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight - math.lerp(0, barheight, player.gas)), rgbm(0, 1, 0, 1))
+            ui.setCursor(vec2(centerx + inputBarCursorx, centery - inputBarCursory))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + inputBarHeight), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight - clutchLerp), rgbm(0, 1, 1, 1))
 
-            ui.setCursor(vec2(centerx + scale(76), barposy))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + barheight), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight - math.lerp(0, barheight, FFBmix)), rgbm(0.65, 0.65, 0.65, 1))
+            ui.setCursor(vec2(centerx + inputBarCursorx + inputBarGap, centery - inputBarCursory))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + inputBarHeight), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight - brakeLerp), rgbm(1, 0, 0, 1))
+
+            ui.setCursor(vec2(centerx + inputBarCursorx + inputBarGap * 2, centery - inputBarCursory))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + inputBarHeight), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight - gasLerp), rgbm(0, 1, 0, 1))
+
+            ui.setCursor(vec2(centerx + inputBarCursorx + inputBarGap * 3, centery - inputBarCursory))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + inputBarHeight), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight - FFBlerp), FFBcolor)
         end
     end)
 end
