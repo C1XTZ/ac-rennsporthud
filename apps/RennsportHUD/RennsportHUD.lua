@@ -38,9 +38,9 @@ function scaleVec2(valueX, valueY)
 end
 
 function parseGear(gearInt)
-    if gear == 0 then
+    if gearInt == 0 then
         gear = 'N'
-    elseif gear == -1 then
+    elseif gearInt == -1 then
         gear = 'R'
     else
         gear = gearInt
