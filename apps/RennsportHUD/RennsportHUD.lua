@@ -11,11 +11,14 @@ local settings = ac.storage {
     speedNum = true,
     speedNumMPH = false,
     inputBars = false,
+    changeScale = false,
+    scale = 1
 }
 
 local app = {
     ['flags'] = bit.bor(ui.WindowFlags.NoDecoration, ui.WindowFlags.NoBackground, ui.WindowFlags.NoNav, ui.WindowFlags.NoInputs, ui.WindowFlags.NoScrollbar),
-    ['font'] = ui.DWriteFont('IBM Plex Sans', '.')
+    ['font'] = ui.DWriteFont('IBM Plex Sans', '.'),
+    ['scale'] = 1
 }
 
 --currently only shows your own values even when spectating someone else
@@ -23,14 +26,22 @@ local app = {
 --local player = ac.getCar(ac.getSim().focusedCar)
 local player = ac.getCar(0)
 local rpmBarColor = rgbm(1, 1, 1, 1)
-local speedText = "KM/H"
-if settings.speedNumMPH then speedText = "MP/H" end
+local speedText = 'KM/H'
+if settings.speedNumMPH then speedText = 'MP/H' end
+
+function scale(value)
+    return app.scale * value
+end
+
+function scaleVec2(valueX, valueY)
+    return vec2(app.scale * valueX, app.scale * valueY)
+end
 
 function parseGear(gearInt)
-    if gearInt == 0 then
-        gear = "N"
-    elseif gearInt == -1 then
-        gear = "R"
+    if gear == 0 then
+        gear = 'N'
+    elseif gear == -1 then
+        gear = 'R'
     else
         gear = gearInt
     end
@@ -40,12 +51,20 @@ end
 function script.windowMainSettings(dt)
     ui.tabBar('TabBar', function()
         ui.tabItem('Settings', function()
-            if ui.checkbox('Show Decorations', settings.decor) then settings.decor = not settings.decor end
+            if ui.checkbox('Custom App Scaling', settings.changeScale) then settings.changeScale = not settings.changeScale end
+            if settings.changeScale then
+                ui.text('\t')
+                ui.sameLine()
+                settings.scale = ui.slider('##AppScale', settings.scale, 0.69, 5, 'App Scale: ' .. '%.02f%')
+                if app.scale ~= settings.scale then app.scale = settings.scale end
+            else
+                app.scale = 1
+            end
             if ui.checkbox('Show RPM Bar', settings.rpmBar) then settings.rpmBar = not settings.rpmBar end
             if settings.rpmBar then
                 ui.text('\t')
                 ui.sameLine()
-                if ui.checkbox("Enable Shift Colors", settings.rpmBarColor) then settings.rpmBarColor = not settings.rpmBarColor end
+                if ui.checkbox('Enable Shift Colors', settings.rpmBarColor) then settings.rpmBarColor = not settings.rpmBarColor end
                 if settings.rpmBarColor then
                     ui.text('\t')
                     ui.sameLine()
@@ -55,41 +74,38 @@ function script.windowMainSettings(dt)
                     settings.rpmBarShiftRed = ui.slider('##ShiftRed', settings.rpmBarShiftRed, 0, 100, 'Red shift at: ' .. '%.0f%')
                 end
             end
-            if ui.checkbox('Show gears', settings.gears) then settings.gears = not settings.gears end
             if ui.checkbox('Show Speed', settings.speedNum) then settings.speedNum = not settings.speedNum end
             if settings.speedNum then
                 ui.text('\t')
                 ui.sameLine()
-                if ui.checkbox("Use MPH instead", settings.speedNumMPH) then settings.speedNumMPH = not settings.speedNumMPH end
-                if settings.speedNumMPH then speedText = "MP/H" else speedText = "KM/H" end
+                if ui.checkbox('Use MPH Instead', settings.speedNumMPH) then settings.speedNumMPH = not settings.speedNumMPH end
+                if settings.speedNumMPH then speedText = 'MP/H' else speedText = 'KM/H' end
             end
+            if ui.checkbox('Show Decorations', settings.decor) then settings.decor = not settings.decor end
+            if ui.checkbox('Show Gears', settings.gears) then settings.gears = not settings.gears end
+
             if ui.checkbox('Show RPM Numbers', settings.rpmNum) then settings.rpmNum = not settings.rpmNum end
             if settings.rpmNum then
                 ui.text('\t')
                 ui.sameLine()
-                if ui.checkbox('Show pedal input bars instead', settings.inputBars) then settings.inputBars = not settings.inputBars end
+                if ui.checkbox('Show Pedal Inputs Instead', settings.inputBars) then settings.inputBars = not settings.inputBars end
             end
         end)
     end)
 end
 
 function script.windowMain(dt)
-    local rpmMix = player.rpm / player.rpmLimiter
-    local rpmPercentage = math.round(rpmMix * 100)
-    local speedNumber = math.round(player.speedKmh)
-    if settings.speedNumMPH then speedNumber = math.round(player.speedKmh / 1.6093440006147) end
+    ui.setCursor(0, 22)
+    ui.childWindow('main', scaleVec2(342, 106), function()
+        local centerx = ui.availableSpaceX() / 2
+        local centery = ui.availableSpaceY() / 2 + 22 -- +22 because the apps top bar is that thick
+        local rpmMix = player.rpm / player.rpmLimiter
+        local rpmPercentage = math.round(rpmMix * 100)
+        local speedNumber = math.round(player.speedKmh)
+        if settings.speedNumMPH then speedNumber = math.round(player.speedKmh / 1.6093440006147) end
 
-    if settings.decor then
-        ui.setCursor(vec2(125, 43))
-        ui.childWindow('Decor', vec2(92, 64), app.flags, function()
-            ui.drawRectFilled(vec2(0, 0), vec2(14, 63), rgbm(1, 1, 1, 1))
-            ui.drawRectFilled(vec2(78, 0), vec2(82, 63), rgbm(1, 1, 1, 1))
-        end)
-    end
-
-    if settings.rpmBar then
-        ui.setCursor(vec2(0, 21))
-        ui.childWindow('rpmBar', vec2(341, 22), app.flags, function()
+        if settings.rpmBar then
+            ui.setCursor(vec2(0, 22))
             if settings.rpmBarColor and rpmPercentage > settings.rpmBarShiftYellow - 1 and rpmPercentage < settings.rpmBarShiftRed then
                 rpmBarColor = rgbm(1, 1, 0, 1)
             elseif settings.rpmBarColor and rpmPercentage > settings.rpmBarShiftRed - 1 then
@@ -97,64 +113,68 @@ function script.windowMain(dt)
             else
                 rpmBarColor = rgbm(1, 1, 1, 1)
             end
-            ui.drawRectFilled(vec2(0, 0), vec2(341, 22), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(0, 0), vec2(math.lerp(0, 341, rpmMix), 22), rpmBarColor)
-        end)
-    end
+            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(ui.availableSpaceX(), ui.getCursorY() + scale(20)), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(math.lerp(0, ui.availableSpaceX(), rpmMix), ui.getCursorY() + scale(20)), rpmBarColor)
+        end
 
-    if settings.gears then
-        ui.setCursor(vec2(134, 39))
-        ui.childWindow('GearNumber', vec2(63, 63), app.flags, function()
+        if settings.speedNum then
+            ui.setCursor(vec2(centerx - scale(105), centery - scale(25)))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
-            ui.dwriteTextAligned(parseGear(player.gear), 60, ui.Alignment.Center, ui.Alignment.Center, vec2(33, 47), rgbm.colors.white)
-            ui.popDWriteFont()
-        end)
-    end
-
-    if settings.rpmNum and not settings.inputBars then
-        ui.setCursor(vec2(196, 42))
-        ui.childWindow('RPM Numbers', vec2(150, 50), app.flags, function()
-            ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
-            ui.dwriteTextAligned(math.round(player.rpm), 33, ui.Alignment.Start, ui.Alignment.Center, vec2(150, 24), rgbm.colors.white)
+            ui.dwriteTextAligned(speedNumber, scale(33), ui.Alignment.End, ui.Alignment.Center, scaleVec2(60, 26), false, rgbm.colors.white)
             ui.popDWriteFont()
 
-            ui.setCursor(vec2(20, 33))
+            ui.setCursor(vec2(centerx - scale(83), centery + scale(5)))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.SemiBold))
-            ui.dwriteText('RPM', 14, rgbm.colors.white)
+            ui.dwriteTextAligned(speedText, scale(14), ui.Alignment.End, ui.Alignment.Center, scaleVec2(38, 10), false, rgbm.colors.white)
             ui.popDWriteFont()
-        end)
-    end
+        end
 
-    if settings.speedNum then
-        ui.setCursor(vec2(46, 42))
-        ui.childWindow('Speed', vec2(150, 60), app.flags, function()
+        if settings.decor then
+            ui.setCursor(vec2(centerx - scale(36), centery - scale(31)))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + scale(4), ui.getCursorY() + scale(62)), rgbm(1, 1, 1, 1))
+            ui.drawRectFilled(vec2(ui.getCursorX() + scale(68), ui.getCursorY()), vec2(ui.getCursorX() + scale(72), ui.getCursorY() + scale(62)), rgbm(1, 1, 1, 1))
+        end
+
+        if settings.rpmNum and not settings.inputBars then
+            ui.setCursor(vec2(centerx + scale(45), centery - scale(25)))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
-            ui.dwriteTextAligned(speedNumber, 33, ui.Alignment.End, ui.Alignment.Center, vec2(60, 24), rgbm.colors.white)
+            ui.dwriteTextAligned(math.round(player.rpm), scale(33), ui.Alignment.Start, ui.Alignment.Center, scaleVec2(150, 26), false, rgbm.colors.white)
             ui.popDWriteFont()
 
-            ui.setCursor(vec2(42, 37))
+            ui.setCursor(vec2(centerx + scale(45), centery + scale(1)))
             ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.SemiBold))
-            ui.dwriteTextAligned(speedText, 14, ui.Alignment.End, ui.Alignment.Center, vec2(38, 10), rgbm.colors.white)
+            ui.dwriteText('RPM', scale(14), rgbm.colors.white)
             ui.popDWriteFont()
-        end)
-    end
+        end
 
-    if settings.inputBars and settings.rpmNum then
-        local FFBmix = player.ffbFinal
-        if FFBmix < 0 then FFBmix = FFBmix * -1 end
-        ui.setCursor(vec2(208, 50))
-        ui.childWindow('inputBars', vec2(55, 43), app.flags, function()
-            ui.drawRectFilled(vec2(0, 0), vec2(15, 42), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(15, 42), vec2(0, math.lerp(0, 42, player.clutch)), rgbm(0, 1, 1, 1))
+        if settings.gears then
+            ui.setCursor(vec2(centerx - scale(17), centery - scale(28)))
+            ui.pushDWriteFont(app.font:weight(ui.DWriteFont.Weight.Bold))
+            ui.dwriteTextAligned(parseGear(player.gear), scale(60), ui.Alignment.Center, ui.Alignment.Center, scaleVec2(34, 48), rgbm.colors.white)
+            ui.popDWriteFont()
+        end
 
-            ui.drawRectFilled(vec2(20, 0), vec2(25, 42), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(25, 42), vec2(20, math.lerp(42, 0, player.brake)), rgbm(1, 0, 0, 1))
+        if settings.inputBars and settings.rpmNum then
+            local FFBmix = player.ffbFinal
+            local barheight = scale(38)
+            local barwidth = scale(5)
+            local barposy = centery - scale(23)
+            if FFBmix < 0 then FFBmix = FFBmix * -1 end
+            ui.setCursor(vec2(centerx + scale(46), barposy))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + barheight), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight - math.lerp(barheight, 0, player.clutch)), rgbm(0, 1, 1, 1))
 
-            ui.drawRectFilled(vec2(30, 0), vec2(35, 42), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(30, 42), vec2(35, math.lerp(42, 0, player.gas)), rgbm(0, 1, 0, 1))
+            ui.setCursor(vec2(centerx + scale(56), barposy))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + barheight), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight - math.lerp(0, barheight, player.brake)), rgbm(1, 0, 0, 1))
 
-            ui.drawRectFilled(vec2(40, 0), vec2(45, 42), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(40, 42), vec2(45, math.lerp(42, 0, FFBmix)), rgbm(0.65, 0.65, 0.65, 1))
-        end)
-    end
+            ui.setCursor(vec2(centerx + scale(66), barposy))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + barheight), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight - math.lerp(0, barheight, player.gas)), rgbm(0, 1, 0, 1))
+
+            ui.setCursor(vec2(centerx + scale(76), barposy))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight), rgbm(0, 0, 0, 0.5))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + barheight), vec2(ui.getCursorX() + barwidth, ui.getCursorY() + barheight - math.lerp(0, barheight, FFBmix)), rgbm(0.65, 0.65, 0.65, 1))
+        end
+    end)
 end
