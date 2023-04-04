@@ -28,6 +28,7 @@ local player = ac.getCar(0)
 local rpmBarColor = rgbm(1, 1, 1, 1)
 local speedText = 'KM/H'
 if settings.speedNumMPH then speedText = 'MP/H' end
+if settings.changeScale then app.scale = settings.scale end
 
 function scale(value)
     return app.scale * value
