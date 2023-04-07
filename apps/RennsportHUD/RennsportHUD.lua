@@ -161,12 +161,12 @@ function script.windowMain(dt)
             end
 
             ui.setCursor(vec2(centerx - speedNumBoldCursorx, centery - speedNumBoldCursory))
-            ui.pushDWriteFont(app.font))
+            ui.pushDWriteFont(app.font)
             ui.dwriteTextAligned(speedNumber, scale(34), ui.Alignment.End, ui.Alignment.Center, scaleVec2(60, 28), false, rgbm.colors.white)
             ui.popDWriteFont()
 
             ui.setCursor(vec2(centerx - speedNumSemiCursorx, centery + speedNumSemiCursory))
-            ui.pushDWriteFont(app.font))
+            ui.pushDWriteFont(app.font)
             ui.dwriteTextAligned(speedText, scale(14), ui.Alignment.End, ui.Alignment.Center, scaleVec2(38, 13), false, rgbm.colors.white)
             ui.popDWriteFont()
         end
@@ -180,19 +180,19 @@ function script.windowMain(dt)
 
         if settings.gears then
             ui.setCursor(vec2(centerx - gearsCursorx, centery - gearsCursory))
-            ui.pushDWriteFont(app.font))
+            ui.pushDWriteFont(app.font)
             ui.dwriteTextAligned(parseGear(player.gear), scale(60), ui.Alignment.Center, ui.Alignment.Center, scaleVec2(36, 50), rgbm.colors.white)
             ui.popDWriteFont()
         end
 
         if settings.rpmNum and not settings.inputBars then
             ui.setCursor(vec2(centerx + rpmNumCursorx, centery - rpmNumBoldCursory))
-            ui.pushDWriteFont(app.font))
+            ui.pushDWriteFont(app.font)
             ui.dwriteTextAligned(math.round(player.rpm), scale(34), ui.Alignment.Start, ui.Alignment.Center, scaleVec2(150, 28), false, rgbm.colors.white)
             ui.popDWriteFont()
 
             ui.setCursor(vec2(centerx + rpmNumCursorx, centery + rpmNumSemiCursory))
-            ui.pushDWriteFont(app.font))
+            ui.pushDWriteFont(app.font)
             ui.dwriteText('RPM', scale(14), rgbm.colors.white)
             ui.popDWriteFont()
         end
