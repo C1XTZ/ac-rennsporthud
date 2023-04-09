@@ -128,10 +128,10 @@ function script.windowMain(dt)
         decorBarHeight = scale(51)
     end
 
-    ui.setCursor(0, 22)
+    ui.setCursor(vec2(0, 22))
     ui.childWindow('main', appsize, function()
         local centerx = ui.availableSpaceX() / 2
-        local centery = ui.availableSpaceY() / 2 + 22 -- +22 because the apps top bar is that thick
+        local centery = ui.availableSpaceY() / 2 -- +22 because the apps top bar is that thick
 
         if settings.rpmBar then
             local rpmMix = player.rpm / player.rpmLimiter
@@ -144,7 +144,7 @@ function script.windowMain(dt)
             else
                 rpmBarColor = rgbm(1, 1, 1, 1)
             end
-            ui.setCursor(vec2(0, 22))
+            ui.setCursor(vec2(0, 0))
             ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(ui.availableSpaceX(), ui.getCursorY() + rpmBarHeight), rgbm(0, 0, 0, 0.5))
             ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(math.lerp(0, ui.availableSpaceX(), rpmMix), ui.getCursorY() + rpmBarHeight), rpmBarColor)
         end
