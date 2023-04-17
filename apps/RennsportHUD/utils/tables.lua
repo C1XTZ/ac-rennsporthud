@@ -39,14 +39,21 @@ function getPositionTable()
             }
         },
         ['inputs'] = {
-            ['elementsize'] = vec2(200, 162):scale(app.scale),
+            ['elementsize'] = vec2(268, 162):scale(app.scale),
+            ['pedalsize'] = vec2(200, 88):scale(app.scale),
             ['decorimg'] = vec2(48, 34):scale(app.scale),
             ['decorheight'] = scale(40),
-            ['bgheight'] = scale(145),
-            ['steeringheight'] = scale(16),
-            ['steeringwidth'] = scale(6),
-            ['pedalheight'] = scale(20),
-
+            ['steeringbar'] = vec2(6, 16):scale(app.scale),
+            ['pedalheight'] = scale(18),
+            ['electronics'] = {
+                ['lightbg'] = scale(34),
+                ['darkbg'] = vec2(45, 34):scale(app.scale),
+                ['val'] = vec2(55, 34):scale(app.scale),
+            },
+            ['wheel'] = {
+                ['padding'] = scale(15),
+                ['imgsize'] = scale(52),
+            },
         }
     }
 
@@ -76,7 +83,7 @@ function getColorTable()
         ['aqua'] = rgbm.colors.aqua,
         ['yellow'] = rgbm.colors.yellow,
         ['orange'] = rgbm.colors.orange,
-        ['purple'] = rgbm(0.5, 0, 1, 1),
+        ['purple'] = rgbm(0.5, 0, 1),
     }
     return colors
 end

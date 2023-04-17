@@ -3,6 +3,7 @@ require('utils/helpers')
 require('utils/tables')
 
 require('elements/essentials')
+require('elements/inputs')
 
 settings = ac.storage {
     decor = true,
@@ -20,6 +21,15 @@ settings = ac.storage {
     essentialsSpeedNum = true,
     essentialsSpeedNumMPH = false,
     essentialsInputBars = false,
+
+    inputsShowWheel = true,
+    inputsShowSteering = true,
+    inputsShowPedals = true,
+    inputsShowFFB = true,
+    inputsShowClutch = true,
+    inputsShowBrake = true,
+    inputsShowGas = true,
+    inputsShowElectronics = true,
 }
 
 app = getAppTable()
@@ -72,6 +82,29 @@ function script.windowMain(dt)
                 ui.sameLine()
                 if ui.checkbox('Show Pedal Inputs Instead', settings.essentialsInputBars) then settings.essentialsInputBars = not settings.essentialsInputBars end
             end
+        end)
+        ui.tabItem('Inputs', function()
+            if ui.checkbox('Show Steering Wheel', settings.inputsShowWheel) then settings.inputsShowWheel = not settings.inputsShowWheel end
+            if ui.checkbox('Show Steering Bar', settings.inputsShowSteering) then settings.inputsShowSteering = not settings.inputsShowSteering end
+            if ui.checkbox('Show Input Bars', settings.inputsShowPedals) then settings.inputsShowPedals = not settings.inputsShowPedals end
+            if settings.inputsShowPedals then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Force Feedback', settings.inputsShowFFB) then settings.inputsShowFFB = not settings.inputsShowFFB end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Clutch', settings.inputsShowClutch) then settings.inputsShowClutch = not settings.inputsShowClutch end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Brake', settings.inputsShowBrake) then settings.inputsShowBrake = not settings.inputsShowBrake end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Throttle', settings.inputsShowGas) then settings.inputsShowGas = not settings.inputsShowGas end
+
+            end
+
+            if ui.checkbox('Show Car Electronics', settings.inputsShowElectronics) then settings.inputsShowElectronics = not settings.inputsShowElectronics end
+
         end)
     end)
 end
