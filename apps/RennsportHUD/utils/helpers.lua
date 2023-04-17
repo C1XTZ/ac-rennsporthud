@@ -26,3 +26,8 @@ function playerCar()
     end
     return playercar
 end
+
+--returns color with the wanted percentage of opacity setColorMult(rgbm.colors.white, 25) => white with 25% opacity
+function setColorMult(oldrgbm, newmult)
+    return rgbm(oldrgbm.r, oldrgbm.g, oldrgbm.b, 1 * (newmult / 100))
+end

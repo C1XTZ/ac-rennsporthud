@@ -1,35 +1,9 @@
 function script.essentials(dt)
-    local appsize = vec2(325, 121):scale(app.scale)
-    local rpmBarHeight = scale(17)
-    local speedNumBoldCursorx = scale(106)
-    local speedNumBoldCursory = scale(28)
-    local speedNumSemiCursorx = scale(84)
-    local speedNumSemiCursory = scale(5)
-    local decorCursorLeftx = scale(38)
-    local decorCursorRightx = scale(35)
-    local decorCursory = scale(41)
-    local decorBarWidth = scale(4)
-    local decorBarHeight = scale(80)
-    local gearsCursorx = scale(17)
-    local gearsCursory = scale(31)
-    local rpmNumCursorx = scale(46)
-    local rpmNumBoldCursory = scale(28)
-    local rpmNumSemiCursory = scale(3)
-    local inputBarCursory = scale(25)
-    local inputBarCursorx = scale(47)
-    local inputBarHeight = scale(43)
-    local inputBarWidth = scale(5)
-    local inputBarGap = scale(5 + inputBarWidth / app.scale)
-
-    if settings.compactMode and settings.changeScale then
-        appsize = vec2(297, 85):scale(app.scale)
-        rpmBarHeight = scale(10)
-        decorCursory = scale(30)
-        decorBarHeight = scale(51)
-    end
+    local position = getPositionTable()
+    local color = getColorTable()
 
     ui.setCursor(vec2(0, app.padding))
-    ui.childWindow('main', appsize, function()
+    ui.childWindow('main', position.essentials.elementsize, function()
         local centerx = ui.availableSpaceX() / 2
         local centery = ui.availableSpaceY() / 2
 
@@ -37,16 +11,17 @@ function script.essentials(dt)
             local rpmMix = playerCar().rpm / playerCar().rpmLimiter
             local rpmPercentage = math.round(rpmMix * 100)
             local rpmBarColor
-            if settings.essentialsRpmBarColor and rpmPercentage > settings.essentialsRpmBarShiftYellow - 1 and rpmPercentage < settings.essentialsRpmBarShiftRed then
-                rpmBarColor = rgbm(1, 1, 0, 1)
-            elseif settings.essentialsRpmBarColor and rpmPercentage > settings.essentialsRpmBarShiftRed - 1 then
-                rpmBarColor = rgbm(1, 0, 0, 1)
+            if settings.essentialsRpmBarColor and rpmPercentage >= settings.essentialsRpmBarShiftYellow - 1 and rpmPercentage <= settings.essentialsRpmBarShiftRed then
+                rpmBarColor = color.yellow
+            elseif settings.essentialsRpmBarColor and rpmPercentage >= settings.essentialsRpmBarShiftRed - 1 then
+                rpmBarColor = color.red
             else
-                rpmBarColor = rgbm(1, 1, 1, 1)
+                rpmBarColor = color.white
             end
+
             ui.setCursor(vec2(0, 0))
-            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(ui.availableSpaceX(), ui.getCursorY() + rpmBarHeight), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(math.lerp(0, ui.availableSpaceX(), rpmMix), ui.getCursorY() + rpmBarHeight), rpmBarColor)
+            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(ui.availableSpaceX(), ui.getCursorY() + position.essentials.rpmbarheight), setColorMult(color.black, 50))
+            ui.drawRectFilled(vec2(0, ui.getCursorY()), vec2(math.lerp(0, ui.availableSpaceX(), rpmMix), ui.getCursorY() + position.essentials.rpmbarheight), rpmBarColor)
         end
 
         if settings.essentialsSpeedNum then
@@ -60,40 +35,40 @@ function script.essentials(dt)
                 speedNumber = math.round(playerCar().speedKmh / 1.6093440006147)
             end
 
-            ui.setCursor(vec2(centerx - speedNumBoldCursorx, centery - speedNumBoldCursory))
-            ui.pushDWriteFont(app.fonts.bold)
-            ui.dwriteTextAligned(speedNumber, scale(34), ui.Alignment.End, ui.Alignment.Center, vec2(60, 28):scale(app.scale), false, rgbm.colors.white)
+            ui.setCursor(vec2(centerx - position.essentials.speed.num.x, centery - position.essentials.speed.num.y))
+            ui.pushDWriteFont(app.font.bold)
+            ui.dwriteTextAligned(speedNumber, scale(34), ui.Alignment.End, ui.Alignment.Center, vec2(60, 28):scale(app.scale), false, color.white)
             ui.popDWriteFont()
 
-            ui.setCursor(vec2(centerx - speedNumSemiCursorx, centery + speedNumSemiCursory))
-            ui.pushDWriteFont(app.fonts.bold)
-            ui.dwriteTextAligned(speedText, scale(14), ui.Alignment.End, ui.Alignment.Center, vec2(38, 14):scale(app.scale), false, rgbm.colors.white)
+            ui.setCursor(vec2(centerx - position.essentials.speed.txt.x, centery + position.essentials.speed.txt.y))
+            ui.pushDWriteFont(app.font.bold)
+            ui.dwriteTextAligned(speedText, scale(14), ui.Alignment.End, ui.Alignment.Center, vec2(38, 14):scale(app.scale), false, color.white)
             ui.popDWriteFont()
         end
 
         if settings.decor then
-            ui.setCursor(vec2(centerx - decorCursorLeftx, centery - decorCursory))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + decorBarWidth, ui.getCursorY() + decorBarHeight), rgbm(1, 1, 1, 1))
-            ui.setCursor(vec2(centerx + decorCursorRightx, centery - decorCursory))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + decorBarWidth, ui.getCursorY() + decorBarHeight), rgbm(1, 1, 1, 1))
+            ui.setCursor(vec2(centerx - position.essentials.decor.left.x, centery - position.essentials.decor.left.y))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.decor.size.x, ui.getCursorY() + position.essentials.decor.size.y), color.white)
+            ui.setCursor(vec2(centerx + position.essentials.decor.right.x, centery - position.essentials.decor.left.y))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.decor.size.x, ui.getCursorY() + position.essentials.decor.size.y), color.white)
         end
 
         if settings.essentialsGears then
-            ui.setCursor(vec2(centerx - gearsCursorx, centery - gearsCursory))
-            ui.pushDWriteFont(app.fonts.bold)
-            ui.dwriteTextAligned(parseGear(playerCar().gear), scale(60), ui.Alignment.Center, ui.Alignment.Center, vec2(36, 50):scale(app.scale), rgbm.colors.white)
+            ui.setCursor(vec2(centerx - position.essentials.gear.x, centery - position.essentials.gear.y))
+            ui.pushDWriteFont(app.font.bold)
+            ui.dwriteTextAligned(parseGear(playerCar().gear), scale(60), ui.Alignment.Center, ui.Alignment.Center, vec2(36, 50):scale(app.scale), false, color.white)
             ui.popDWriteFont()
         end
 
         if settings.essentialsRpmNum and not settings.essentialsInputBars then
-            ui.setCursor(vec2(centerx + rpmNumCursorx, centery - rpmNumBoldCursory))
-            ui.pushDWriteFont(app.fonts.bold)
-            ui.dwriteTextAligned(math.round(playerCar().rpm), scale(34), ui.Alignment.Start, ui.Alignment.Center, vec2(150, 28):scale(app.scale), false, rgbm.colors.white)
+            ui.setCursor(vec2(centerx + position.essentials.rpm.num.x, centery - position.essentials.rpm.num.y))
+            ui.pushDWriteFont(app.font.bold)
+            ui.dwriteTextAligned(math.round(playerCar().rpm), scale(34), ui.Alignment.Start, ui.Alignment.Center, vec2(150, 28):scale(app.scale), false, color.white)
             ui.popDWriteFont()
 
-            ui.setCursor(vec2(centerx + rpmNumCursorx, centery + rpmNumSemiCursory))
-            ui.pushDWriteFont(app.fonts.bold)
-            ui.dwriteText('RPM', scale(14), rgbm.colors.white)
+            ui.setCursor(vec2(centerx + position.essentials.rpm.txt.x, centery + position.essentials.rpm.txt.y))
+            ui.pushDWriteFont(app.font.bold)
+            ui.dwriteText('RPM', scale(14), color.white)
             ui.popDWriteFont()
         end
 
@@ -101,28 +76,30 @@ function script.essentials(dt)
             local FFBmix = playerCar().ffbFinal
             if FFBmix < 0 then FFBmix = FFBmix * -1 end
             local FFBcolor
-            if FFBlerp ~= inputBarHeight then FFBcolor = rgbm(0.65, 0.65, 0.65, 1) else FFBcolor = rgbm(1, 0, 0, 1) end
+            local FFBlerp = math.lerp(0, position.essentials.inputbar.size.y, FFBmix)
+            if FFBlerp <= position.essentials.inputbar.size.y then FFBcolor = color.gray else FFBcolor = color.red end
 
-            local clutchLerp = math.lerp(inputBarHeight, 0, playerCar().clutch)
-            local brakeLerp = math.lerp(0, inputBarHeight, playerCar().brake)
-            local gasLerp = math.lerp(0, inputBarHeight, playerCar().gas)
-            local FFBlerp = math.lerp(0, inputBarHeight, FFBmix)
+            local clutchLerp = math.lerp(position.essentials.inputbar.size.y, 0, playerCar().clutch)
+            local brakeLerp = math.lerp(0, position.essentials.inputbar.size.y, playerCar().brake)
+            local gasLerp = math.lerp(0, position.essentials.inputbar.size.y, playerCar().gas)
 
-            ui.setCursor(vec2(centerx + inputBarCursorx, centery - inputBarCursory))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + inputBarHeight), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight - clutchLerp), rgbm(0, 1, 1, 1))
+            if FFBlerp > position.essentials.inputbar.size.y then FFBlerp = position.essentials.inputbar.size.y end
 
-            ui.setCursor(vec2(centerx + inputBarCursorx + inputBarGap, centery - inputBarCursory))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + inputBarHeight), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight - brakeLerp), rgbm(1, 0, 0, 1))
+            ui.setCursor(vec2(centerx + position.essentials.inputbar.pos.x, centery - position.essentials.inputbar.pos.y))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - clutchLerp), color.aqua)
 
-            ui.setCursor(vec2(centerx + inputBarCursorx + inputBarGap * 2, centery - inputBarCursory))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + inputBarHeight), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight - gasLerp), rgbm(0, 1, 0, 1))
+            ui.setCursor(vec2(centerx + position.essentials.inputbar.pos.x + position.essentials.inputbar.gap, centery - position.essentials.inputbar.pos.y))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - brakeLerp), color.red)
 
-            ui.setCursor(vec2(centerx + inputBarCursorx + inputBarGap * 3, centery - inputBarCursory))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight), rgbm(0, 0, 0, 0.5))
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + inputBarHeight), vec2(ui.getCursorX() + inputBarWidth, ui.getCursorY() + inputBarHeight - FFBlerp), FFBcolor)
+            ui.setCursor(vec2(centerx + position.essentials.inputbar.pos.x + position.essentials.inputbar.gap * 2, centery - position.essentials.inputbar.pos.y))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - gasLerp), color.green)
+
+            ui.setCursor(vec2(centerx + position.essentials.inputbar.pos.x + position.essentials.inputbar.gap * 3, centery - position.essentials.inputbar.pos.y))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - FFBlerp), FFBcolor)
         end
     end)
 end

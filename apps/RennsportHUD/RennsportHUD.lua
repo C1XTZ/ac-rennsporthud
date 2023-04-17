@@ -1,7 +1,8 @@
 --app made by XTZ
+require('utils/helpers')
+require('utils/tables')
 
 require('elements/essentials')
-require('utilities/utilities')
 
 settings = ac.storage {
     decor = true,
@@ -21,16 +22,7 @@ settings = ac.storage {
     essentialsInputBars = false,
 }
 
-app = {
-    ['scale'] = 1,
-    ['padding'] = 22,
-    ['flags'] = bit.bor(ui.WindowFlags.NoDecoration, ui.WindowFlags.NoBackground, ui.WindowFlags.NoNav, ui.WindowFlags.NoInputs, ui.WindowFlags.NoScrollbar),
-    ['fonts'] = {
-        ['bold'] = ui.DWriteFont('IBM Plex Sans', '.\\fonts\\IBMPlexSans-Bold.ttf'),
-        ['semi'] = ui.DWriteFont('IBM Plex Sans SemiBold', '.\\fonts\\IBMPlexSans-SemiBold.ttf'),
-        ['medium'] = ui.DWriteFont('IBM Plex Sans Medium', '.\\fonts\\IBMPlexSans-Medium.ttf'),
-    }
-}
+app = getAppTable()
 
 function script.windowMain(dt)
     ui.tabBar('Elements', function()
@@ -50,7 +42,7 @@ function script.windowMain(dt)
             if ui.checkbox('Show Own Stats When Spectating', settings.ignorefocus) then settings.ignorefocus = not settings.ignorefocus end
             if ui.checkbox('Show Decorations', settings.decor) then settings.decor = not settings.decor end
         end)
-        ui.tabItem('Tachometer', function()
+        ui.tabItem('Essentials', function()
             if ui.checkbox('Show RPM Bar', settings.essentialsRpmBar) then settings.essentialsRpmBar = not settings.essentialsRpmBar end
             if settings.essentialsRpmBar then
                 ui.text('\t')
