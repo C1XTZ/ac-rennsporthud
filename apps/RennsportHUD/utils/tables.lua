@@ -59,14 +59,6 @@ function getPositionTable()
 
     position.essentials.inputbar.gap = scale(position.essentials.inputbar.gap + position.essentials.inputbar.size.x / app.scale)
 
-    if settings.compactMode and settings.changeScale then
-        position.essentials.elementsize = vec2(297, 85):scale(app.scale)
-        position.essentials.rpmbarheight = scale(10)
-        position.essentials.decor.left = vec2(38, 30):scale(app.scale)
-        position.essentials.decor.right = vec2(35, 30):scale(app.scale)
-        position.essentials.decor.size = vec2(4, 51):scale(app.scale)
-    end
-
     return position
 end
 

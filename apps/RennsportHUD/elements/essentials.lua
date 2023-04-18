@@ -2,6 +2,14 @@ function script.essentials(dt)
     local position = getPositionTable()
     local color = getColorTable()
 
+    if settings.compactMode then
+        position.essentials.elementsize = vec2(297, 85):scale(app.scale)
+        position.essentials.rpmbarheight = scale(10)
+        position.essentials.decor.left = vec2(38, 30):scale(app.scale)
+        position.essentials.decor.right = vec2(35, 30):scale(app.scale)
+        position.essentials.decor.size = vec2(4, 51):scale(app.scale)
+    end
+
     ui.setCursor(vec2(0, app.padding))
     ui.childWindow('main', position.essentials.elementsize, function()
         local centerx = ui.availableSpaceX() / 2

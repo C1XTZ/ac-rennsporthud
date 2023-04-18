@@ -43,9 +43,6 @@ function script.windowMain(dt)
                 ui.sameLine()
                 settings.scale = ui.slider('##AppScale', settings.scale, 1, 5, 'App Scale: ' .. '%.01f%')
                 if settings.changeScale and app.scale ~= settings.scale then app.scale = settings.scale end
-                ui.text('\t')
-                ui.sameLine()
-                if ui.checkbox('Enable Compact Mode', settings.compactMode) then settings.compactMode = not settings.compactMode end
             else
                 settings.changeScale = 1
             end
@@ -53,6 +50,7 @@ function script.windowMain(dt)
             if ui.checkbox('Show Decorations', settings.decor) then settings.decor = not settings.decor end
         end)
         ui.tabItem('Essentials', function()
+            if ui.checkbox('Enable Compact Mode', settings.compactMode) then settings.compactMode = not settings.compactMode end
             if ui.checkbox('Show RPM Bar', settings.essentialsRpmBar) then settings.essentialsRpmBar = not settings.essentialsRpmBar end
             if settings.essentialsRpmBar then
                 ui.text('\t')
