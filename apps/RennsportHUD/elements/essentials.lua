@@ -1,8 +1,7 @@
 function script.essentials(dt)
     local position = getPositionTable()
-    local color = getColorTable()
 
-    if settings.compactMode then
+    if settings.essentialsCompactMode then
         position.essentials.elementsize = vec2(297, 85):scale(app.scale)
         position.essentials.rpmbarheight = scale(10)
         position.essentials.decor.left = vec2(38, 30):scale(app.scale)

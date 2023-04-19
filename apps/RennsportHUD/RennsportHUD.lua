@@ -6,12 +6,13 @@ require('elements/essentials')
 require('elements/inputs')
 
 settings = ac.storage {
-    decor = true,
     changeScale = false,
     scale = 1,
-    compactMode = false,
+
+    decor = true,
     ignorefocus = true,
 
+    essentialsCompactMode = false,
     essentialsRpmBar = true,
     essentialsRpmBarColor = true,
     essentialsRpmBarShiftYellow = 95,
@@ -33,6 +34,7 @@ settings = ac.storage {
 }
 
 app = getAppTable()
+color = getColorTable()
 
 function script.windowMain(dt)
     ui.tabBar('Elements', function()
@@ -50,7 +52,7 @@ function script.windowMain(dt)
             if ui.checkbox('Show Decorations', settings.decor) then settings.decor = not settings.decor end
         end)
         ui.tabItem('Essentials', function()
-            if ui.checkbox('Enable Compact Mode', settings.compactMode) then settings.compactMode = not settings.compactMode end
+            if ui.checkbox('Enable Compact Mode', settings.essentialsCompactMode) then settings.essentialsCompactMode = not settings.essentialsCompactMode end
             if ui.checkbox('Show RPM Bar', settings.essentialsRpmBar) then settings.essentialsRpmBar = not settings.essentialsRpmBar end
             if settings.essentialsRpmBar then
                 ui.text('\t')
@@ -98,11 +100,9 @@ function script.windowMain(dt)
                 ui.text('\t')
                 ui.sameLine()
                 if ui.checkbox('Show Throttle', settings.inputsShowGas) then settings.inputsShowGas = not settings.inputsShowGas end
-
             end
 
             if ui.checkbox('Show Car Electronics', settings.inputsShowElectronics) then settings.inputsShowElectronics = not settings.inputsShowElectronics end
-
         end)
     end)
 end

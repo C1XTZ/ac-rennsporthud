@@ -1,8 +1,7 @@
 function script.inputs(dt)
     local position = getPositionTable()
-    local color = getColorTable()
 
-    local lightbgcolor = setColorMult(rgbm.colors.black, 50)
+    local lightbgcolor = setColorMult(color.black, 50)
     local darkbgcolor = setColorMult(color.black, 25)
     local txtcolor = color.lightgray
     local fontBig = scale(12)
@@ -39,7 +38,7 @@ function script.inputs(dt)
         local wheelimg
         if playerCar().isRacingCar then wheelimg = '.\\img\\RaceWheel.png' else wheelimg = '.\\img\\StreetWheel.png' end
         local wheelpos = vec2(scale(1), ui.windowHeight() / 2 + vertOffset / 2)
-        if settings.decor and settings.inputsShowPedals then wheelpos.y = wheelpos.y + position.inputs.decorheight / 2 end
+        if settings.decor and settings.inputsShowPedals and ui.windowHeight() >= scale(113) then wheelpos.y = wheelpos.y + position.inputs.decorheight / 2 end
         ui.setCursor(wheelpos)
         ui.beginRotation()
         ui.drawImage(wheelimg, vec2(ui.getCursorX(), ui.getCursorY() - (position.inputs.wheel.imgsize / 2)), vec2(ui.getCursorX() + position.inputs.wheel.imgsize, ui.getCursorY() - (position.inputs.wheel.imgsize / 2) + position.inputs.wheel.imgsize), true)
