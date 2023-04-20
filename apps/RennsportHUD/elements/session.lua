@@ -4,7 +4,7 @@ local sessionTypes = {
     [3] = 'RACE',
     [4] = 'HOTLAP',
     [5] = 'TIME ATTACK',
-    [6] = 'DRIF',
+    [6] = 'DRIFT',
     [7] = 'DRAG',
 }
 
@@ -48,7 +48,7 @@ function script.session(dt)
     if settings.sessionShowPosition then
         ui.setCursor(vec2(horiOffset, vertOffset))
         ui.childWindow('Position', vec2(position.session.positionwidth, position.session.boxheight), false, app.flags, function()
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.positionwidth, ui.getCursorY() + position.session.boxheight), bgcolor)
+            ui.drawRectFilled(vec2(0, 0), vec2(position.session.positionwidth, position.session.boxheight), bgcolor)
             ui.setCursor(vec2(position.session.staticpos.x, position.session.staticpos.y))
             ui.pushDWriteFont(app.font.bold)
             ui.dwriteText('POSITION', staticSize, txtcolor)
@@ -68,7 +68,7 @@ function script.session(dt)
     if settings.sessionShowLaps then
         ui.setCursor(vec2(horiOffset, vertOffset))
         ui.childWindow('Laps', vec2(position.session.lapswidth, position.session.boxheight), false, app.flags, function()
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.lapswidth, ui.getCursorY() + position.session.boxheight), bgcolor)
+            ui.drawRectFilled(vec2(0, 0), vec2(position.session.lapswidth, position.session.boxheight), bgcolor)
             ui.setCursor(vec2(position.session.staticpos.x, position.session.staticpos.y))
             ui.pushDWriteFont(app.font.bold)
             ui.dwriteText('LAPS', staticSize, txtcolor)
@@ -84,7 +84,7 @@ function script.session(dt)
     if settings.sessionShowTimer then
         ui.setCursor(vec2(horiOffset, vertOffset))
         ui.childWindow('Timer', vec2(position.session.timerwidth, position.session.boxheight), false, app.flags, function()
-            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.timerwidth, ui.getCursorY() + position.session.boxheight), bgcolor)
+            ui.drawRectFilled(vec2(0, 0), vec2(position.session.timerwidth, position.session.boxheight), bgcolor)
             ui.setCursor(vec2(position.session.staticpos.x, position.session.staticpos.y))
             ui.pushDWriteFont(app.font.bold)
             ui.dwriteText(sessionTypeString, staticSize, txtcolor)
