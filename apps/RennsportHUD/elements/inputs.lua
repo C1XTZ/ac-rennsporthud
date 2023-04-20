@@ -31,7 +31,7 @@ function script.inputs(dt)
     if tcmax < 1 or tcactive == 0 then tcfinal = 'OFF' elseif tcmax == 1 and tcactive == 1 then tcfinal = 'ON' else tcfinal = tcactive .. '/' .. tcmax end
 
     local brakebalance = math.round(playerCar().brakeBias * 100)
-    local fuelmix = '100' --playerCar().fuelMap exists but is used by like 3 private mods or something. Engine Limiter value (not rpm) doesnt have its own thing in statecar so this is a 'placeholder'.
+    local fuelmix = '100' --playerCar().fuelMap exists but isnt used by any car I tested. Engine Limiter value (not rpm) doesnt have its own thing in statecar so this is a 'placeholder'.
 
 
     if settings.inputsShowWheel then
@@ -47,11 +47,9 @@ function script.inputs(dt)
     end
 
     if settings.decor then
-        ---[[ The window auto resizing breaks when the pedal inputs are disabled without this, I have no idea why its not taking the full drawRectFilled size into account
+        ---[[ The window auto resizing breaks without this, I have no idea why its not taking the full drawRectFilled size into account
         ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('', fontBig, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.pedalsize.x, position.inputs.decorheight), false, txtcolor)
-        ui.popDWriteFont()
+        ui.dwriteTextAligned('', 0, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.decorheight))
         --]]
 
         ui.setCursor(vec2(horiOffset, vertOffset))
@@ -62,16 +60,13 @@ function script.inputs(dt)
     end
 
     if settings.inputsShowSteering then
-        ---[[ The window auto resizing breaks when the pedal inputs are disabled without this, I have no idea why its not taking the full drawRectFilled size into account
+        ---[[ The window auto resizing breaks without this, I have no idea why its not taking the full drawRectFilled size into account
         ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('', fontBig, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
-        ui.popDWriteFont()
+        ui.dwriteTextAligned('', 0, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)))
         --]]
 
         local steerLerp = math.lerp(horiOffset, horiOffset + position.inputs.pedalsize.x - position.inputs.steeringbar.x, math.lerpInvSat(playerCar().steer, -playerCar().steerLock, playerCar().steerLock))
         ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.drawText('test', vec2(ui.getCursorX(), ui.getCursorY()), color.red)
         ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.inputs.pedalsize.x, ui.getCursorY() + position.inputs.steeringbar.y), color.black)
         ui.setCursor(vec2(steerLerp, vertOffset))
         ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.inputs.steeringbar.x, ui.getCursorY() + position.inputs.steeringbar.y), color.white)
@@ -84,7 +79,7 @@ function script.inputs(dt)
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.inputs.pedalsize.x, ui.getCursorY() + position.inputs.pedalheight), lightbgcolor)
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + FFBlerp, ui.getCursorY() + position.inputs.pedalheight), FFBcolor)
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned('FORCE FEEDBACK', fontBig, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
+            ui.dwriteTextAligned('FORCE FEEDBACK', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
             ui.popDWriteFont()
             vertOffset = vertOffset + position.inputs.pedalheight
         end
@@ -93,7 +88,7 @@ function script.inputs(dt)
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.inputs.pedalsize.x, ui.getCursorY() + position.inputs.pedalheight), lightbgcolor)
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + clutchLerp, ui.getCursorY() + position.inputs.pedalheight), color.white)
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned('CLUTCH', fontBig, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
+            ui.dwriteTextAligned('CLUTCH', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
             ui.popDWriteFont()
             vertOffset = vertOffset + position.inputs.pedalheight
         end
@@ -102,7 +97,7 @@ function script.inputs(dt)
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.inputs.pedalsize.x, ui.getCursorY() + position.inputs.pedalheight), lightbgcolor)
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + brakeLerp, ui.getCursorY() + position.inputs.pedalheight), color.white)
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned('BRAKE', fontBig, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
+            ui.dwriteTextAligned('BRAKE', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
             ui.popDWriteFont()
             vertOffset = vertOffset + position.inputs.pedalheight
         end
@@ -111,7 +106,7 @@ function script.inputs(dt)
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.inputs.pedalsize.x, ui.getCursorY() + position.inputs.pedalheight), lightbgcolor)
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + gasLerp, ui.getCursorY() + position.inputs.pedalheight), color.white)
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned('THROTTLE', fontBig, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
+            ui.dwriteTextAligned('THROTTLE', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
             ui.popDWriteFont()
             vertOffset = vertOffset + position.inputs.pedalheight
         end
@@ -123,40 +118,40 @@ function script.inputs(dt)
         ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.inputs.electronics.darkbg.x, ui.getCursorY() + position.inputs.electronics.darkbg.y), darkbgcolor)
 
         ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('ABS', fontSmall, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
+        ui.dwriteTextAligned('ABS', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
         ui.popDWriteFont()
         ui.setCursor(vec2(horiOffset + position.inputs.electronics.darkbg.x, vertOffset))
         ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned(absfinal, fontSmall, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.electronics.val.x, (position.inputs.electronics.val.y / 2)), false, txtcolor)
+        ui.dwriteTextAligned(absfinal, fontSmall, 0, 0, vec2(position.inputs.electronics.val.x, (position.inputs.electronics.val.y / 2)), false, txtcolor)
         ui.popDWriteFont()
 
         ui.setCursor(vec2(horiOffset, vertOffset + position.inputs.electronics.darkbg.y / 2))
         ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('TC', fontSmall, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
+        ui.dwriteTextAligned('TC', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
         ui.popDWriteFont()
         ui.setCursor(vec2(horiOffset + position.inputs.electronics.darkbg.x, vertOffset + position.inputs.electronics.darkbg.y / 2))
         ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned(tcfinal, fontSmall, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.electronics.val.x, (position.inputs.electronics.val.y / 2)), false, txtcolor)
+        ui.dwriteTextAligned(tcfinal, fontSmall, 0, 0, vec2(position.inputs.electronics.val.x, (position.inputs.electronics.val.y / 2)), false, txtcolor)
         ui.popDWriteFont()
 
         ui.setCursor(vec2((horiOffset + ui.availableSpaceX()) / 2, vertOffset))
         ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.inputs.electronics.darkbg.x, ui.getCursorY() + position.inputs.electronics.darkbg.y), darkbgcolor)
 
         ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('BB', fontSmall, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
+        ui.dwriteTextAligned('BB', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
         ui.popDWriteFont()
         ui.setCursor(vec2((horiOffset + ui.availableSpaceX()) / 2 + position.inputs.electronics.darkbg.x, vertOffset))
         ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned(brakebalance .. '%', fontSmall, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.electronics.val.x, (position.inputs.electronics.val.y / 2)), false, txtcolor)
+        ui.dwriteTextAligned(brakebalance .. '%', fontSmall, 0, 0, vec2(position.inputs.electronics.val.x, (position.inputs.electronics.val.y / 2)), false, txtcolor)
         ui.popDWriteFont()
 
         ui.setCursor(vec2((horiOffset + ui.availableSpaceX()) / 2, vertOffset + position.inputs.electronics.darkbg.y / 2))
         ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('MIX', fontSmall, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
+        ui.dwriteTextAligned('MIX', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
         ui.popDWriteFont()
         ui.setCursor(vec2((horiOffset + ui.availableSpaceX()) / 2 + position.inputs.electronics.darkbg.x, vertOffset + position.inputs.electronics.darkbg.y / 2))
         ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned(fuelmix .. '%', fontSmall, ui.Alignment.Center, ui.Alignment.Center, vec2(position.inputs.electronics.val.x, (position.inputs.electronics.val.y / 2)), false, txtcolor)
+        ui.dwriteTextAligned(fuelmix .. '%', fontSmall, 0, 0, vec2(position.inputs.electronics.val.x, (position.inputs.electronics.val.y / 2)), false, txtcolor)
         ui.popDWriteFont()
     end
 end

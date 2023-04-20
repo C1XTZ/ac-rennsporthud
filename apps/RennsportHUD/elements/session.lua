@@ -1,0 +1,109 @@
+local sessionTypes = {
+    [1] = 'PRACTICE',
+    [2] = 'QUALIFYING',
+    [3] = 'RACE',
+    [4] = 'HOTLAP',
+    [5] = 'TIME ATTACK',
+    [6] = 'DRIF',
+    [7] = 'DRAG',
+}
+
+function getSessionTypeString(sessionType)
+    local defaultSessionString = 'TIME'
+    if not settings.sessionTimerType then
+        return defaultSessionString
+    end
+
+    local sessionTypeString = sessionTypes[sessionType] or defaultSessionString
+    return sessionTypeString
+end
+
+function script.session(dt)
+    local position = getPositionTable()
+    local playerSession = ac.getSim()
+
+    local sessionTypeString = getSessionTypeString(playerSession.raceSessionType)
+    local sessionTimeString = formatTime(playerSession.sessionTimeLeft, true, true, true)
+    local sessionLapString = string.format('%02d', playerCar().lapCount)
+    local playerRacePosition = string.format('%02d', playerCar().racePosition) .. '/'
+    local sessionCarsTotal = string.format('%02d', playerSession.carsCount)
+    if settings.sessionHideDisconnected then sessionCarsTotal = string.format('%02d', playerSession.connectedCars) end
+    if settings.sessionHideAI and settings.sessionHideDisconnected then
+        local hiddenCars = 0
+        for i = playerSession.carsCount - 1, 0, -1 do
+            local car = ac.getCar(i)
+            if car.isConnected and car.isHidingLabels then
+                hiddenCars = hiddenCars + 1
+            end
+        end
+        sessionCarsTotal = string.format('%02d', playerSession.connectedCars - hiddenCars)
+    end
+
+    local vertOffset = app.padding
+    local horiOffset = 0
+    local bgcolor = setColorMult(color.black, 50)
+    local staticSize = scale(14)
+    local contentSize = scale(42)
+
+    if settings.sessionShowPosition then
+        ui.setCursor(vec2(horiOffset, vertOffset))
+        ---[[ The window auto resizing breaks without this, I have no idea why its not taking the full drawRectFilled size into account
+        ui.setCursor(vec2(horiOffset, vertOffset))
+        ui.dwriteTextAligned('', 0, 0, 0, vec2(position.session.positionwidth, position.session.boxheight))
+        --]]
+
+        ui.setCursor(vec2(horiOffset, vertOffset))
+        ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.positionwidth, ui.getCursorY() + position.session.boxheight), bgcolor)
+        ui.setCursor(vec2(horiOffset + position.session.staticpos.x, vertOffset + position.session.staticpos.y))
+        ui.pushDWriteFont(app.font.bold)
+        ui.dwriteText('POSITION', staticSize, txtcolor)
+        ui.popDWriteFont()
+        ui.setCursor(vec2(horiOffset + position.session.positiontxt.contentlargepos.x, vertOffset + position.session.positiontxt.contentlargepos.y))
+        ui.pushDWriteFont(app.font.semi)
+        ui.dwriteTextAligned(playerRacePosition, contentSize, 0, 0, position.session.positiontxt.contentlargesize, false, txtcolor)
+        ui.popDWriteFont()
+        ui.setCursor(vec2(horiOffset + position.session.positiontxt.contentsmallpos.x, vertOffset + position.session.positiontxt.contentsmallpos.y))
+        ui.pushDWriteFont(app.font.bold)
+        ui.dwriteTextAligned(sessionCarsTotal, scale(22), 0, 0, position.session.positiontxt.contentsmallsize, false, txtcolor)
+        ui.popDWriteFont()
+
+        horiOffset = horiOffset + position.session.positionwidth + position.session.padding
+    end
+
+    if settings.sessionShowLaps then
+        ---[[ The window auto resizing breaks without this, I have no idea why its not taking the full drawRectFilled size into account
+        ui.setCursor(vec2(horiOffset, vertOffset))
+        ui.dwriteTextAligned('', 0, 0, 0, vec2(position.session.lapswidth, position.session.boxheight))
+        --]]
+
+        ui.setCursor(vec2(horiOffset, vertOffset))
+        ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.lapswidth, ui.getCursorY() + position.session.boxheight), bgcolor)
+        ui.setCursor(vec2(horiOffset + position.session.staticpos.x, vertOffset + position.session.staticpos.y))
+        ui.pushDWriteFont(app.font.bold)
+        ui.dwriteText('LAPS', staticSize, txtcolor)
+        ui.popDWriteFont()
+        ui.setCursor(vec2(horiOffset + position.session.lapstxt.contentpos.x, vertOffset + position.session.lapstxt.contentpos.y))
+        ui.pushDWriteFont(app.font.semi)
+        ui.dwriteTextAligned(sessionLapString, contentSize, 0, 0, position.session.lapstxt.contentsize, false, txtcolor)
+        ui.popDWriteFont()
+        horiOffset = horiOffset + position.session.lapswidth + position.session.padding
+    end
+
+    if settings.sessionShowTimer then
+        ---[[ The window auto resizing breaks without this, I have no idea why its not taking the full drawRectFilled size into account
+        ui.setCursor(vec2(horiOffset, vertOffset))
+        ui.dwriteTextAligned('', 0, 0, 0, vec2(position.session.timerwidth, position.session.boxheight), false, txtcolor)
+        --]]
+
+        ui.setCursor(vec2(horiOffset, vertOffset))
+        ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.timerwidth, ui.getCursorY() + position.session.boxheight), bgcolor)
+        ui.setCursor(vec2(horiOffset + position.session.staticpos.x, vertOffset + position.session.staticpos.y))
+        ui.pushDWriteFont(app.font.bold)
+        ui.dwriteText(sessionTypeString, staticSize, txtcolor)
+        ui.popDWriteFont()
+        ui.setCursor(vec2(horiOffset + position.session.timertxt.contentpos.x, vertOffset + position.session.timertxt.contentpos.y))
+        ui.pushDWriteFont(app.font.semi) --'0:54:23'
+        ui.dwriteTextAligned(sessionTimeString, contentSize, 0, 0, vec2(position.session.timerwidth, position.session.timertxt.contentsize), false, txtcolor)
+        ui.popDWriteFont()
+    end
+end

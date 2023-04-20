@@ -54,7 +54,29 @@ function getPositionTable()
                 padding = scale(15),
                 imgsize = scale(52),
             },
-        }
+        },
+        session = {
+            padding = scale(15),
+            boxheight = scale(64),
+            positionwidth = scale(112),
+            staticpos = vec2(7,4):scale(app.scale),
+            positiontxt = {
+                contentlargepos = vec2(5,20):scale(app.scale),
+                contentlargesize = vec2(68, 34):scale(app.scale),
+                contentsmallpos = vec2(72,35):scale(app.scale),
+                contentsmallsize = vec2(26, 18):scale(app.scale),
+            },
+            lapswidth = scale(68),
+            lapstxt = {
+                contentpos = vec2(-4,20):scale(app.scale),
+                contentsize = vec2(68, 34):scale(app.scale),
+            },
+            timerwidth = scale(162),
+            timertxt = {
+                contentpos = vec2(0,20):scale(app.scale),
+                contentsize = scale(34),
+            },
+        },
     }
 
     position.essentials.inputbar.gap = scale(position.essentials.inputbar.gap + position.essentials.inputbar.size.x / app.scale)

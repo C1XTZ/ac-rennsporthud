@@ -27,3 +27,38 @@ end
 function setColorMult(oldrgbm, percentage)
     return rgbm(oldrgbm.r, oldrgbm.g, oldrgbm.b, 1 * (percentage / 100))
 end
+
+--calculates the number of seconds, minutes and hours from milliseconds
+function formatTime(milliseconds, showHours, showMinutes, showSeconds)
+    if milliseconds < 0 then milliseconds = milliseconds * -1 end
+
+    local seconds = math.floor(milliseconds / 1000)
+    local minutes = math.floor(seconds / 60)
+    local hours = math.floor(minutes / 60)
+
+    minutes = minutes % 60
+    seconds = seconds % 60
+
+    local formattedTime = ''
+    if showHours then
+        formattedTime = string.format('%d:', hours)
+    end
+
+    if showMinutes then
+        formattedTime = formattedTime .. string.format('%02d:', minutes)
+    else
+        if showHours then
+            formattedTime = formattedTime .. '00:'
+        end
+    end
+
+    if showSeconds then
+        formattedTime = formattedTime .. string.format('%02d', seconds)
+    else
+        if showHours or showMinutes then
+            formattedTime = formattedTime .. '00'
+        end
+    end
+
+    return formattedTime
+end

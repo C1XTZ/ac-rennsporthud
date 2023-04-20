@@ -4,6 +4,7 @@ require('utils/tables')
 
 require('elements/essentials')
 require('elements/inputs')
+require('elements/session')
 
 settings = ac.storage {
     changeScale = false,
@@ -31,6 +32,13 @@ settings = ac.storage {
     inputsShowBrake = true,
     inputsShowGas = true,
     inputsShowElectronics = true,
+
+    sessionShowPosition = true,
+    sessionHideDisconnected = false,
+    sessionHideAI = false,
+    sessionShowLaps = true,
+    sessionShowTimer = true,
+    sessionTimerType = true,
 }
 
 app = getAppTable()
@@ -103,6 +111,28 @@ function script.windowMain(dt)
             end
 
             if ui.checkbox('Show Car Electronics', settings.inputsShowElectronics) then settings.inputsShowElectronics = not settings.inputsShowElectronics end
+        end)
+        ui.tabItem('Session', function()
+            if ui.checkbox('Show Position', settings.sessionShowPosition) then settings.sessionShowPosition = not settings.sessionShowPosition end
+            if settings.sessionShowPosition then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Remove Disconnected Cars from Total', settings.sessionHideDisconnected) then settings.sessionHideDisconnected = not settings.sessionHideDisconnected end
+            end
+            if settings.sessionHideDisconnected then
+                ui.text('\t')
+                ui.sameLine()
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Also Remove Traffic Cars', settings.sessionHideAI) then settings.sessionHideAI = not settings.sessionHideAI end
+            end
+            if ui.checkbox('Show Laps', settings.sessionShowLaps) then settings.sessionShowLaps = not settings.sessionShowLaps end
+            if ui.checkbox('Show Session Timer', settings.sessionShowTimer) then settings.sessionShowTimer = not settings.sessionShowTimer end
+            if settings.sessionShowTimer then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Session Type', settings.sessionTimerType) then settings.sessionTimerType = not settings.sessionTimerType end
+            end
         end)
     end)
 end

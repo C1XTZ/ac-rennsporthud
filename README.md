@@ -43,4 +43,5 @@ You'll find me under **XTZ#3177** and **[@C1XTZ](https://twitter.com/C1XTZ)** re
 - **[Meter](https://thenounproject.com/icon/meter-1979347/)** by Vectors Market from Noun Project
 - **[Pedals](https://thenounproject.com/icon/pedals-5182160/)** by Noura Mbarki from Noun Project
 - **[Sim Racing Wheel](https://thenounproject.com/icon/sim-racing-steering-wheel-4957637/)** by Sascha Lücking from Noun Project
-- **[Steering Wheel](https://thenounproject.com/icon/steering-4035374/)** by from Noun Project
+- **[Steering Wheel](https://thenounproject.com/icon/steering-4035374/)** by Hamed Mirhashemi from Noun Project
+- **[Start Flag](https://thenounproject.com/icon/start-flag-4617835/)** by Ida Desi Mariana from Noun Project

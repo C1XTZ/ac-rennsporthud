@@ -44,12 +44,12 @@ function script.essentials(dt)
 
             ui.setCursor(vec2(centerx - position.essentials.speed.num.x, centery - position.essentials.speed.num.y))
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned(speedNumber, scale(34), ui.Alignment.End, ui.Alignment.Center, vec2(60, 28):scale(app.scale), false, color.white)
+            ui.dwriteTextAligned(speedNumber, scale(34), 1, 0, vec2(60, 28):scale(app.scale), false, color.white)
             ui.popDWriteFont()
 
             ui.setCursor(vec2(centerx - position.essentials.speed.txt.x, centery + position.essentials.speed.txt.y))
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned(speedText, scale(14), ui.Alignment.End, ui.Alignment.Center, vec2(38, 14):scale(app.scale), false, color.white)
+            ui.dwriteTextAligned(speedText, scale(14), 1, 0, vec2(38, 14):scale(app.scale), false, color.white)
             ui.popDWriteFont()
         end
 
@@ -63,14 +63,14 @@ function script.essentials(dt)
         if settings.essentialsGears then
             ui.setCursor(vec2(centerx - position.essentials.gear.x, centery - position.essentials.gear.y))
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned(parseGear(playerCar().gear), scale(60), ui.Alignment.Center, ui.Alignment.Center, vec2(36, 50):scale(app.scale), false, color.white)
+            ui.dwriteTextAligned(parseGear(playerCar().gear), scale(60), 0, 0, vec2(36, 50):scale(app.scale), false, color.white)
             ui.popDWriteFont()
         end
 
         if settings.essentialsRpmNum and not settings.essentialsInputBars then
             ui.setCursor(vec2(centerx + position.essentials.rpm.num.x, centery - position.essentials.rpm.num.y))
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned(math.round(playerCar().rpm), scale(34), ui.Alignment.Start, ui.Alignment.Center, vec2(150, 28):scale(app.scale), false, color.white)
+            ui.dwriteTextAligned(math.round(playerCar().rpm), scale(34), -1, 0, vec2(150, 28):scale(app.scale), false, color.white)
             ui.popDWriteFont()
 
             ui.setCursor(vec2(centerx + position.essentials.rpm.txt.x, centery + position.essentials.rpm.txt.y))
