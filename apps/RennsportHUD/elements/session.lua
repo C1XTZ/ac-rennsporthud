@@ -22,8 +22,14 @@ function script.session(dt)
     local position = getPositionTable()
     local playerSession = ac.getSim()
 
+    local sessionTimeString
+    if settings.sessionAlwaysShowDuration then
+        sessionTimeString = formatTime(playerSession.time, true, true, true)
+    else
+        sessionTimeString = formatTime(playerSession.sessionTimeLeft, true, true, true)
+    end
+
     local sessionTypeString = getSessionTypeString(playerSession.raceSessionType)
-    local sessionTimeString = formatTime(playerSession.sessionTimeLeft, true, true, true)
     local sessionLapString = string.format('%02d', playerCar().lapCount)
     local playerRacePosition = string.format('%02d', playerCar().racePosition) .. '/'
     local sessionCarsTotal = string.format('%02d', playerSession.carsCount)

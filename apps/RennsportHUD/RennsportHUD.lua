@@ -39,6 +39,7 @@ settings = ac.storage {
     sessionShowLaps = true,
     sessionShowTimer = true,
     sessionTimerType = true,
+    sessionAlwaysShowDuration = false,
 }
 
 app = getAppTable()
@@ -132,6 +133,9 @@ function script.windowMain(dt)
                 ui.text('\t')
                 ui.sameLine()
                 if ui.checkbox('Show Session Type', settings.sessionTimerType) then settings.sessionTimerType = not settings.sessionTimerType end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Session Duration Instead', settings.sessionAlwaysShowDuration) then settings.sessionAlwaysShowDuration = not settings.sessionAlwaysShowDuration end
             end
         end)
     end)
