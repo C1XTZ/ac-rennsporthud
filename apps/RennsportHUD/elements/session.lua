@@ -9,7 +9,7 @@ local sessionTypes = {
 }
 
 function getSessionTypeString(sessionType)
-    local defaultSessionString = 'TIME'
+    local defaultSessionString = 'SESSION'
     if not settings.sessionTimerType then
         return defaultSessionString
     end
@@ -47,63 +47,52 @@ function script.session(dt)
 
     if settings.sessionShowPosition then
         ui.setCursor(vec2(horiOffset, vertOffset))
-        ---[[ The window auto resizing breaks without this, I have no idea why its not taking the full drawRectFilled size into account
-        ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.dwriteTextAligned('', 0, 0, 0, vec2(position.session.positionwidth, position.session.boxheight))
-        --]]
-
-        ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.positionwidth, ui.getCursorY() + position.session.boxheight), bgcolor)
-        ui.setCursor(vec2(horiOffset + position.session.staticpos.x, vertOffset + position.session.staticpos.y))
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteText('POSITION', staticSize, txtcolor)
-        ui.popDWriteFont()
-        ui.setCursor(vec2(horiOffset + position.session.positiontxt.contentlargepos.x, vertOffset + position.session.positiontxt.contentlargepos.y))
-        ui.pushDWriteFont(app.font.semi)
-        ui.dwriteTextAligned(playerRacePosition, contentSize, 0, 0, position.session.positiontxt.contentlargesize, false, txtcolor)
-        ui.popDWriteFont()
-        ui.setCursor(vec2(horiOffset + position.session.positiontxt.contentsmallpos.x, vertOffset + position.session.positiontxt.contentsmallpos.y))
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned(sessionCarsTotal, scale(22), 0, 0, position.session.positiontxt.contentsmallsize, false, txtcolor)
-        ui.popDWriteFont()
-
+        ui.childWindow('Position', vec2(position.session.positionwidth, position.session.boxheight), false, app.flags, function()
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.positionwidth, ui.getCursorY() + position.session.boxheight), bgcolor)
+            ui.setCursor(vec2(position.session.staticpos.x, position.session.staticpos.y))
+            ui.pushDWriteFont(app.font.bold)
+            ui.dwriteText('POSITION', staticSize, txtcolor)
+            ui.popDWriteFont()
+            ui.setCursor(vec2(position.session.positiontxt.contentlargepos.x, position.session.positiontxt.contentlargepos.y))
+            ui.pushDWriteFont(app.font.semi)
+            ui.dwriteTextAligned(playerRacePosition, contentSize, 0, 0, position.session.positiontxt.contentlargesize, false, txtcolor)
+            ui.popDWriteFont()
+            ui.setCursor(vec2(position.session.positiontxt.contentsmallpos.x, position.session.positiontxt.contentsmallpos.y))
+            ui.pushDWriteFont(app.font.bold)
+            ui.dwriteTextAligned(sessionCarsTotal, scale(22), 0, 0, position.session.positiontxt.contentsmallsize, false, txtcolor)
+            ui.popDWriteFont()
+        end)
         horiOffset = horiOffset + position.session.positionwidth + position.session.padding
     end
 
     if settings.sessionShowLaps then
-        ---[[ The window auto resizing breaks without this, I have no idea why its not taking the full drawRectFilled size into account
         ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.dwriteTextAligned('', 0, 0, 0, vec2(position.session.lapswidth, position.session.boxheight))
-        --]]
-
-        ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.lapswidth, ui.getCursorY() + position.session.boxheight), bgcolor)
-        ui.setCursor(vec2(horiOffset + position.session.staticpos.x, vertOffset + position.session.staticpos.y))
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteText('LAPS', staticSize, txtcolor)
-        ui.popDWriteFont()
-        ui.setCursor(vec2(horiOffset + position.session.lapstxt.contentpos.x, vertOffset + position.session.lapstxt.contentpos.y))
-        ui.pushDWriteFont(app.font.semi)
-        ui.dwriteTextAligned(sessionLapString, contentSize, 0, 0, position.session.lapstxt.contentsize, false, txtcolor)
-        ui.popDWriteFont()
+        ui.childWindow('Laps', vec2(position.session.lapswidth, position.session.boxheight), false, app.flags, function()
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.lapswidth, ui.getCursorY() + position.session.boxheight), bgcolor)
+            ui.setCursor(vec2(position.session.staticpos.x, position.session.staticpos.y))
+            ui.pushDWriteFont(app.font.bold)
+            ui.dwriteText('LAPS', staticSize, txtcolor)
+            ui.popDWriteFont()
+            ui.setCursor(vec2(position.session.lapstxt.contentpos.x, position.session.lapstxt.contentpos.y))
+            ui.pushDWriteFont(app.font.semi)
+            ui.dwriteTextAligned(sessionLapString, contentSize, 0, 0, position.session.lapstxt.contentsize, false, txtcolor)
+            ui.popDWriteFont()
+        end)
         horiOffset = horiOffset + position.session.lapswidth + position.session.padding
     end
 
     if settings.sessionShowTimer then
-        ---[[ The window auto resizing breaks without this, I have no idea why its not taking the full drawRectFilled size into account
         ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.dwriteTextAligned('', 0, 0, 0, vec2(position.session.timerwidth, position.session.boxheight), false, txtcolor)
-        --]]
-
-        ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.timerwidth, ui.getCursorY() + position.session.boxheight), bgcolor)
-        ui.setCursor(vec2(horiOffset + position.session.staticpos.x, vertOffset + position.session.staticpos.y))
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteText(sessionTypeString, staticSize, txtcolor)
-        ui.popDWriteFont()
-        ui.setCursor(vec2(horiOffset + position.session.timertxt.contentpos.x, vertOffset + position.session.timertxt.contentpos.y))
-        ui.pushDWriteFont(app.font.semi) --'0:54:23'
-        ui.dwriteTextAligned(sessionTimeString, contentSize, 0, 0, vec2(position.session.timerwidth, position.session.timertxt.contentsize), false, txtcolor)
-        ui.popDWriteFont()
+        ui.childWindow('Timer', vec2(position.session.timerwidth, position.session.boxheight), false, app.flags, function()
+            ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.session.timerwidth, ui.getCursorY() + position.session.boxheight), bgcolor)
+            ui.setCursor(vec2(position.session.staticpos.x, position.session.staticpos.y))
+            ui.pushDWriteFont(app.font.bold)
+            ui.dwriteText(sessionTypeString, staticSize, txtcolor)
+            ui.popDWriteFont()
+            ui.setCursor(vec2(position.session.timertxt.contentpos.x, position.session.timertxt.contentpos.y))
+            ui.pushDWriteFont(app.font.semi)
+            ui.dwriteTextAligned(sessionTimeString, contentSize, 0, 0, vec2(position.session.timerwidth, position.session.timertxt.contentsize), false, txtcolor)
+            ui.popDWriteFont()
+        end)
     end
 end
