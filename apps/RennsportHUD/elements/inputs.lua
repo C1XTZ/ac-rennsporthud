@@ -1,7 +1,7 @@
 function script.inputs(dt)
     local position = getPositionTable()
 
-    local lightbgcolor = setColorMult(color.black, 50)
+    local bgcolor = setColorMult(color.black, 70)
     local txtcolor = color.lightgray
     local fontBig = scale(12)
     local fontSmall = scale(10)
@@ -70,7 +70,7 @@ function script.inputs(dt)
         if settings.inputsShowFFB then
             ui.setCursor(vec2(horiOffset, vertOffset))
             ui.childWindow('FFB', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
-                ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), lightbgcolor)
+                ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
                 ui.drawRectFilled(vec2(0, 0), vec2(FFBlerp, position.inputs.pedalheight), FFBcolor)
                 ui.pushDWriteFont(app.font.bold)
                 ui.dwriteTextAligned('FORCE FEEDBACK', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
@@ -81,7 +81,7 @@ function script.inputs(dt)
         if settings.inputsShowClutch then
             ui.setCursor(vec2(horiOffset, vertOffset))
             ui.childWindow('Clutch', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
-                ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), lightbgcolor)
+                ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
                 ui.drawRectFilled(vec2(0, 0), vec2(clutchLerp, position.inputs.pedalheight), color.white)
                 ui.pushDWriteFont(app.font.bold)
                 ui.dwriteTextAligned('CLUTCH', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
@@ -92,7 +92,7 @@ function script.inputs(dt)
         if settings.inputsShowBrake then
             ui.setCursor(vec2(horiOffset, vertOffset))
             ui.childWindow('Brake', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
-                ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), lightbgcolor)
+                ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
                 ui.drawRectFilled(vec2(0, 0), vec2(brakeLerp, position.inputs.pedalheight), color.white)
                 ui.pushDWriteFont(app.font.bold)
                 ui.dwriteTextAligned('BRAKE', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
@@ -103,7 +103,7 @@ function script.inputs(dt)
         if settings.inputsShowGas then
             ui.setCursor(vec2(horiOffset, vertOffset))
             ui.childWindow('Gas', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
-                ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), lightbgcolor)
+                ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
                 ui.drawRectFilled(vec2(0, 0), vec2(gasLerp, position.inputs.pedalheight), color.white)
                 ui.pushDWriteFont(app.font.bold)
                 ui.dwriteTextAligned('THROTTLE', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
@@ -114,13 +114,14 @@ function script.inputs(dt)
     end
 
     if settings.inputsShowElectronics then
-        local ABScolor, TCcolor = setColorMult(color.black, 25), setColorMult(color.black, 25)
+        local darkbgcolor = setColorMult(color.black, 50)
+        local ABScolor, TCcolor = darkbgcolor, darkbgcolor
         if playerCar().absInAction then ABScolor = color.uigreen end
         if playerCar().tractionControlInAction then TCcolor = color.uigreen end
 
         ui.setCursor(vec2(horiOffset, vertOffset))
         ui.childWindow('Electronics', vec2(position.inputs.pedalsize.x, position.inputs.electronics.lightbg), false, app.flags, function()
-            ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.electronics.lightbg), lightbgcolor)
+            ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.electronics.lightbg), bgcolor)
 
             ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y / 2), ABScolor)
             ui.pushDWriteFont(app.font.bold)

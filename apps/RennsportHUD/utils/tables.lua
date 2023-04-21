@@ -98,7 +98,7 @@ function getColorTable()
         yellow = rgbm.colors.yellow,
         orange = rgbm.colors.orange,
         purple = rgbm(0.5, 0, 1, 1),
-        uigreen = rgbm(0.1, 0.65, 0.4, 1)
+        uigreen = rgbm(0.1, 0.7, 0.4, 1)
     }
     return colors
 end
