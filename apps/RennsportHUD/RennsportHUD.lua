@@ -135,7 +135,7 @@ function script.windowMain(dt)
                 if ui.checkbox('Show Session Type', settings.sessionTimerType) then settings.sessionTimerType = not settings.sessionTimerType end
                 ui.text('\t')
                 ui.sameLine()
-                if ui.checkbox('Show Session Duration Instead', settings.sessionAlwaysShowDuration) then settings.sessionAlwaysShowDuration = not settings.sessionAlwaysShowDuration end
+                if ui.checkbox('Show Time Since Join Instead', settings.sessionAlwaysShowDuration) then settings.sessionAlwaysShowDuration = not settings.sessionAlwaysShowDuration end
             end
         end)
     end)

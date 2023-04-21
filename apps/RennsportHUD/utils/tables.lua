@@ -58,22 +58,22 @@ function getPositionTable()
         session = {
             padding = scale(15),
             boxheight = scale(64),
-            positionwidth = scale(112),
-            staticpos = vec2(7,4):scale(app.scale),
+            positionwidth = scale(105),
+            staticpos = vec2(7, 4):scale(app.scale),
             positiontxt = {
-                contentlargepos = vec2(5,20):scale(app.scale),
+                contentlargepos = vec2(5, 21):scale(app.scale),
                 contentlargesize = vec2(68, 34):scale(app.scale),
-                contentsmallpos = vec2(72,35):scale(app.scale),
+                contentsmallpos = vec2(72, 36):scale(app.scale),
                 contentsmallsize = vec2(26, 18):scale(app.scale),
             },
-            lapswidth = scale(68),
+            lapswidth = scale(60),
             lapstxt = {
-                contentpos = vec2(-4,20):scale(app.scale),
-                contentsize = vec2(68, 34):scale(app.scale),
+                contentpos = vec2(0, 21):scale(app.scale),
+                contentsize = vec2(60, 34):scale(app.scale),
             },
-            timerwidth = scale(162),
+            timerwidth = scale(164),
             timertxt = {
-                contentpos = vec2(0,20):scale(app.scale),
+                contentpos = vec2(0, 21):scale(app.scale),
                 contentsize = scale(34),
             },
         },
@@ -97,7 +97,8 @@ function getColorTable()
         aqua = rgbm.colors.aqua,
         yellow = rgbm.colors.yellow,
         orange = rgbm.colors.orange,
-        purple = rgbm(0.5, 0, 1),
+        purple = rgbm(0.5, 0, 1, 1),
+        uigreen = rgbm(0.1, 0.65, 0.4, 1)
     }
     return colors
 end
