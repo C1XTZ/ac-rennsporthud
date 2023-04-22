@@ -48,7 +48,7 @@ function script.essentials(dt)
             ui.popDWriteFont()
 
             ui.setCursor(vec2(centerx - position.essentials.speed.txt.x, centery + position.essentials.speed.txt.y))
-            ui.pushDWriteFont(app.font.bold)
+            ui.pushDWriteFont(app.font.black)
             ui.dwriteTextAligned(speedText, scale(14), 1, 0, vec2(38, 14):scale(app.scale), false, color.white)
             ui.popDWriteFont()
         end
@@ -74,7 +74,7 @@ function script.essentials(dt)
             ui.popDWriteFont()
 
             ui.setCursor(vec2(centerx + position.essentials.rpm.txt.x, centery + position.essentials.rpm.txt.y))
-            ui.pushDWriteFont(app.font.bold)
+            ui.pushDWriteFont(app.font.black)
             ui.dwriteText('RPM', scale(14), color.white)
             ui.popDWriteFont()
         end

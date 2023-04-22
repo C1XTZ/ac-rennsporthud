@@ -29,7 +29,8 @@ function setColorMult(oldrgbm, percentage)
 end
 
 --calculates the number of seconds, minutes and hours from milliseconds
-function formatTime(milliseconds, showHours, showMinutes, showSeconds)
+--I know that ac.lapTimeToString exists but this is more flexable
+function formatTime(milliseconds, showHours, showMinutes, showSeconds, showSubSecond)
     if milliseconds < 0 then milliseconds = milliseconds * -1 end
 
     local seconds = math.floor(milliseconds / 1000)
@@ -53,7 +54,11 @@ function formatTime(milliseconds, showHours, showMinutes, showSeconds)
     end
 
     if showSeconds then
-        formattedTime = formattedTime .. string.format('%02d', seconds)
+        if showSubSecond then
+            formattedTime = formattedTime .. string.format('%02d.%03d', seconds, milliseconds % 1000)
+        else
+            formattedTime = formattedTime .. string.format('%02d', seconds)
+        end
     else
         if showHours or showMinutes then
             formattedTime = formattedTime .. '00'

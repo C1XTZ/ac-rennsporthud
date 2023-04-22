@@ -5,6 +5,7 @@ require('utils/tables')
 require('elements/essentials')
 require('elements/inputs')
 require('elements/session')
+require('elements/delta')
 
 settings = ac.storage {
     changeScale = false,
@@ -40,6 +41,12 @@ settings = ac.storage {
     sessionShowTimer = true,
     sessionTimerType = true,
     sessionAlwaysShowDuration = false,
+
+    deltaHidden = true,
+    deltaShowTimer = true,
+    deltaShowPrediction = true,
+    deltaShowBar = true,
+    deltaBarTime = 10,
 }
 
 app = getAppTable()
@@ -136,6 +143,17 @@ function script.windowMain(dt)
                 ui.text('\t')
                 ui.sameLine()
                 if ui.checkbox('Show Time Since Join Instead', settings.sessionAlwaysShowDuration) then settings.sessionAlwaysShowDuration = not settings.sessionAlwaysShowDuration end
+            end
+        end)
+        ui.tabItem('Delta', function()
+            if ui.checkbox('Hide When No Delta Available', settings.deltaHidden) then settings.deltaHidden = not settings.deltaHidden end
+            if ui.checkbox('Show Delta', settings.deltaShowTimer) then settings.deltaShowTimer = not settings.deltaShowTimer end
+            if ui.checkbox('Show Predicted Laptime', settings.deltaShowPrediction) then settings.deltaShowPrediction = not settings.deltaShowPrediction end
+            if ui.checkbox('Show Delta Bar', settings.deltaShowBar) then settings.deltaShowBar = not settings.deltaShowBar end
+            if settings.deltaShowBar then
+                ui.text('\t')
+                ui.sameLine()
+                settings.deltaBarTime = ui.slider('##DeltaTime', settings.deltaBarTime, 1, 60, 'Time Scale: ' .. '%1.f seconds')
             end
         end)
     end)

@@ -7,8 +7,11 @@ function getAppTable()
             medium = 'IBM Plex Sans:.\\fonts;Weight=Medium',
             semi = 'IBM Plex Sans:.\\fonts;Weight=SemiBold',
             bold = 'IBM Plex Sans:.\\fonts;Weight=Bold',
+            black = 'IBM Plex Sans:.\\fonts;Weight=Black',
         }
     }
+
+    if settings.changeScale and app.scale ~= settings.scale then app.scale = settings.scale end
 
     return app
 end
@@ -77,6 +80,13 @@ function getPositionTable()
                 contentsize = scale(34),
             },
         },
+        delta = {
+            elementsize = vec2(250, 60):scale(app.scale),
+            txtpos = vec2(14, 2):scale(app.scale),
+            timepos = vec2(27, 4):scale(app.scale),
+            contentheight = scale(44),
+            barheight = scale(16),
+        },
     }
 
     position.essentials.inputbar.gap = scale(position.essentials.inputbar.gap + position.essentials.inputbar.size.x / app.scale)
@@ -98,7 +108,8 @@ function getColorTable()
         yellow = rgbm.colors.yellow,
         orange = rgbm.colors.orange,
         purple = rgbm(0.5, 0, 1, 1),
-        uigreen = rgbm(0.1, 0.7, 0.4, 1)
+        uigreen = rgbm(0.1, 0.8, 0.4, 1),
+        uired = rgbm(0.85, 0.2, 0.2, 1),
     }
     return colors
 end
