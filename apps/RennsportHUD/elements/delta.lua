@@ -8,7 +8,6 @@ function scaleWidth(deltaLerp)
 end
 
 function script.delta(dt)
-    ac.debug('s', settings.deltaBarTime)
     local position = getPositionTable()
     local playerSession = ac.getSim()
     local childOffset = app.padding
