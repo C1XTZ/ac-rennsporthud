@@ -1,5 +1,6 @@
 function getAppTable()
     local app = {
+        --on my 1920x1080 monitor at >3.6 scale, some of the app windows reach a maximum size (mostly width) that I cant change(?)
         scale = 1,
         padding = 22,
         flags = bit.bor(ui.WindowFlags.NoDecoration, ui.WindowFlags.NoBackground, ui.WindowFlags.NoNav, ui.WindowFlags.NoInputs, ui.WindowFlags.NoScrollbar),
@@ -87,6 +88,11 @@ function getPositionTable()
             contentheight = scale(44),
             barheight = scale(16),
         },
+        sectors = {
+            sectorwidth = math.round(scale(170)),
+            sectorheight = scale(18),
+            pitheight = scale(20),
+        },
     }
 
     position.essentials.inputbar.gap = scale(position.essentials.inputbar.gap + position.essentials.inputbar.size.x / app.scale)
@@ -108,7 +114,7 @@ function getColorTable()
         yellow = rgbm.colors.yellow,
         orange = rgbm.colors.orange,
         purple = rgbm(0.5, 0, 1, 1),
-        uigreen = rgbm(0.1, 0.8, 0.4, 1),
+        uigreen = rgbm(0.02, 0.65, 0.4, 1),
         uired = rgbm(0.85, 0.2, 0.2, 1),
     }
     return colors

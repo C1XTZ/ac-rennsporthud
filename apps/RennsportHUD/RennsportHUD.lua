@@ -6,6 +6,7 @@ require('elements/essentials')
 require('elements/inputs')
 require('elements/session')
 require('elements/delta')
+require('elements/sectors')
 
 settings = ac.storage {
     changeScale = false,
@@ -47,6 +48,12 @@ settings = ac.storage {
     deltaShowPrediction = true,
     deltaShowBar = true,
     deltaBarTime = 10,
+
+    sectorsShowSectors = true,
+    sectorsDisplayDuration = 5,
+    sectorsShowPitInfo = true,
+    sectorsShowSpeedLimit = false,
+    sectorsShowRaceFlags = false,
 }
 
 app = getAppTable()
@@ -153,8 +160,23 @@ function script.windowMain(dt)
             if settings.deltaShowBar then
                 ui.text('\t')
                 ui.sameLine()
-                settings.deltaBarTime = ui.slider('##DeltaTime', settings.deltaBarTime, 1, 60, 'Time Scale: ' .. '%1.f seconds')
+                settings.deltaBarTime = ui.slider('##DeltaTime', settings.deltaBarTime, 1, 60, 'Full Bar At: ' .. '%.0f s')
             end
+        end)
+        ui.tabItem('Sectors', function()
+            if ui.checkbox('Show Sectors', settings.sectorsShowSectors) then settings.sectorsShowSectors = not settings.sectorsShowSectors end
+            if settings.sectorsShowSectors then
+                ui.text('\t')
+                ui.sameLine()
+                settings.sectorsDisplayDuration = ui.slider('##SectorDisplayDuration', settings.sectorsDisplayDuration, 1, 60, 'Display Last Lap Sectors For: ' .. '%1.0f s')
+            end
+            if ui.checkbox('Show Pitlane Info', settings.sectorsShowPitInfo) then settings.sectorsShowPitInfo = not settings.sectorsShowPitInfo end
+            if settings.sectorsShowPitInfo then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Pitlane Speed Limit', settings.sectorsShowSpeedLimit) then settings.sectorsShowSpeedLimit = not settings.sectorsShowSpeedLimit end
+            end
+            if ui.checkbox('Show Race Flags', settings.sectorsShowRaceFlags) then settings.sectorsShowRaceFlags = not settings.sectorsShowRaceFlags end
         end)
     end)
 end
