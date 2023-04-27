@@ -7,28 +7,23 @@ local timedSectorColor = {}
 local bestSectorTime = {}
 local totalSectors = #ac.getSim().lapSplits
 
-for i = 1, totalSectors do
-    timedSectorColor[i] = setColorMult(getColorTable().black, 75)
-end
+ac.onSessionStart(function(sessionIndex, restarted)
+    if restarted then
+        restarted = false
+        sectorTimeCurrent = {}
+        timedSectorColor = {}
+        bestSectorTime = {}
+        for i = 1, totalSectors do
+            timedSectorColor[i] = setColorMult(getColorTable().black, 75)
+        end
+    end
+end)
 
 function script.sectors(dt)
     local vertOffset = app.padding
     local horiOffset = 0
     local position = getPositionTable()
     local playerSession = ac.getSim()
-
-    if playerSession.timeToSessionStart > 0 then
-        doThisOnce = true
-        if doThisOnce then
-            sectorTimeCurrent = {}
-            timedSectorColor = {}
-            bestSectorTime = {}
-            for i = 1, totalSectors do
-                timedSectorColor[i] = setColorMult(getColorTable().black, 75)
-            end
-            doThisOnce = false
-        end
-    end
 
     if settings.sectorsShowSectors then
         local newSectorIndex = playerCar().currentSector + 1
