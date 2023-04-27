@@ -6,6 +6,9 @@ local sectorTimePrevious = {}
 local timedSectorColor = {}
 local bestSectorTime = {}
 local totalSectors = #ac.getSim().lapSplits
+for i = 1, totalSectors do
+    timedSectorColor[i] = setColorMult(getColorTable().black, 75)
+end
 
 ac.onSessionStart(function(sessionIndex, restarted)
     if restarted then
@@ -31,9 +34,9 @@ function script.sectors(dt)
             lastTimedSector = previouslastTimedSector
             previouslastTimedSector = newSectorIndex
 
-            if #playerCar().bestLapSplits > 0 then
-                for i = 1, #playerCar().bestLapSplits do
-                    bestSectorTime[i] = playerCar().bestLapSplits[i - 1]
+            if #playerCar().bestSplits > 0 then
+                for i = 1, #playerCar().bestSplits do
+                    bestSectorTime[i] = playerCar().bestSplits[i - 1]
                 end
             end
 
@@ -47,9 +50,9 @@ function script.sectors(dt)
             else
                 if sectorTimeCurrent[lastTimedSector] then
                     sectorTimePrevious[lastTimedSector] = sectorTimeCurrent[lastTimedSector]
-                    sectorTimeCurrent[lastTimedSector] = playerCar().lastSplits[#playerCar().bestLapSplits - 1]
+                    sectorTimeCurrent[lastTimedSector] = playerCar().previousLapTimeMs - sectorTimeCurrent[#playerCar().bestSplits - 1]
                 else
-                    table.insert(sectorTimeCurrent, lastTimedSector, playerCar().lastSplits[#playerCar().bestLapSplits - 1])
+                    table.insert(sectorTimeCurrent, lastTimedSector, playerCar().previousLapTimeMs - sectorTimeCurrent[#playerCar().bestSplits - 1])
                 end
             end
 
@@ -64,7 +67,7 @@ function script.sectors(dt)
                 end
             end
 
-            if lastTimedSector == #playerCar().bestLapSplits and not doThisOnce then
+            if lastTimedSector == #playerSession.lapSplits and not doThisOnce then
                 doThisOnce = true
             end
         end
