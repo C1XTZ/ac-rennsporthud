@@ -93,6 +93,13 @@ function getPositionTable()
             sectorheight = scale(18),
             pitheight = scale(20),
         },
+        fuel = {
+            barsize = vec2(150, 16):scale(app.scale),
+            valueheight = scale(54),
+            txtpos = vec2(5, 5):scale(app.scale),
+            valuepos = scale(20),
+            unitpos = vec2(55, 25):scale(app.scale),
+        },
     }
 
     position.essentials.inputbar.gap = scale(position.essentials.inputbar.gap + position.essentials.inputbar.size.x / app.scale)

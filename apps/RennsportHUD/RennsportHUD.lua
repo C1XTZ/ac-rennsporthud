@@ -7,6 +7,7 @@ require('elements/inputs')
 require('elements/session')
 require('elements/delta')
 require('elements/sectors')
+require('elements/fuel')
 
 settings = ac.storage {
     changeScale = false,
@@ -54,6 +55,13 @@ settings = ac.storage {
     sectorsShowPitInfo = true,
     sectorsShowSpeedLimit = false,
     sectorsShowRaceFlags = false,
+
+    fuelShowRemaining = true,
+    fuelGallons = false,
+    fuelLaps = false,
+    fuelChangeBarColor = true,
+    fuelYellowBar = 5,
+    fuelRedBar = 1,
 }
 
 app = getAppTable()
@@ -177,6 +185,37 @@ function script.windowMain(dt)
                 if ui.checkbox('Show Pitlane Speed Limit', settings.sectorsShowSpeedLimit) then settings.sectorsShowSpeedLimit = not settings.sectorsShowSpeedLimit end
             end
             if ui.checkbox('Show Race Flags', settings.sectorsShowRaceFlags) then settings.sectorsShowRaceFlags = not settings.sectorsShowRaceFlags end
+        end)
+        ui.tabItem('Fuel', function()
+            if ui.checkbox('Change Bar Color', settings.fuelChangeBarColor) then settings.fuelChangeBarColor = not settings.fuelChangeBarColor end
+            if settings.fuelChangeBarColor then
+                ui.text('\t')
+                ui.sameLine()
+                ui.text('Will display at 20% and 5% if fuelPerLap isnt calculated')
+                ui.text('\t')
+                ui.sameLine()
+                settings.fuelYellowBar = ui.slider('##FuelYellowBar', settings.fuelYellowBar, settings.fuelRedBar + 1, settings.fuelRedBar + 10, 'Yellow When Under: ' .. '%1.0f Laps')
+                ui.text('\t')
+                ui.sameLine()
+                settings.fuelRedBar = ui.slider('##FuelRedBar', settings.fuelRedBar, 1, 10, 'Red When Under: ' .. '%1.0f Laps')
+                if settings.fuelYellowBar <= settings.fuelRedBar then settings.fuelYellowBar = settings.fuelRedBar + 1 end
+            end
+
+            if ui.checkbox('Show Remaining Fuel', settings.fuelShowRemaining) then settings.fuelShowRemaining = not settings.fuelShowRemaining end
+            if settings.fuelShowRemaining then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Use Gallons Instead', settings.fuelGallons) then
+                    settings.fuelGallons = not settings.fuelGallons
+                    settings.fuelLaps = false
+                end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Use Laps Instead If Available', settings.fuelLaps) then
+                    settings.fuelLaps = not settings.fuelLaps
+                    settings.fuelGallons = false
+                end
+            end
         end)
     end)
 end
