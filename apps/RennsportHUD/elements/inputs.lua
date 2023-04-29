@@ -1,36 +1,11 @@
 function script.inputs(dt)
     local position = getPositionTable()
-
     local bgcolor = setColorMult(color.black, 70)
     local txtcolor = color.lightgray
     local fontBig = scale(12)
     local fontSmall = scale(10)
     local vertOffset = app.padding
     local horiOffset = 0
-
-    local FFBmix = playerCar().ffbFinal
-    if FFBmix < 0 then FFBmix = FFBmix * -1 end
-    local FFBcolor
-    local FFBlerp = math.lerp(0, position.inputs.pedalsize.x, FFBmix)
-    if FFBlerp < position.inputs.pedalsize.x then FFBcolor = color.white else FFBcolor = color.red end
-
-    local clutchLerp = math.lerp(position.inputs.pedalsize.x, 0, playerCar().clutch)
-    local brakeLerp = math.lerp(0, position.inputs.pedalsize.x, playerCar().brake)
-    local gasLerp = math.lerp(0, position.inputs.pedalsize.x, playerCar().gas)
-    if FFBlerp >= position.inputs.pedalsize.x then FFBlerp = position.inputs.pedalsize.x end
-
-    local absactive = playerCar().absMode
-    local absmax = playerCar().absModes
-    local absfinal
-    if absmax < 1 or absactive == 0 then absfinal = 'OFF' elseif absmax == 1 and absactive == 1 then absfinal = 'ON' else absfinal = absactive .. '/' .. absmax end
-
-    local tcactive = playerCar().tractionControlMode
-    local tcmax = playerCar().tractionControlModes
-    local tcfinal
-    if tcmax < 1 or tcactive == 0 then tcfinal = 'OFF' elseif tcmax == 1 and tcactive == 1 then tcfinal = 'ON' else tcfinal = tcactive .. '/' .. tcmax end
-
-    local brakebalance = math.round(playerCar().brakeBias * 100)
-    local fuelmix = '100' --playerCar().fuelMap exists but isnt used by any car I tested. Engine Limiter value (not rpm) doesnt have its own thing in statecar so this is a 'placeholder'.
 
     if settings.inputsShowWheel then
         local wheelimg
@@ -67,6 +42,17 @@ function script.inputs(dt)
     end
 
     if settings.inputsShowPedals then
+        local FFBmix = playerCar().ffbFinal
+        if FFBmix < 0 then FFBmix = FFBmix * -1 end
+        local FFBcolor
+        local FFBlerp = math.lerp(0, position.inputs.pedalsize.x, FFBmix)
+        if FFBlerp < position.inputs.pedalsize.x then FFBcolor = color.white else FFBcolor = color.red end
+
+        local clutchLerp = math.lerp(position.inputs.pedalsize.x, 0, playerCar().clutch)
+        local brakeLerp = math.lerp(0, position.inputs.pedalsize.x, playerCar().brake)
+        local gasLerp = math.lerp(0, position.inputs.pedalsize.x, playerCar().gas)
+        if FFBlerp >= position.inputs.pedalsize.x then FFBlerp = position.inputs.pedalsize.x end
+
         if settings.inputsShowFFB then
             ui.setCursor(vec2(horiOffset, vertOffset))
             ui.childWindow('FFB', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
@@ -114,6 +100,19 @@ function script.inputs(dt)
     end
 
     if settings.inputsShowElectronics then
+        local absactive = playerCar().absMode
+        local absmax = playerCar().absModes
+        local absfinal
+        if absmax < 1 or absactive == 0 then absfinal = 'OFF' elseif absmax == 1 and absactive == 1 then absfinal = 'ON' else absfinal = absactive .. '/' .. absmax end
+
+        local tcactive = playerCar().tractionControlMode
+        local tcmax = playerCar().tractionControlModes
+        local tcfinal
+        if tcmax < 1 or tcactive == 0 then tcfinal = 'OFF' elseif tcmax == 1 and tcactive == 1 then tcfinal = 'ON' else tcfinal = tcactive .. '/' .. tcmax end
+
+        local brakebalance = math.round(playerCar().brakeBias * 100)
+        local fuelmix = '100' --playerCar().fuelMap exists but isnt used by any car I tested. Engine Limiter value (not rpm) doesnt have its own thing in statecar so this is a 'placeholder'.
+
         local darkbgcolor = setColorMult(color.black, 50)
         local ABScolor, TCcolor = darkbgcolor, darkbgcolor
         if playerCar().absInAction then ABScolor = color.uigreen end

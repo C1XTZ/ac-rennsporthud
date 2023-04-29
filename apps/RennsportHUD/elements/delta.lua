@@ -9,40 +9,30 @@ end
 
 function script.delta(dt)
     local position = getPositionTable()
-    local playerSession = ac.getSim()
     local childOffset = app.padding
-    local vertOffset = 0
-    local fontsize = scale(14)
-
-    local deltaColor = color.white
-    local deltaBestTxt = '00.000'
-    local predictionTxt = '0:00.000'
-
-    if playerCar().performanceMeter > 0 then
-        deltaBestTxt = string.format("+%.3f", playerCar().performanceMeter)
-        deltaColor = color.uired
-    elseif playerCar().performanceMeter < 0 then
-        deltaBestTxt = string.format("%.3f", playerCar().performanceMeter)
-        deltaColor = color.uigreen
-    end
-
-    if playerCar().estimatedLapTimeMs > 600000 then
-        predictionTxt = formatTime(playerCar().estimatedLapTimeMs, false, true, true, true)
-    else
-        predictionTxt = formatTime(playerCar().estimatedLapTimeMs, false, true, true, true):sub(2)
-    end
-
-    local deltaClamp = math.clampN(playerCar().performanceMeter, -settings.deltaBarTime, settings.deltaBarTime)
-    local deltaLerp = 0
-    if deltaClamp > 0 then
-        deltaLerp = math.lerpInvSat(deltaClamp, 0, settings.deltaBarTime)
-    elseif deltaClamp < 0 then
-        deltaLerp = -math.lerpInvSat(deltaClamp, 0, -settings.deltaBarTime)
-    end
-
-    local deltaWidth = scaleWidth(deltaLerp)
 
     if (settings.deltaHidden and playerCar().performanceMeter ~= 0) or not settings.deltaHidden then
+        local playerSession = ac.getSim()
+        local vertOffset = 0
+        local fontsize = scale(14)
+        local deltaColor = color.white
+        local deltaBestTxt = '00.000'
+        local predictionTxt = '0:00.000'
+
+        if playerCar().performanceMeter > 0 then
+            deltaBestTxt = string.format('+%.3f', playerCar().performanceMeter)
+            deltaColor = color.uired
+        elseif playerCar().performanceMeter < 0 then
+            deltaBestTxt = string.format('%.3f', playerCar().performanceMeter)
+            deltaColor = color.uigreen
+        end
+
+        if playerCar().estimatedLapTimeMs > 600000 then
+            predictionTxt = formatTime(playerCar().estimatedLapTimeMs, false, true, true, true)
+        else
+            predictionTxt = formatTime(playerCar().estimatedLapTimeMs, false, true, true, true):sub(2)
+        end
+
         if settings.deltaShowTimer then
             vertOffset = position.delta.txtpos.y
             ui.setCursor(vec2(0, childOffset))
@@ -74,6 +64,14 @@ function script.delta(dt)
         end
 
         if settings.deltaShowBar then
+            local deltaClamp = math.clampN(playerCar().performanceMeter, -settings.deltaBarTime, settings.deltaBarTime)
+            local deltaLerp = 0
+            if deltaClamp > 0 then
+                deltaLerp = math.lerpInvSat(deltaClamp, 0, settings.deltaBarTime)
+            elseif deltaClamp < 0 then
+                deltaLerp = -math.lerpInvSat(deltaClamp, 0, -settings.deltaBarTime)
+            end
+            local deltaWidth = scaleWidth(deltaLerp)
             ui.setCursor(vec2(0, childOffset))
             ui.childWindow('Deltabar', vec2(position.delta.elementsize.x, position.delta.barheight), false, app.flags, function()
                 ui.setCursor(vec2(position.delta.elementsize.x / 2, vertOffset))
