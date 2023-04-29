@@ -19,6 +19,8 @@ function script.fuel(dt)
         local fuelPerLap = math.round(playerCar().fuelPerLap, 1)
         local fuelText = 'L'
         local fuelValue = fuelLevel
+        local hectoOffset = 0
+        if fuelValue >= 100 then hectoOffset = 13 end
 
         if settings.fuelChangeBarColor then
             if fuelPerLap > 0 then
@@ -57,12 +59,11 @@ function script.fuel(dt)
 
             ui.setCursor(vec2(position.fuel.txtpos.x, position.fuel.valuepos))
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned(string.format('%.1f', fuelValue):gsub('%.', ','):gsub('^(%d),', '0%1,'), scale(22), -1, 0, vec2(50, 25):scale(app.scale), false, color.white)
+            ui.dwriteTextAligned(string.format('%.1f', fuelValue):gsub('%.', ','):gsub('^(%d),', '0%1,'), scale(22), -1, 0, vec2(50 + hectoOffset, 25):scale(app.scale), false, color.white)
             ui.popDWriteFont()
 
-            ui.setCursor(vec2(position.fuel.txtpos.x, position.fuel.valuepos))
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteDrawText(fuelText, scale(16), position.fuel.unitpos)
+            ui.dwriteDrawText(fuelText, scale(16), vec2(position.fuel.unitpos.x + scale(hectoOffset), position.fuel.unitpos.y))
             ui.popDWriteFont()
         end)
     end
