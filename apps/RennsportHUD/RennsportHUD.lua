@@ -8,6 +8,7 @@ require('elements/session')
 require('elements/delta')
 require('elements/sectors')
 require('elements/fuel')
+require('elements/tires')
 
 settings = ac.storage {
     changeScale = false,
@@ -62,6 +63,13 @@ settings = ac.storage {
     fuelChangeBarColor = true,
     fuelYellowBar = 5,
     fuelRedBar = 1,
+
+    tiresShowTempVis = true,
+    tiresShowPressure = true,
+    tiresPressureUseBar = false,
+    tiresShowBrakeTemp = true,
+    tiresShowTempBar = true,
+    tiresTempUseFahrenheit = false,
 }
 
 app = getAppTable()
@@ -215,6 +223,34 @@ function script.windowMain(dt)
                     settings.fuelLaps = not settings.fuelLaps
                     settings.fuelGallons = false
                 end
+            end
+        end)
+        ui.tabItem('Tires', function()
+            if ui.checkbox('Show Tire Temperature Visualisation', settings.tiresShowTempVis) then settings.tiresShowTempVis = not settings.tiresShowTempVis end
+            if settings.tiresShowTempVis then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Tire Pressure', settings.tiresShowPressure) then settings.tiresShowPressure = not settings.tiresShowPressure end
+                if settings.tiresShowPressure then
+                    ui.text('\t')
+                    ui.sameLine()
+                    ui.text('\t')
+                    ui.sameLine()
+                    if ui.checkbox('Use Bar instead', settings.tiresPressureUseBar) then settings.tiresPressureUseBar = not settings.tiresPressureUseBar end
+                end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Brake Pressure', settings.tiresShowBrakeTemp) then settings.tiresShowBrakeTemp = not settings.tiresShowBrakeTemp end
+                if settings.tiresShowBrakeTemp then
+                    ui.sameLine()
+                    ui.text('Only Works If Car Has Brake Temperature Data')
+                end
+            end
+            if ui.checkbox('Show Tire Temperature Numbers', settings.tiresShowTempBar) then settings.tiresShowTempBar = not settings.tiresShowTempBar end
+            if settings.tiresShowTempBar then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Use Fahrenheit Instead', settings.tiresTempUseFahrenheit) then settings.tiresTempUseFahrenheit = not settings.tiresTempUseFahrenheit end
             end
         end)
     end)

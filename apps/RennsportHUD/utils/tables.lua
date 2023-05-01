@@ -100,6 +100,17 @@ function getPositionTable()
             valuepos = scale(20),
             unitpos = vec2(55, 25):scale(app.scale),
         },
+        tires = {
+            decorsize = vec2(164, 18):scale(app.scale),
+            wheelelement = vec2(82,74):scale(app.scale),
+            wheelpos = scale(24),
+            wheelpartsize = vec2(6,40):scale(app.scale),
+            pressurepos = scale(28),
+            brakesize = vec2(3, 20):scale(app.scale),
+            brakepos = vec2(13, 34):scale(app.scale),
+            tempbarheight = scale(28),
+            tempbartxt = vec2(22, 11):scale(app.scale),
+        },
     }
 
     position.essentials.inputbar.gap = scale(position.essentials.inputbar.gap + position.essentials.inputbar.size.x / app.scale)
