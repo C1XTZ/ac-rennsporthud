@@ -48,11 +48,16 @@ function script.sectors(dt)
                     table.insert(sectorTimeCurrent, lastTimedSector, playerCar().previousSectorTime)
                 end
             else
+                local sumSectors = 0
+                for i = 1, totalSectors-1 do
+                    sumSectors = sumSectors + sectorTimeCurrent[i]
+                end
+
                 if sectorTimeCurrent[lastTimedSector] then
                     sectorTimePrevious[lastTimedSector] = sectorTimeCurrent[lastTimedSector]
-                    sectorTimeCurrent[lastTimedSector] = playerCar().previousLapTimeMs - sectorTimeCurrent[#playerCar().bestSplits - 1]
+                    sectorTimeCurrent[lastTimedSector] = playerCar().previousLapTimeMs - sumSectors
                 else
-                    table.insert(sectorTimeCurrent, lastTimedSector, playerCar().previousLapTimeMs - sectorTimeCurrent[#playerCar().bestSplits - 1])
+                    table.insert(sectorTimeCurrent, lastTimedSector, playerCar().previousLapTimeMs - sumSectors)
                 end
             end
 
