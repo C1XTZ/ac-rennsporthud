@@ -49,3 +49,4 @@ You'll find me under **XTZ#3177** and **[@C1XTZ](https://twitter.com/C1XTZ)** re
 - **[Stages](https://thenounproject.com/icon/stages-3863331/)** by Andrejs Kirma from Noun Project
 - **[Fuel](https://thenounproject.com/icon/fuel-4394216/)** by shashank singh from Noun Project
 - **[Radial Tyre](https://thenounproject.com/icon/radial-tyre-878236/)** by Souvik Bhattacharjee from Noun Project
+- **[Stopwatch Icon](https://thenounproject.com/icon/stopwatch-5714898/)** by Afqoh from Noun Project

@@ -9,6 +9,7 @@ require('elements/delta')
 require('elements/sectors')
 require('elements/fuel')
 require('elements/tires')
+require('elements/timing')
 
 settings = ac.storage {
     changeScale = false,
@@ -64,12 +65,19 @@ settings = ac.storage {
     fuelYellowBar = 5,
     fuelRedBar = 1,
 
-    tiresShowTempVis = true,
     tiresShowPressure = true,
     tiresPressureUseBar = false,
+    tiresShowTempVis = true,
     tiresShowBrakeTemp = true,
     tiresShowTempBar = true,
     tiresTempUseFahrenheit = false,
+
+    timingShowCurrentLap = true,
+    timingShowLapStats = true,
+    timingLapStatsBest = true,
+    timingLapStatsLast = true,
+    timingLapStatsIdeal = true,
+    timingShowTable = true,
 }
 
 app = getAppTable()
@@ -252,6 +260,22 @@ function script.windowMain(dt)
                 ui.sameLine()
                 if ui.checkbox('Use Fahrenheit Instead', settings.tiresTempUseFahrenheit) then settings.tiresTempUseFahrenheit = not settings.tiresTempUseFahrenheit end
             end
+        end)
+        ui.tabItem('Timing', function()
+            if ui.checkbox('Show Current Laptime', settings.timingShowCurrentLap) then settings.timingShowCurrentLap = not settings.timingShowCurrentLap end
+            if ui.checkbox('Show Lapstats', settings.timingShowLapStats) then settings.timingShowLapStats = not settings.timingShowLapStats end
+            if settings.timingShowLapStats then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Best Laptime', settings.timingLapStatsBest) then settings.timingLapStatsBest = not settings.timingLapStatsBest end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Last Laptime', settings.timingLapStatsLast) then settings.timingLapStatsLast = not settings.timingLapStatsLast end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Ideal Laptime', settings.timingLapStatsIdeal) then settings.timingLapStatsIdeal = not settings.timingLapStatsIdeal end
+            end
+            if ui.checkbox('Show Lap History', settings.timingShowTable) then settings.timingShowTable = not settings.timingShowTable end
         end)
     end)
 end

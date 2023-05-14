@@ -102,14 +102,28 @@ function getPositionTable()
         },
         tires = {
             decorsize = vec2(164, 18):scale(app.scale),
-            wheelelement = vec2(82,74):scale(app.scale),
+            wheelelement = vec2(82, 74):scale(app.scale),
             wheelpos = scale(24),
-            wheelpartsize = vec2(6,40):scale(app.scale),
-            pressurepos = scale(28),
+            wheelpartsize = vec2(6, 40):scale(app.scale),
             brakesize = vec2(3, 20):scale(app.scale),
             brakepos = vec2(13, 34):scale(app.scale),
             tempbarheight = scale(28),
             tempbartxt = vec2(22, 11):scale(app.scale),
+            pressurepos = scale(28),
+        },
+        timing = {
+            pos = {
+                currentLapTxt = vec2(8, 4):scale(app.scale),
+                currentLapContent = vec2(4, 22):scale(app.scale),
+            },
+            currentLap = vec2(211, 62):scale(app.scale),
+            lapStats = vec2(150, 20):scale(app.scale),
+            table = {
+                header = vec2(218, 18):scale(app.scale),
+                contentheight = scale(20),
+                lap = scale(54),
+                time = scale(76),
+            },
         },
     }
 
