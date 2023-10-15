@@ -1,3 +1,21 @@
+# RennsportHUD for AC
+A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa 
+
+## Currently Available Elements:
+
+- HUD Settings
+- Essentials (Speed, Gear, RPMs)
+- Inputs (Steering, Force Feedback, Pedals, Car electronics like ABS, TCS and Brake Bias)
+- Session Info (Position, Laps, Time Left in Session / Session Duration)
+- Delta (Difference between own current lap and best lap, Predicted Laptime, Difference visualization bar)
+- Sectors (Shows current sector vs own best sectors, Pitlane speed, Race Flags (Yellow Flag, Blue flag, etc)
+- Fuel (Shows current fuel level (Litres or Gallons), calculated laps left)
+- Personal Timings (Current Laptime, Last Laptime, Best Laptime, Ideal Laptime, Last Lap History, Sectors)
+- Tires (Tire Pressure, Tire Temperature, Tire Wear, Brake Temperature)
+
+<img src="https://raw.githubusercontent.com/C1XTZ/ac-mobilephone/master/.github/img/preview.png">
+
+
 ## License
 
 This repository is under the [GNU GPL v3](https://choosealicense.com/licenses/gpl-3.0/) license. What does this mean?
