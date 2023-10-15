@@ -13,7 +13,7 @@ A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa
 - Personal Timings (Current Laptime, Last Laptime, Best Laptime, Ideal Laptime, Last Lap History, Sectors)
 - Tires (Tire Pressure, Tire Temperature, Tire Wear, Brake Temperature)
 
-<img src="https://raw.githubusercontent.com/C1XTZ/ac-mobilephone/master/.github/img/preview.png">
+<img src="https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/master/.github/img/preview.png">
 
 
 ## License
