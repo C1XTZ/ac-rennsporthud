@@ -111,7 +111,7 @@ function script.inputs(dt)
         if tcmax < 1 or tcactive == 0 then tcfinal = 'OFF' elseif tcmax == 1 and tcactive == 1 then tcfinal = 'ON' else tcfinal = tcactive .. '/' .. tcmax end
 
         local brakebalance = math.round(playerCar().brakeBias * 100)
-        local fuelmix = '100' --playerCar().fuelMap exists but isnt used by any car I tested. Engine Limiter value (not rpm) doesnt have its own thing in statecar so this is a 'placeholder'.
+        local boost = playerCar().turboBoost
 
         local darkbgcolor = setColorMult(color.black, 50)
         local ABScolor, TCcolor = darkbgcolor, darkbgcolor
@@ -154,11 +154,11 @@ function script.inputs(dt)
 
             ui.setCursor(vec2(ui.availableSpaceX() / 2, position.inputs.electronics.darkbg.y / 2))
             ui.pushDWriteFont(app.font.black)
-            ui.dwriteTextAligned('MIX', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y / 2), false, txtcolor)
+            ui.dwriteTextAligned('TRB', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y / 2), false, txtcolor)
             ui.popDWriteFont()
             ui.setCursor(vec2(ui.availableSpaceX() / 2 + position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y / 2))
             ui.pushDWriteFont(app.font.black)
-            ui.dwriteTextAligned(fuelmix .. '%', fontSmall, 0, 0, vec2(position.inputs.electronics.val.x, position.inputs.electronics.val.y / 2), false, txtcolor)
+            ui.dwriteTextAligned(string.format('%.2f', boost), fontSmall, 0, 0, vec2(position.inputs.electronics.val.x, position.inputs.electronics.val.y / 2), false, txtcolor)
             ui.popDWriteFont()
         end)
     end

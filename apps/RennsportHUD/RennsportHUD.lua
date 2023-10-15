@@ -71,6 +71,7 @@ settings = ac.storage {
     tiresShowBrakeTemp = true,
     tiresShowTempBar = true,
     tiresTempUseFahrenheit = false,
+    tiresShowWear = true,
 
     timingShowCurrentLap = true,
     timingShowLapStats = true,
@@ -248,10 +249,13 @@ function script.windowMain(dt)
                 end
                 ui.text('\t')
                 ui.sameLine()
-                if ui.checkbox('Show Brake Pressure', settings.tiresShowBrakeTemp) then settings.tiresShowBrakeTemp = not settings.tiresShowBrakeTemp end
+                if ui.checkbox('Show Tire Wear', settings.tiresShowWear) then settings.tiresShowWear = not settings.tiresShowWear end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Show Brake Temperature', settings.tiresShowBrakeTemp) then settings.tiresShowBrakeTemp = not settings.tiresShowBrakeTemp end
                 if settings.tiresShowBrakeTemp then
                     ui.sameLine()
-                    ui.text('Only Works If Car Has Brake Temperature Data')
+                    ui.text('Only Works If Car Has Brake Data')
                 end
             end
             if ui.checkbox('Show Tire Temperature Numbers', settings.tiresShowTempBar) then settings.tiresShowTempBar = not settings.tiresShowTempBar end
