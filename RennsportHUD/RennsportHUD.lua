@@ -72,6 +72,7 @@ settings = ac.storage {
     tiresShowTempBar = true,
     tiresTempUseFahrenheit = false,
     tiresShowWear = true,
+    tiresPressureColor = false,
 
     timingShowCurrentLap = true,
     timingShowLapStats = true,
@@ -246,6 +247,12 @@ function script.windowMain(dt)
                     ui.text('\t')
                     ui.sameLine()
                     if ui.checkbox('Use Bar instead', settings.tiresPressureUseBar) then settings.tiresPressureUseBar = not settings.tiresPressureUseBar end
+                    ui.text('\t')
+                    ui.sameLine()
+                    ui.text('\t')
+                    ui.sameLine()
+                    if ui.checkbox('Color Tire Pressures', settings.tiresPressureColor) then settings.tiresPressureColor = not settings.tiresPressureColor end
+
                 end
                 ui.text('\t')
                 ui.sameLine()

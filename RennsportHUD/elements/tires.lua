@@ -23,6 +23,8 @@ function hueToRgb(hue)
     return rgb(r + m, g + m, b + m)
 end
 
+local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
+
 --these are taken from the Honda S2000 Turbo GT1 Amuse data since no Kunos car that I tested had working brake temps. probably giga wrong for any other car but im not sure how to handle that lol]]
 local brakeTempOptimalF = 550
 local brakeTempOptimalR = 500
@@ -32,7 +34,8 @@ local frTempHue = { 240, 240, 240 }
 local rlTempHue = { 240, 240, 240 }
 local rrTempHue = { 240, 240, 240 }
 
-local flWearColor, frWearColor, rlWearColor, rrWearColor
+local flWearColor, frWearColor, rlWearColor, rrWearColor, rlPressure, unitTxt
+
 local wearPercent = { 0.75, 0.50, 0.0 }
 local wearPercentColors = { getColorTable().red, getColorTable().orange, getColorTable().white }
 
@@ -40,6 +43,17 @@ function script.tires(dt)
     local position = getPositionTable()
     local vertOffset = math.round(app.padding)
     local horiOffset = 0
+
+    if settings.tiresShowPressure and settings.tiresPressureColor then
+        local iniHeader
+        if playerCar().compoundIndex == 0 then
+            iniHeader = ''
+        else
+            iniHeader = '_' .. playerCar().compoundIndex
+        end
+        tireIni.fPressOpt = tireIni:get('FRONT' .. iniHeader, 'PRESSURE_IDEAL', 'number')
+        tireIni.rPressOpt = tireIni:get('REAR' .. iniHeader, 'PRESSURE_IDEAL', 'number')
+    end
 
     --[[ LEFT SIDE TEMPS ARE FLIPPED, MEANING tyreInsideTemperature and tyreOutsideTemperature ARE FLIPPED FOR wheels[0] and wheels[2] IF THIS IS EVER FIXED I NEED TO ADJUST THE DRAWING ORDER FOR THE LEFT SIDE XD
 
@@ -121,16 +135,13 @@ function script.tires(dt)
             end
 
             if settings.tiresShowBrakeTemp then
-                local flBrakeTemp = playerCar().wheels[0].discTemperature
-                local flBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (flBrakeTemp / brakeTempOptimalF)), 0, 2))
+                local flBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[0].discTemperature / brakeTempOptimalF)), 0, 2))
 
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(flBrakeHue))
             end
 
             if settings.tiresShowPressure then
-                local flPressure
-                local unitTxt
                 if settings.tiresPressureUseBar then
                     unitTxt = ' bar'
                     flPressure = playerCar().wheels[0].tyrePressure * 0.0689475729
@@ -139,9 +150,14 @@ function script.tires(dt)
                     flPressure = playerCar().wheels[0].tyrePressure
                 end
 
+                local flPressColor = color.white
+                if settings.tiresPressureColor then
+                    flPressColor = hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (flPressure / tireIni.fPressOpt) ^ 10), 0, 2)))
+                end
+
                 ui.setCursor(0)
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(string.format('%.1f', flPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, color.white)
+                ui.dwriteTextAligned(string.format('%.1f', flPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, flPressColor)
                 ui.popDWriteFont()
             end
         end)
@@ -166,16 +182,13 @@ function script.tires(dt)
             end
 
             if settings.tiresShowBrakeTemp then
-                local frBrakeTemp = playerCar().wheels[1].discTemperature
-                local frBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (frBrakeTemp / brakeTempOptimalF)), 0, 2))
+                local frBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[1].discTemperature / brakeTempOptimalF)), 0, 2))
 
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(2)), position.tires.brakepos.y))
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(frBrakeHue))
             end
 
             if settings.tiresShowPressure then
-                local unitTxt
-                local frPressure
                 if settings.tiresPressureUseBar then
                     unitTxt = ' bar'
                     frPressure = playerCar().wheels[1].tyrePressure * 0.0689475729
@@ -184,9 +197,14 @@ function script.tires(dt)
                     frPressure = playerCar().wheels[1].tyrePressure
                 end
 
+                local frPressColor = color.white
+                if settings.tiresPressureColor then
+                    frPressColor = hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (frPressure / tireIni.fPressOpt) ^ 10), 0, 2)))
+                end
+
                 ui.setCursor(0)
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(string.format('%.1f', frPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, color.white)
+                ui.dwriteTextAligned(string.format('%.1f', frPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, frPressColor)
                 ui.popDWriteFont()
             end
         end)
@@ -292,16 +310,12 @@ function script.tires(dt)
             end
 
             if settings.tiresShowBrakeTemp then
-                local rlBrakeTemp = playerCar().wheels[2].discTemperature
-                local rlBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (rlBrakeTemp / brakeTempOptimalR)), 0, 2))
-
+                local rlBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[2].discTemperature / brakeTempOptimalR)), 0, 2))
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(rlBrakeHue))
             end
 
             if settings.tiresShowPressure then
-                local rlPressure
-                local unitTxt
                 if settings.tiresPressureUseBar then
                     unitTxt = ' bar'
                     rlPressure = playerCar().wheels[2].tyrePressure * 0.0689475729
@@ -310,9 +324,14 @@ function script.tires(dt)
                     rlPressure = playerCar().wheels[2].tyrePressure
                 end
 
+                local rlPressColor = color.white
+                if settings.tiresPressureColor then
+                    rlPressColor = hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rlPressure / tireIni.fPressOpt) ^ 10), 0, 2)))
+                end
+
                 ui.setCursor(0)
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(string.format('%.1f', rlPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, color.white)
+                ui.dwriteTextAligned(string.format('%.1f', rlPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, rlPressColor)
                 ui.popDWriteFont()
             end
         end)
@@ -337,16 +356,12 @@ function script.tires(dt)
             end
 
             if settings.tiresShowBrakeTemp then
-                local rrBrakeTemp = playerCar().wheels[1].discTemperature
-                local rrBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (rrBrakeTemp / brakeTempOptimalR)), 0, 2))
-
+                local rrBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[1].discTemperature / brakeTempOptimalR)), 0, 2))
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(2)), position.tires.brakepos.y))
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(rrBrakeHue))
             end
 
             if settings.tiresShowPressure then
-                local unitTxt
-                local rrPressure
                 if settings.tiresPressureUseBar then
                     unitTxt = ' bar'
                     rrPressure = playerCar().wheels[3].tyrePressure * 0.0689475729
@@ -355,9 +370,14 @@ function script.tires(dt)
                     rrPressure = playerCar().wheels[3].tyrePressure
                 end
 
+                local rrPressColor = color.white
+                if settings.tiresPressureColor then
+                    rrPressColor = hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rrPressure / tireIni.fPressOpt) ^ 10), 0, 2)))
+                end
+
                 ui.setCursor(0)
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(string.format('%.1f', rrPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, color.white)
+                ui.dwriteTextAligned(string.format('%.1f', rrPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, rrPressColor)
                 ui.popDWriteFont()
             end
         end)
