@@ -187,7 +187,7 @@ function script.timing(dt)
             horiOffset = horiOffset + position.timing.table.time + columSpace
             ui.popDWriteFont()
         end)
-        ui.setCursor(vec2(horiOffset, vertOffset))
+        ui.setCursor(vec2(math.round(horiOffset), vertOffset))
         ui.childWindow('TimingTableHeaderSectors', vec2((position.timing.table.time + columSpace) * totalSectors, position.timing.table.header.y), function()
             ui.drawRectFilled(vec2(0, 0), vec2((position.timing.table.time + columSpace) * totalSectors, position.timing.table.header.y), setColorMult(color.black, 80))
             secPos = columSpace
@@ -220,7 +220,7 @@ function script.timing(dt)
             horiOffset = horiOffset + position.timing.table.time + columSpace
             ui.popDWriteFont()
         end)
-        ui.setCursor(vec2(horiOffset, vertOffset))
+        ui.setCursor(vec2(math.round(horiOffset), vertOffset))
         ui.childWindow('TimingTableContentSectors', vec2((position.timing.table.time + columSpace) * totalSectors, position.timing.table.contentheight), function()
             ui.drawRectFilled(vec2(0, 0), vec2((position.timing.table.time + columSpace) * totalSectors, position.timing.table.contentheight), setColorMult(color.black, 50))
             secPos = columSpace
@@ -257,7 +257,7 @@ function script.timing(dt)
                 ui.popDWriteFont()
             end)
 
-            ui.setCursor(vec2(horiOffset, vertOffset + position.timing.table.contentheight * (reverseIndex - 1)))
+            ui.setCursor(vec2(math.round(horiOffset), vertOffset + position.timing.table.contentheight * (reverseIndex - 1)))
             ui.childWindow('TimingTableContentSectorsPrev' .. reverseIndex, vec2((position.timing.table.time + columSpace) * totalSectors, position.timing.table.contentheight), function()
                 ui.drawRectFilled(vec2(0, 0), vec2((position.timing.table.time + columSpace) * totalSectors, position.timing.table.contentheight), setColorMult(color.black, 50))
                 secPos = columSpace

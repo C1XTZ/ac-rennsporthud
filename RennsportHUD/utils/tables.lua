@@ -119,10 +119,10 @@ function getPositionTable()
             currentLap = vec2(211, 62):scale(app.scale),
             lapStats = vec2(150, 20):scale(app.scale),
             table = {
-                header = vec2(218, 18):scale(app.scale),
+                header = vec2(226, 18):scale(app.scale),
                 contentheight = scale(20),
                 lap = scale(54),
-                time = scale(76),
+                time = scale(80),
             },
         },
     }
