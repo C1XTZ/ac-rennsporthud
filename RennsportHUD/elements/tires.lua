@@ -23,11 +23,55 @@ function hueToRgb(hue)
     return rgb(r + m, g + m, b + m)
 end
 
-local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
+--Thanks to leBluem for the inspiration
+function getLUTMedian(lutStr)
+    local xTable, yTable = {}, {}
+    local yHighest = -1
+    for x, y in lutStr:gmatch("|(%d+)=(%d*%.?%d*)") do
+        table.insert(xTable, tonumber(x))
+        local yValue = tonumber(y)
+        table.insert(yTable, yValue)
+        if yValue > yHighest then
+            yHighest = yValue
+        end
+    end
 
---these are taken from the Honda S2000 Turbo GT1 Amuse data since no Kunos car that I tested had working brake temps. probably giga wrong for any other car but im not sure how to handle that lol]]
-local brakeTempOptimalF = 550
-local brakeTempOptimalR = 500
+    if yHighest == -1 then
+        return 0
+    end
+
+    local xHighest = {}
+    for i, y in ipairs(yTable) do
+        if y == yHighest then
+            table.insert(xHighest, xTable[i])
+        end
+    end
+
+    local xTotal = 0
+    for _, x in ipairs(xHighest) do
+        xTotal = xTotal + x
+    end
+
+    return xTotal / #xHighest
+end
+
+local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
+local brakeIni = ac.INIConfig.carData(playerCar().index, 'brakes.ini')
+local fBrakeLut = tostring(brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil)[1])
+local rBrakeLut = tostring(brakeIni:get('TEMPS_REAR', 'PERF_CURVE', nil)[1])
+local fOptBrakeTemp, rOptBrakeTemp
+
+if fBrakeLut == nil or rBrakeLut == nil then
+    fOptBrakeTemp, rOptBrakeTemp = -1, -1
+else
+    if string.match(fBrakeLut, "%.lut$") and string.match(rBrakeLut, "%.lut$") then
+        fOptBrakeTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, fBrakeLut):serialize())
+        rOptBrakeTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, rBrakeLut):serialize())
+    else
+        fOptBrakeTemp = getLUTMedian(fBrakeLut)
+        rOptBrakeTemp = getLUTMedian(rBrakeLut)
+    end
+end
 
 local flTempHue = { 240, 240, 240 }
 local frTempHue = { 240, 240, 240 }
@@ -35,6 +79,7 @@ local rlTempHue = { 240, 240, 240 }
 local rrTempHue = { 240, 240, 240 }
 
 local flWearColor, frWearColor, rlWearColor, rrWearColor, rlPressure, unitTxt
+local currComp = -1
 
 local wearPercent = { 0.75, 0.50, 0.0 }
 local wearPercentColors = { getColorTable().red, getColorTable().orange, getColorTable().white }
@@ -44,7 +89,8 @@ function script.tires(dt)
     local vertOffset = math.round(app.padding)
     local horiOffset = 0
 
-    if settings.tiresShowPressure and settings.tiresPressureColor then
+    if settings.tiresShowPressure and settings.tiresPressureColor and playerCar().compoundIndex ~= currComp then
+        currComp = playerCar().compoundIndex
         local iniHeader
         if playerCar().compoundIndex == 0 then
             iniHeader = ''
@@ -56,7 +102,6 @@ function script.tires(dt)
     end
 
     --[[ LEFT SIDE TEMPS ARE FLIPPED, MEANING tyreInsideTemperature and tyreOutsideTemperature ARE FLIPPED FOR wheels[0] and wheels[2] IF THIS IS EVER FIXED I NEED TO ADJUST THE DRAWING ORDER FOR THE LEFT SIDE XD
-
     ac.debug('FRONT LEFT OT', ac.getCar(0).wheels[0].tyreOutsideTemperature)
     ac.debug('FRONT LEFT MT', ac.getCar(0).wheels[0].tyreMiddleTemperature)
     ac.debug('FRONT LEFT IT', ac.getCar(0).wheels[0].tyreInsideTemperature)
@@ -135,7 +180,7 @@ function script.tires(dt)
             end
 
             if settings.tiresShowBrakeTemp then
-                local flBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[0].discTemperature / brakeTempOptimalF)), 0, 2))
+                local flBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[0].discTemperature / fOptBrakeTemp)), 0, 2))
 
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(flBrakeHue))
@@ -182,7 +227,7 @@ function script.tires(dt)
             end
 
             if settings.tiresShowBrakeTemp then
-                local frBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[1].discTemperature / brakeTempOptimalF)), 0, 2))
+                local frBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[1].discTemperature / fOptBrakeTemp)), 0, 2))
 
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(2)), position.tires.brakepos.y))
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(frBrakeHue))
@@ -310,7 +355,7 @@ function script.tires(dt)
             end
 
             if settings.tiresShowBrakeTemp then
-                local rlBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[2].discTemperature / brakeTempOptimalR)), 0, 2))
+                local rlBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[2].discTemperature / rOptBrakeTemp)), 0, 2))
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(rlBrakeHue))
             end
@@ -356,7 +401,7 @@ function script.tires(dt)
             end
 
             if settings.tiresShowBrakeTemp then
-                local rrBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[1].discTemperature / brakeTempOptimalR)), 0, 2))
+                local rrBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[3].discTemperature / rOptBrakeTemp)), 0, 2))
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(2)), position.tires.brakepos.y))
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(rrBrakeHue))
             end
