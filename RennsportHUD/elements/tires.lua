@@ -57,11 +57,15 @@ end
 
 local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
 local brakeIni = ac.INIConfig.carData(playerCar().index, 'brakes.ini')
-local fBrakeLut = tostring(brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil)[1])
-local rBrakeLut = tostring(brakeIni:get('TEMPS_REAR', 'PERF_CURVE', nil)[1])
+
+if brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil) then
+    local fBrakeLut = tostring(brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil)[1])
+    local rBrakeLut = tostring(brakeIni:get('TEMPS_REAR', 'PERF_CURVE', nil)[1])
+end
+
 local fOptBrakeTemp, rOptBrakeTemp
 
-if fBrakeLut == nil or rBrakeLut == nil then
+if not fBrakeLut or not rBrakeLut then
     fOptBrakeTemp, rOptBrakeTemp = -1, -1
 else
     if string.match(fBrakeLut, "%.lut$") and string.match(rBrakeLut, "%.lut$") then
@@ -88,6 +92,12 @@ function script.tires(dt)
     local position = getPositionTable()
     local vertOffset = math.round(app.padding)
     local horiOffset = 0
+
+    if brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil) then
+        settings.tiresBrakesConfigured = true
+    else
+        settings.tiresBrakesConfigured = false
+    end
 
     if settings.tiresShowPressure and settings.tiresPressureColor and playerCar().compoundIndex ~= currComp then
         currComp = playerCar().compoundIndex

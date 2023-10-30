@@ -73,6 +73,7 @@ settings = ac.storage {
     tiresTempUseFahrenheit = false,
     tiresShowWear = true,
     tiresPressureColor = false,
+    tiresBrakesConfigured = false,
 
     timingShowCurrentLap = true,
     timingShowLapStats = true,
@@ -252,7 +253,6 @@ function script.windowMain(dt)
                     ui.text('\t')
                     ui.sameLine()
                     if ui.checkbox('Color Tire Pressures', settings.tiresPressureColor) then settings.tiresPressureColor = not settings.tiresPressureColor end
-
                 end
                 ui.text('\t')
                 ui.sameLine()
@@ -262,7 +262,7 @@ function script.windowMain(dt)
                 if ui.checkbox('Show Brake Temperature', settings.tiresShowBrakeTemp) then settings.tiresShowBrakeTemp = not settings.tiresShowBrakeTemp end
                 if settings.tiresShowBrakeTemp then
                     ui.sameLine()
-                    ui.text('Only Works If Car Has Brake Data')
+                    if settings.tiresBrakesConfigured then ui.textColored('Brake Temps Found', rgbm.colors.green) else ui.textColored('Brake Temps Not Found', rgbm.colors.red) end
                 end
             end
             if ui.checkbox('Show Tire Temperature Numbers', settings.tiresShowTempBar) then settings.tiresShowTempBar = not settings.tiresShowTempBar end
