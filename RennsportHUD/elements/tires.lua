@@ -57,13 +57,12 @@ end
 
 local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
 local brakeIni = ac.INIConfig.carData(playerCar().index, 'brakes.ini')
+local fOptBrakeTemp, rOptBrakeTemp, fBrakeLut, rBrakeLut
 
 if brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil) then
-    local fBrakeLut = tostring(brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil)[1])
-    local rBrakeLut = tostring(brakeIni:get('TEMPS_REAR', 'PERF_CURVE', nil)[1])
+    fBrakeLut = tostring(brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil)[1])
+    rBrakeLut = tostring(brakeIni:get('TEMPS_REAR', 'PERF_CURVE', nil)[1])
 end
-
-local fOptBrakeTemp, rOptBrakeTemp
 
 if not fBrakeLut or not rBrakeLut then
     fOptBrakeTemp, rOptBrakeTemp = -1, -1
