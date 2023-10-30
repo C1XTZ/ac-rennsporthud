@@ -56,6 +56,29 @@ function getLUTMedian(lutStr)
 end
 
 local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
+local tireName = playerCar():tyresLongName():gsub("%s?%b()", "")
+local function getOptPressure()
+    local frontPressure, rearPressure
+
+    for index, section in tireIni:iterate('FRONT', true) do
+        if tireIni:get(section, 'NAME', nil)[1] == tireName then
+            frontPressure = tireIni:get(section, 'PRESSURE_IDEAL', 'number')
+            break
+        end
+    end
+
+    for index, section in tireIni:iterate('REAR', true) do
+        if tireIni:get(section, 'NAME', nil)[1] == tireName then
+            rearPressure = tireIni:get(section, 'PRESSURE_IDEAL', 'number')
+            break
+        end
+    end
+
+    return frontPressure, rearPressure
+end
+
+
+
 local brakeIni = ac.INIConfig.carData(playerCar().index, 'brakes.ini')
 local fOptBrakeTemp, rOptBrakeTemp, fBrakeLut, rBrakeLut
 
@@ -100,14 +123,8 @@ function script.tires(dt)
 
     if settings.tiresShowPressure and settings.tiresPressureColor and playerCar().compoundIndex ~= currComp then
         currComp = playerCar().compoundIndex
-        local iniHeader
-        if playerCar().compoundIndex == 0 then
-            iniHeader = ''
-        else
-            iniHeader = '_' .. playerCar().compoundIndex
-        end
-        tireIni.fPressOpt = tireIni:get('FRONT' .. iniHeader, 'PRESSURE_IDEAL', 'number')
-        tireIni.rPressOpt = tireIni:get('REAR' .. iniHeader, 'PRESSURE_IDEAL', 'number')
+        tireName = playerCar():tyresLongName():gsub("%s?%b()", "")
+        tireIni.fPressOpt, tireIni.rPressOpt = getOptPressure()
     end
 
     --[[ LEFT SIDE TEMPS ARE FLIPPED, MEANING tyreInsideTemperature and tyreOutsideTemperature ARE FLIPPED FOR wheels[0] and wheels[2] IF THIS IS EVER FIXED I NEED TO ADJUST THE DRAWING ORDER FOR THE LEFT SIDE XD
