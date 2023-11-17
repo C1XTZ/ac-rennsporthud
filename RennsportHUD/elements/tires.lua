@@ -77,8 +77,6 @@ local function getOptPressure()
     return frontPressure, rearPressure
 end
 
-
-
 local brakeIni = ac.INIConfig.carData(playerCar().index, 'brakes.ini')
 local fOptBrakeTemp, rOptBrakeTemp, fBrakeLut, rBrakeLut
 

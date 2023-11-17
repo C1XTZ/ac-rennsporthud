@@ -48,6 +48,13 @@ function script.inputs(dt)
         local FFBlerp = math.lerp(0, position.inputs.pedalsize.x, FFBmix)
         if FFBlerp < position.inputs.pedalsize.x then FFBcolor = color.white else FFBcolor = color.red end
 
+        local gasColor, brakeColor, clutchColor = color.white, color.white, color.white
+        if settings.inputsPedalColors then
+            if playerCar().gas == 1 then gasColor = color.green end
+            if playerCar().brake == 1 then brakeColor = color.red end
+            if playerCar().clutch == 0 then clutchColor = color.aqua end
+        end
+
         local clutchLerp = math.lerp(position.inputs.pedalsize.x, 0, playerCar().clutch)
         local brakeLerp = math.lerp(0, position.inputs.pedalsize.x, playerCar().brake)
         local gasLerp = math.lerp(0, position.inputs.pedalsize.x, playerCar().gas)
@@ -68,7 +75,7 @@ function script.inputs(dt)
             ui.setCursor(vec2(horiOffset, vertOffset))
             ui.childWindow('Clutch', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
                 ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
-                ui.drawRectFilled(vec2(0, 0), vec2(clutchLerp, position.inputs.pedalheight), color.white)
+                ui.drawRectFilled(vec2(0, 0), vec2(clutchLerp, position.inputs.pedalheight), clutchColor)
                 ui.pushDWriteFont(app.font.bold)
                 ui.dwriteTextAligned('CLUTCH', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
                 ui.popDWriteFont()
@@ -79,7 +86,7 @@ function script.inputs(dt)
             ui.setCursor(vec2(horiOffset, vertOffset))
             ui.childWindow('Brake', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
                 ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
-                ui.drawRectFilled(vec2(0, 0), vec2(brakeLerp, position.inputs.pedalheight), color.white)
+                ui.drawRectFilled(vec2(0, 0), vec2(brakeLerp, position.inputs.pedalheight), brakeColor)
                 ui.pushDWriteFont(app.font.bold)
                 ui.dwriteTextAligned('BRAKE', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
                 ui.popDWriteFont()
@@ -90,7 +97,7 @@ function script.inputs(dt)
             ui.setCursor(vec2(horiOffset, vertOffset))
             ui.childWindow('Gas', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
                 ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
-                ui.drawRectFilled(vec2(0, 0), vec2(gasLerp, position.inputs.pedalheight), color.white)
+                ui.drawRectFilled(vec2(0, 0), vec2(gasLerp, position.inputs.pedalheight), gasColor)
                 ui.pushDWriteFont(app.font.bold)
                 ui.dwriteTextAligned('THROTTLE', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, txtcolor)
                 ui.popDWriteFont()

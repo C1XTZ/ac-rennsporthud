@@ -37,6 +37,7 @@ settings = ac.storage {
     inputsShowBrake = true,
     inputsShowGas = true,
     inputsShowElectronics = true,
+    inputsPedalColors = true,
 
     sessionShowPosition = true,
     sessionHideDisconnected = false,
@@ -141,6 +142,9 @@ function script.windowMain(dt)
                 ui.text('\t')
                 ui.sameLine()
                 if ui.checkbox('Show Force Feedback', settings.inputsShowFFB) then settings.inputsShowFFB = not settings.inputsShowFFB end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Color Fully Pressed Pedals', settings.inputsPedalColors) then settings.inputsPedalColors = not settings.inputsPedalColors end
                 ui.text('\t')
                 ui.sameLine()
                 if ui.checkbox('Show Clutch', settings.inputsShowClutch) then settings.inputsShowClutch = not settings.inputsShowClutch end
