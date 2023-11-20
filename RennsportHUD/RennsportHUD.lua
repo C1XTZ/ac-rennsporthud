@@ -144,9 +144,6 @@ function script.windowMain(dt)
                 if ui.checkbox('Show Force Feedback', settings.inputsShowFFB) then settings.inputsShowFFB = not settings.inputsShowFFB end
                 ui.text('\t')
                 ui.sameLine()
-                if ui.checkbox('Color Fully Pressed Pedals', settings.inputsPedalColors) then settings.inputsPedalColors = not settings.inputsPedalColors end
-                ui.text('\t')
-                ui.sameLine()
                 if ui.checkbox('Show Clutch', settings.inputsShowClutch) then settings.inputsShowClutch = not settings.inputsShowClutch end
                 ui.text('\t')
                 ui.sameLine()
@@ -154,6 +151,9 @@ function script.windowMain(dt)
                 ui.text('\t')
                 ui.sameLine()
                 if ui.checkbox('Show Throttle', settings.inputsShowGas) then settings.inputsShowGas = not settings.inputsShowGas end
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Color Fully Pressed Pedals', settings.inputsPedalColors) then settings.inputsPedalColors = not settings.inputsPedalColors end
             end
 
             if ui.checkbox('Show Car Electronics', settings.inputsShowElectronics) then settings.inputsShowElectronics = not settings.inputsShowElectronics end
