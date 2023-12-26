@@ -1,3 +1,6 @@
+---@param hue number Hue value, should be 0-240
+---@return rgb
+--this function is a simplified version of an HSL to RGB converter where the saturation is always at 100%, and the lightness is at 50%.
 function hueToRgb(hue)
     local h = hue / 60
     local c = 1
@@ -23,7 +26,10 @@ function hueToRgb(hue)
     return rgb(r + m, g + m, b + m)
 end
 
+---@param lutStr string
+---@return integer
 --Thanks to leBluem for the inspiration
+--takes a lut or lutstring and calculates the median temperature value of the highest performance value
 function getLUTMedian(lutStr)
     local xTable, yTable = {}, {}
     local yHighest = -1
@@ -57,6 +63,8 @@ end
 
 local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
 local tireName = playerCar():tyresLongName():gsub("%s?%b()", "")
+---@return number frontPressure, number rearPressure
+--reads and returns ideal tire pressure
 local function getOptPressure()
     local frontPressure, rearPressure
 

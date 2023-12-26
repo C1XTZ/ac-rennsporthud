@@ -49,7 +49,7 @@ function script.sectors(dt)
                 end
             else
                 local sumSectors = 0
-                for i = 1, totalSectors-1 do
+                for i = 1, totalSectors - 1 do
                     sumSectors = sumSectors + sectorTimeCurrent[i]
                 end
 

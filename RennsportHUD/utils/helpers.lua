@@ -1,19 +1,24 @@
+---@param value number
+---@return number
 --Scales a value by the app scale
 function scale(value)
     return app.scale * value
 end
 
---Parses the gearInt for Ui use
-function parseGear(gearInt)
-    if gearInt == 0 then
+---@param gearNum number
+---@return string
+--Parses the gear number for Ui use
+function parseGear(gearNum)
+    if gearNum == 0 then
         return 'N'
-    elseif gearInt == -1 then
+    elseif gearNum == -1 then
         return 'R'
     else
-        return gearInt
+        return tostring(gearNum)
     end
 end
 
+---@return ac.StateCar
 --returns the user car or the currently focused car if enabled
 function playerCar()
     if ac.getSim().focusedCar > 0 and not settings.ignorefocus then
@@ -23,11 +28,20 @@ function playerCar()
     end
 end
 
+---@param oldrgb rgb rgb() or rgbm() color
+---@param percentage number Alpha percentage from 0-100
+---@return rgbm
 --returns color with the wanted percentage of opacity
-function setColorMult(oldrgbm, percentage)
-    return rgbm(oldrgbm.r, oldrgbm.g, oldrgbm.b, 1 * (percentage / 100))
+function setColorMult(oldrgb, percentage)
+    return rgbm(oldrgb.r, oldrgb.g, oldrgb.b, 1 * (percentage / 100))
 end
 
+---@param milliseconds ms
+---@param showHours boolean? if true, displays as HH
+---@param showMinutes boolean? if true, displays as MM
+---@param showSeconds boolean? if true displays as SS
+---@param showSubSecond boolean? if true displays as sss
+---@return string
 --calculates the number of seconds, minutes and hours from milliseconds
 --I know that ac.lapTimeToString exists but this is more flexable
 function formatTime(milliseconds, showHours, showMinutes, showSeconds, showSubSecond)

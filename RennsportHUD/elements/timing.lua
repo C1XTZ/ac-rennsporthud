@@ -1,4 +1,8 @@
 local totalSectors = #ac.getSim().lapSplits
+
+---@param doOnce boolean
+---@return integer
+--calculates the ideal laptime in milliseconds from the best overall splits
 function IdealLaptime(doOnce)
     if doOnce then
         doOnce = false
@@ -13,6 +17,9 @@ end
 local emptyTimeString = '--:--.---'
 local timeColor = rgbm.colors.white
 local sectors, previousLaps, currentLap, lapCount, idealLap
+
+---@param all boolean
+--resets timing values
 function resetTiming(all)
     sectors = {}
     for i = 1, totalSectors do

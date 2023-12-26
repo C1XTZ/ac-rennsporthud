@@ -1,4 +1,5 @@
 local sessionTypes = {
+    [0] = 'SESSION',
     [1] = 'PRACTICE',
     [2] = 'QUALIFYING',
     [3] = 'RACE',
@@ -8,13 +9,15 @@ local sessionTypes = {
     [7] = 'DRAG',
 }
 
+---@param sessionType ac.SessionType
+---@return string
+--takes ac.SessionType and returns the session name as a string
 function getSessionTypeString(sessionType)
-    local defaultSessionString = 'SESSION'
     if not settings.sessionTimerType then
-        return defaultSessionString
+        return sessionTypes[0]
     end
 
-    local sessionTypeString = sessionTypes[sessionType] or defaultSessionString
+    local sessionTypeString = sessionTypes[sessionType] or sessionTypes[0]
     return sessionTypeString
 end
 
