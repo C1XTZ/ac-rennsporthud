@@ -83,22 +83,30 @@ function script.session(dt)
 
     if settings.sessionShowTimer then
         local sessionTypeString = getSessionTypeString(playerSession.raceSessionType)
-        local sessionTimeString
+        local sessionTimeString, displayedSessionTimeMs
         if settings.sessionAlwaysShowDuration then
             sessionTimeString = formatTime(playerSession.time, true, true, true)
+            displayedSessionTimeMs = playerSession.time
         else
             sessionTimeString = formatTime(playerSession.sessionTimeLeft, true, true, true)
+            displayedSessionTimeMs = playerSession.sessionTimeLeft
         end
+
+        local sessionTimerDynamicWidth = position.session.timerwidth 
+        if displayedSessionTimeMs > 35999999 then
+            sessionTimerDynamicWidth = sessionTimerDynamicWidth + scale(25)
+        end
+
         ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.childWindow('Timer', vec2(position.session.timerwidth, position.session.boxheight), false, app.flags, function()
-            ui.drawRectFilled(vec2(0, 0), vec2(position.session.timerwidth, position.session.boxheight), bgcolor)
+        ui.childWindow('Timer', vec2(sessionTimerDynamicWidth, position.session.boxheight), false, app.flags, function()
+            ui.drawRectFilled(vec2(0, 0), vec2(sessionTimerDynamicWidth, position.session.boxheight), bgcolor)
             ui.setCursor(position.session.staticpos)
             ui.pushDWriteFont(app.font.black)
             ui.dwriteText(sessionTypeString, smallTxt, color.white)
             ui.popDWriteFont()
             ui.setCursor(position.session.timertxt.contentpos)
             ui.pushDWriteFont(app.font.semi)
-            ui.dwriteTextAligned(sessionTimeString, bigTxt, 0, 0, vec2(position.session.timerwidth, position.session.timertxt.contentsize), false, color.white)
+            ui.dwriteTextAligned(sessionTimeString, bigTxt, 0, 0, vec2(sessionTimerDynamicWidth, position.session.timertxt.contentsize), false, color.white)
             ui.popDWriteFont()
         end)
     end
