@@ -41,7 +41,7 @@ settings = ac.storage {
 
     sessionShowPosition = true,
     sessionHideDisconnected = false,
-    sessionHideAI = false,
+    sessionHideAI = true,
     sessionShowLaps = true,
     sessionShowTimer = true,
     sessionTimerType = true,
@@ -56,8 +56,8 @@ settings = ac.storage {
     sectorsShowSectors = true,
     sectorsDisplayDuration = 5,
     sectorsShowPitInfo = true,
-    sectorsShowSpeedLimit = false,
-    sectorsShowRaceFlags = false,
+    sectorsShowSpeedLimit = true,
+    sectorsShowRaceFlags = true,
 
     fuelShowRemaining = true,
     fuelGallons = false,
@@ -72,7 +72,7 @@ settings = ac.storage {
     tiresShowBrakeTemp = true,
     tiresShowTempBar = true,
     tiresTempUseFahrenheit = false,
-    tiresShowWear = true,
+    tiresShowWear = false,
     tiresPressureColor = false,
     tiresBrakesConfigured = false,
 
