@@ -7,7 +7,7 @@ local timedSectorColor = {}
 local bestSectorTime = {}
 local totalSectors = #ac.getSim().lapSplits
 for i = 1, totalSectors do
-    timedSectorColor[i] = setColorMult(getColorTable().black, 75)
+    timedSectorColor[i] = setColorMult(getColorTable().black, 50)
 end
 
 ac.onSessionStart(function(sessionIndex, restarted)
@@ -17,7 +17,7 @@ ac.onSessionStart(function(sessionIndex, restarted)
         timedSectorColor = {}
         bestSectorTime = {}
         for i = 1, totalSectors do
-            timedSectorColor[i] = setColorMult(getColorTable().black, 75)
+            timedSectorColor[i] = setColorMult(getColorTable().black, 50)
         end
     end
 end)
@@ -80,7 +80,7 @@ function script.sectors(dt)
         if playerCar().lapTimeMs > settings.sectorsDisplayDuration * 1000 and timedSectorColor[lastTimedSector] ~= color.black and doThisOnce then
             doThisOnce = false
             for i = 1, totalSectors do
-                timedSectorColor[i] = setColorMult(color.black, 75)
+                timedSectorColor[i] = setColorMult(color.black, 50)
             end
         end
 
