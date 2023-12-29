@@ -18,7 +18,7 @@ A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa
 
 ## License
 
-This repository is under the [GNU GPL v3](https://choosealicense.com/licenses/gpl-3.0/) license. What does this mean?
+This repository is under the [GNU GPL v3](https://opensource.org/license/gpl-3-0/) license. What does this mean?
 
 ### What you can do:
 
@@ -44,27 +44,33 @@ You'll find me under **@c1xtz** and **[@C1XTZ](https://twitter.com/C1XTZ)** resp
 
 ## Shoutouts
 
-- **Ilja and the CSP team** for providing a almost useable Lua SDK
+- **Ilja and the CSP team** for providing a useable Lua SDK
 - **Cheesymaniac** for being the GOAT and answering all my questions
 - **Banda** for providing free 24/7 Psychotherapy
+- **leBluem and #csp-lua-chat** for being very helpful
+- **Murcy** for being my beta tester
 
 ## Credits
 
 ### Used in Rennsport HUD
 
 - **[Rennsport Logo](https://www.rennsport.gg/)** by Competition Company
-- **[IBM Plex Sans](https://fonts.google.com/specimen/IBM+Plex+Sans)** by Mike Abbink, Bold Monday
+- **[IBM Plex Sans](https://fonts.google.com/specimen/IBM+Plex+Sans)** by Mike Abbink and Bold Monday, under the [Open Font License](https://opensource.org/license/ofl-1-1/).
 
 #### Icons
 
-- **[Settings](https://thenounproject.com/icon/settings-791024/)** by Gregor Cresnar from Noun Project
-- **[Meter](https://thenounproject.com/icon/meter-1979347/)** by Vectors Market from Noun Project
-- **[Pedals](https://thenounproject.com/icon/pedals-5182160/)** by Noura Mbarki from Noun Project
-- **[Sim Racing Wheel](https://thenounproject.com/icon/sim-racing-steering-wheel-4957637/)** by Sascha Lücking from Noun Project
-- **[Steering Wheel](https://thenounproject.com/icon/steering-4035374/)** by Hamed Mirhashemi from Noun Project
-- **[Start Flag](https://thenounproject.com/icon/start-flag-4617835/)** by Ida Desi Mariana from Noun Project
-- **[Time Plus](https://thenounproject.com/icon/time-plus-5379003/)** by Braja Omar Justico from Noun Project
-- **[Stages](https://thenounproject.com/icon/stages-3863331/)** by Andrejs Kirma from Noun Project
-- **[Fuel](https://thenounproject.com/icon/fuel-4394216/)** by shashank singh from Noun Project
-- **[Radial Tyre](https://thenounproject.com/icon/radial-tyre-878236/)** by Souvik Bhattacharjee from Noun Project
-- **[Stopwatch Icon](https://thenounproject.com/icon/stopwatch-5714898/)** by Afqoh from Noun Project
+All Icons sourced from [The Noun Project](https://thenounproject.com/) are used under the [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)  
+Icons may have been modified for readability or consistency.  
+Changes can include, but are not limited to size, color, rotation, removal or elements, or filling of transparent areas.
+- **[Settings](https://thenounproject.com/icon/settings-791024/)** by Gregor Cresnar from The Noun Project
+- **[Meter](https://thenounproject.com/icon/meter-1979347/)** by Vectors Market from The Noun Project
+- **[Pedals](https://thenounproject.com/icon/pedals-5182160/)** by Noura Mbarki from The Noun Project
+- **[Sim Racing Wheel](https://thenounproject.com/icon/sim-racing-steering-wheel-4957637/)** by Sascha Lücking from The Noun Project
+- **[Steering Wheel](https://thenounproject.com/icon/steering-4035374/)** by Hamed Mirhashemi from The Noun Project
+- **[Start Flag](https://thenounproject.com/icon/start-flag-4617835/)** by Ida Desi Mariana from The Noun Project
+- **[Time Plus](https://thenounproject.com/icon/time-plus-5379003/)** by Braja Omar Justico from The Noun Project
+- **[Stages](https://thenounproject.com/icon/stages-3863331/)** by Andrejs Kirma from The Noun Project
+- **[Fuel](https://thenounproject.com/icon/fuel-4394216/)** by shashank singh from The Noun Project
+- **[Radial Tyre](https://thenounproject.com/icon/radial-tyre-878236/)** by Souvik Bhattacharjee from The Noun Project
+- **[Stopwatch Icon](https://thenounproject.com/icon/stopwatch-5714898/)** by Afqoh from The Noun Project
+- **[Leaderboard](https://thenounproject.com/icon/leaderboard-2696196/)** by Adrien Coquet from The Noun Project
