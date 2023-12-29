@@ -92,7 +92,7 @@ function script.session(dt)
             displayedSessionTimeMs = playerSession.sessionTimeLeft
         end
 
-        local sessionTimerDynamicWidth = position.session.timerwidth 
+        local sessionTimerDynamicWidth = position.session.timerwidth
         if displayedSessionTimeMs > 35999999 then
             sessionTimerDynamicWidth = sessionTimerDynamicWidth + scale(25)
         end

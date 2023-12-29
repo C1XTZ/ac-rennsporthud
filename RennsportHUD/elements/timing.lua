@@ -40,10 +40,7 @@ function resetTiming(all)
 end
 
 ac.onSessionStart(function(sessionIndex, restarted)
-    if restarted then
-        restarted = false
-        resetTiming(true)
-    end
+    resetTiming(true)
 end)
 
 resetTiming(true)

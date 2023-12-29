@@ -33,7 +33,7 @@ end
 function getLUTMedian(lutStr)
     local xTable, yTable = {}, {}
     local yHighest = -1
-    for x, y in lutStr:gmatch("|(%d+)=(%d*%.?%d*)") do
+    for x, y in lutStr:gmatch('|(%d+)=(%d*%.?%d*)') do
         table.insert(xTable, tonumber(x))
         local yValue = tonumber(y)
         table.insert(yTable, yValue)
@@ -62,7 +62,7 @@ function getLUTMedian(lutStr)
 end
 
 local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
-local tireName = playerCar():tyresLongName():gsub("%s?%b()", "")
+local tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
 ---@return number frontPressure, number rearPressure
 --reads and returns ideal tire pressure
 local function getOptPressure()
@@ -96,7 +96,7 @@ end
 if not fBrakeLut or not rBrakeLut then
     fOptBrakeTemp, rOptBrakeTemp = -1, -1
 else
-    if string.match(fBrakeLut, "%.lut$") and string.match(rBrakeLut, "%.lut$") then
+    if string.match(fBrakeLut, '%.lut$') and string.match(rBrakeLut, '%.lut$') then
         fOptBrakeTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, fBrakeLut):serialize())
         rOptBrakeTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, rBrakeLut):serialize())
     else
@@ -129,7 +129,7 @@ function script.tires(dt)
 
     if settings.tiresShowPressure and settings.tiresPressureColor and playerCar().compoundIndex ~= currComp then
         currComp = playerCar().compoundIndex
-        tireName = playerCar():tyresLongName():gsub("%s?%b()", "")
+        tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
         tireIni.fPressOpt, tireIni.rPressOpt = getOptPressure()
     end
 
