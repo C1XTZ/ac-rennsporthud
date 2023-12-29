@@ -1,7 +1,6 @@
 function getAppTable()
     local app = {
-        --on my 1920x1080 monitor at >3.6 scale, some of the app windows reach a maximum size (mostly width) that I cant change(?)
-        scale = 1,
+        scale = 1, --on 1920x1080, at >3.6 scale, some of the app windows reach a maximum size (mostly width) that I cant change. Ill file this under "non-issues"
         padding = 22,
         flags = bit.bor(ui.WindowFlags.NoDecoration, ui.WindowFlags.NoBackground, ui.WindowFlags.NoNav, ui.WindowFlags.NoInputs, ui.WindowFlags.NoScrollbar),
         font = {

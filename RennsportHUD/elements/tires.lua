@@ -1,6 +1,6 @@
 ---@param hue number Hue value, should be 0-240
 ---@return rgb
---this function is a simplified version of an HSL to RGB converter where the saturation is always at 100%, and the lightness is at 50%.
+--this function is a simplified version of a HSL to RGB converter where the saturation is always at 100%, and the lightness is at 50%.
 function hueToRgb(hue)
     local h = hue / 60
     local c = 1
@@ -63,6 +63,7 @@ end
 
 local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
 local tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
+
 ---@return number frontPressure, number rearPressure
 --reads and returns ideal tire pressure
 local function getOptPressure()
@@ -133,7 +134,7 @@ function script.tires(dt)
         tireIni.fPressOpt, tireIni.rPressOpt = getOptPressure()
     end
 
-    --[[ LEFT SIDE TEMPS ARE FLIPPED, MEANING tyreInsideTemperature and tyreOutsideTemperature ARE FLIPPED FOR wheels[0] and wheels[2] IF THIS IS EVER FIXED I NEED TO ADJUST THE DRAWING ORDER FOR THE LEFT SIDE XD
+    --[[ LEFT SIDE TEMPS ARE FLIPPED, MEANING tyreInsideTemperature and tyreOutsideTemperature ARE FLIPPED FOR wheels[0] and wheels[2]
     ac.debug('FRONT LEFT OT', ac.getCar(0).wheels[0].tyreOutsideTemperature)
     ac.debug('FRONT LEFT MT', ac.getCar(0).wheels[0].tyreMiddleTemperature)
     ac.debug('FRONT LEFT IT', ac.getCar(0).wheels[0].tyreInsideTemperature)
@@ -363,7 +364,7 @@ function script.tires(dt)
         end)
 
         vertOffset = math.round(vertOffset + math.floor(position.tires.tempbarheight))
-        if vertOffset % 2 ~= 0 then vertOffset = vertOffset - 1 end --scaling bandaid lole
+        if vertOffset % 2 ~= 0 then vertOffset = vertOffset - 1 end
         horiOffset = 0
         horiOffset = 0
     end

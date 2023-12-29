@@ -42,8 +42,7 @@ end
 ---@param showSeconds boolean? if true displays as SS
 ---@param showSubSecond boolean? if true displays as sss
 ---@return string
---calculates the number of seconds, minutes and hours from milliseconds
---I know that ac.lapTimeToString exists but this is more flexable
+--calculates the number of seconds, minutes and hours from milliseconds, I know that ac.lapTimeToString exists
 function formatTime(milliseconds, showHours, showMinutes, showSeconds, showSubSecond)
     if milliseconds < 0 then milliseconds = milliseconds * -1 end
 

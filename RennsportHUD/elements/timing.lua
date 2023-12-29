@@ -174,7 +174,6 @@ function script.timing(dt)
         vertOffset = math.floor(vertOffset + scale(45))
     end
 
-    --TODO: reverse drawing from fixed pos downwards to start at lowest point and work upwards
     if settings.timingShowTable then
         local columSpace = scale(4)
         ui.setCursor(vec2(0, vertOffset))

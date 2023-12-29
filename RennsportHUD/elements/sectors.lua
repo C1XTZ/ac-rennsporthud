@@ -66,7 +66,6 @@ function script.sectors(dt)
                 end
             end
 
-            --I know this is only comparing against your own best time and not also ever other car for purple, I dont have a good way to test this anyway since I dont have any friends :)
             if #sectorTimeCurrent > 0 then
                 if #bestSectorTime == 0 or sectorTimeCurrent[lastTimedSector] <= bestSectorTime[lastTimedSector] then
                     timedSectorColor[lastTimedSector] = setColorMult(color.purple, 100)
@@ -128,12 +127,6 @@ function script.sectors(dt)
         local flagTxtSize = scale(14)
         local flagColor = rgbm.colors.fuchsia
         local txtColor = rgbm.colors.fuchsia
-        --[[    this says its a flag for session start, but when I tested it in singleplayer it was just the default state after the race begun
-        if playerSession.raceFlagType == ac.FlagType.Start then
-            flagTxt = 'START'
-            flagColor = color.white
-            txtColor = color.black
-        else    --]]
         if playerSession.raceFlagType == ac.FlagType.Caution then
             flagTxt = 'CAUTION, YELLOW FLAG'
             flagColor = color.yellow
