@@ -5,7 +5,7 @@ local sectorTimeCurrent = {}
 local sectorTimePrevious = {}
 local timedSectorColor = {}
 local bestSectorTime = {}
-local totalSectors = #ac.getSim().lapSplits
+local totalSectors = math.max(#ac.getSim().lapSplits, 2)
 for i = 1, totalSectors do
     timedSectorColor[i] = setColorMult(getColorTable().black, 50)
 end
@@ -27,8 +27,13 @@ function script.sectors(dt)
     local horiOffset = 0
     local position = getPositionTable()
     local playerSession = ac.getSim()
+    if #ac.getSim().lapSplits > 0 and settings.sectorsDisable then
+        settings.sectorsDisable = false
+    elseif #ac.getSim().lapSplits < 1 and not settings.sectorsDisable then
+        settings.sectorsDisable = true
+    end
 
-    if settings.sectorsShowSectors then
+    if settings.sectorsShowSectors and not settings.sectorsDisable then
         local newSectorIndex = playerCar().currentSector + 1
         if newSectorIndex ~= previouslastTimedSector then
             lastTimedSector = previouslastTimedSector

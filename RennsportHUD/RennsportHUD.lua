@@ -58,6 +58,7 @@ settings = ac.storage {
     sectorsShowPitInfo = true,
     sectorsShowSpeedLimit = true,
     sectorsShowRaceFlags = true,
+    sectorsDisable = false,
 
     fuelShowRemaining = true,
     fuelGallons = false,
@@ -189,11 +190,13 @@ function script.windowMain(dt)
             end
         end)
         ui.tabItem('Sectors', function()
-            if ui.checkbox('Show Sectors', settings.sectorsShowSectors) then settings.sectorsShowSectors = not settings.sectorsShowSectors end
-            if settings.sectorsShowSectors then
-                ui.text('\t')
-                ui.sameLine()
-                settings.sectorsDisplayDuration = ui.slider('##SectorDisplayDuration', settings.sectorsDisplayDuration, 1, 60, 'Display Last Lap Sectors For: ' .. '%1.0f s')
+            if #ac.getSim().lapSplits > 0 then
+                if ui.checkbox('Show Sectors', settings.sectorsShowSectors) then settings.sectorsShowSectors = not settings.sectorsShowSectors end
+                if settings.sectorsShowSectors then
+                    ui.text('\t')
+                    ui.sameLine()
+                    settings.sectorsDisplayDuration = ui.slider('##SectorDisplayDuration', settings.sectorsDisplayDuration, 1, 60, 'Display Last Lap Sectors For: ' .. '%1.0f s')
+                end
             end
             if ui.checkbox('Show Pitlane Info', settings.sectorsShowPitInfo) then settings.sectorsShowPitInfo = not settings.sectorsShowPitInfo end
             if settings.sectorsShowPitInfo then

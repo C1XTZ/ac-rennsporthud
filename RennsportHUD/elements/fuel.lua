@@ -5,7 +5,6 @@ function script.fuel(dt)
     local fuelLerp = math.lerp(0, ui.windowWidth(), playerCar().fuel / playerCar().maxFuel)
     local fuelBarColor = color.uigreen
 
-
     ui.setCursor(vec2(0, vertOffset))
     ui.childWindow('FuelBar', position.fuel.barsize, function()
         ui.drawRectFilled(vec2(0, 0), vec2(ui.windowWidth(), position.fuel.barsize.y), color.black)
