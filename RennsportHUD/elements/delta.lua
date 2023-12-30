@@ -12,8 +12,7 @@ end
 function script.delta(dt)
     local position = getPositionTable()
     local childOffset = app.padding
-
-    if (settings.deltaHidden and playerCar().performanceMeter ~= 0) or not settings.deltaHidden then
+    if (settings.deltaHidden and playerCar().estimatedLapTimeMs > 0) or not settings.deltaHidden then
         local playerSession = ac.getSim()
         local vertOffset = 0
         local fontsize = scale(14)
