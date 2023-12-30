@@ -11,14 +11,11 @@ for i = 1, totalSectors do
 end
 
 ac.onSessionStart(function(sessionIndex, restarted)
-    if restarted then
-        restarted = false
-        sectorTimeCurrent = {}
-        timedSectorColor = {}
-        bestSectorTime = {}
-        for i = 1, totalSectors do
-            timedSectorColor[i] = setColorMult(getColorTable().black, 50)
-        end
+    sectorTimeCurrent = {}
+    timedSectorColor = {}
+    bestSectorTime = {}
+    for i = 1, totalSectors do
+        timedSectorColor[i] = setColorMult(getColorTable().black, 50)
     end
 end)
 
@@ -136,7 +133,7 @@ function script.sectors(dt)
             flagColor = color.blue
             txtColor = color.black
         elseif playerSession.raceFlagType == ac.FlagType.ReturnToPits then
-            flagTxt = 'YOU HAVE A PENALTY, RETURN TO PITS'
+            flagTxt = 'YOU HAVE A PENALTY'
             flagColor = color.white
             txtColor = color.black
         elseif playerSession.raceFlagType == ac.FlagType.OneLapLeft then
