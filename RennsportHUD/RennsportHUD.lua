@@ -10,6 +10,7 @@ require('elements/sectors')
 require('elements/fuel')
 require('elements/tires')
 require('elements/timing')
+require('elements/leaderboard')
 
 settings = ac.storage {
     changeScale = false,
@@ -83,6 +84,16 @@ settings = ac.storage {
     timingLapStatsLast = true,
     timingLapStatsIdeal = true,
     timingShowTable = true,
+
+    lbShowPos = true,
+    lbShowNum = true,
+    lbShowName = true,
+    lbShowCar = true,
+    lbShowLap = true,
+    lbShowLast = true,
+    lbShowBest = true,
+    lbShowInt = true,
+    lbMaxCars = 10,
 }
 
 app = getAppTable()
@@ -288,6 +299,19 @@ function script.windowMain(dt)
                 if ui.checkbox('Show Ideal Laptime', settings.timingLapStatsIdeal) then settings.timingLapStatsIdeal = not settings.timingLapStatsIdeal end
             end
             if ui.checkbox('Show Lap History', settings.timingShowTable) then settings.timingShowTable = not settings.timingShowTable end
+        end)
+        ui.tabItem('Leaderboard', function()
+            ui.text('\t')
+            ui.sameLine()
+            settings.lbMaxCars = ui.slider('##lbMaxCars', settings.lbMaxCars, 1, 50, 'Show: ' .. '%.0f cars')
+            if ui.checkbox('Show Position', settings.lbShowPos) then settings.lbShowPos = not settings.lbShowPos end
+            if ui.checkbox('Show Car Number', settings.lbShowNum) then settings.lbShowNum = not settings.lbShowNum end
+            if ui.checkbox('Show Driver Name', settings.lbShowName) then settings.lbShowName = not settings.lbShowName end
+            if ui.checkbox('Show Car Model', settings.lbShowCar) then settings.lbShowCar = not settings.lbShowCar end
+            if ui.checkbox('Show Laps Done', settings.lbShowLap) then settings.lbShowLap = not settings.lbShowLap end
+            if ui.checkbox('Show Last Laptime', settings.lbShowLast) then settings.lbShowLast = not settings.lbShowLast end
+            if ui.checkbox('Show Best Laptime', settings.lbShowBest) then settings.lbShowBest = not settings.lbShowBest end
+            if ui.checkbox('Show Interval', settings.lbShowInt) then settings.lbShowInt = not settings.lbShowInt end
         end)
     end)
 end

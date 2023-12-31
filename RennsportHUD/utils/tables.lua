@@ -124,6 +124,14 @@ function getPositionTable()
                 time = scale(80),
             },
         },
+        leaderboard = {
+            height = scale(20),
+            pnl = scale(45),
+            time = scale(72),
+            int = scale(56),
+            ends = scale(10),
+            lap = scale(28),
+        },
     }
 
     position.essentials.inputbar.gap = scale(position.essentials.inputbar.gap + position.essentials.inputbar.size.x / app.scale)

@@ -1,6 +1,8 @@
 # RennsportHUD for AC
 A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa 
 
+<img src="https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/master/.github/img/preview.png">
+
 ## Currently Available Elements:
 
 - HUD Settings
@@ -12,9 +14,7 @@ A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa
 - Fuel (Shows current fuel level (Litres or Gallons), calculated laps left)
 - Personal Timings (Current Laptime, Last Laptime, Best Laptime, Ideal Laptime, Last Lap History, Sectors)
 - Tires (Tire Pressure, Tire Temperature, Tire Wear, Brake Temperature)
-
-<img src="https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/master/.github/img/preview.png">
-
+- Leaderboard (Position, Car Number, Driver Name, Car Name, Best Laptime, Last Laptime, Interval)
 
 ## License
 
@@ -37,10 +37,10 @@ This repository is under the [GNU GPL v3](https://opensource.org/license/gpl-3-0
 - Liability
 - Warranty
 
-This may seem like a lot, but the general gist is: if you're going to use it, make sure people know where it's from, or if you're going to modify it, the modifications are public. The easiest way to do this is to create a [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/about-forks) of the repo/file you want to use/modify.
+This may seem like a lot, but the general gist is: if you're going to use it, make sure people know where it's from, or if you're going to modify it, the modifications are public. The easiest way to do this is to create a [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/about-forks) of the repo/file you want to use/modify
 
-Any questions or suggestions feel free to message me here, on Discord or on Twitter.  
-You'll find me under **@c1xtz** and **[@C1XTZ](https://twitter.com/C1XTZ)** respectively.
+Any questions or suggestions feel free to message me here, on Discord or on Twitter  
+You'll find me under **[@c1xtz](https://discord.com/users/856601560728207371)** and **[@C1XTZ](https://twitter.com/C1XTZ)** respectively
 
 ## Shoutouts
 
@@ -55,13 +55,13 @@ You'll find me under **@c1xtz** and **[@C1XTZ](https://twitter.com/C1XTZ)** resp
 ### Used in Rennsport HUD
 
 - **[Rennsport Logo](https://www.rennsport.gg/)** by Competition Company
-- **[IBM Plex Sans](https://fonts.google.com/specimen/IBM+Plex+Sans)** by Mike Abbink and Bold Monday, under the [Open Font License](https://opensource.org/license/ofl-1-1/).
+- **[IBM Plex Sans](https://fonts.google.com/specimen/IBM+Plex+Sans)** by Mike Abbink and Bold Monday, under the [Open Font License](https://opensource.org/license/ofl-1-1/)
 
 #### Icons
 
-All Icons sourced from [The Noun Project](https://thenounproject.com/) are used under the [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)  
-Icons may have been modified for readability or consistency.  
-Changes can include, but are not limited to size, color, rotation, removal or elements, or filling of transparent areas.
+All Icons sourced from [The Noun Project](https://thenounproject.com/) are used under the [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/).  
+Icons may have been modified for readability or consistency  
+Changes can include, but are not limited to size, color, rotation, removal or elements, or filling of transparent areas
 - **[Settings](https://thenounproject.com/icon/settings-791024/)** by Gregor Cresnar from The Noun Project
 - **[Meter](https://thenounproject.com/icon/meter-1979347/)** by Vectors Market from The Noun Project
 - **[Pedals](https://thenounproject.com/icon/pedals-5182160/)** by Noura Mbarki from The Noun Project
