@@ -1,20 +1,25 @@
 # RennsportHUD for AC
-A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa 
+A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa
 
-<img src="https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/master/.github/img/preview.png">
+### Currently Available Elements:
 
-## Currently Available Elements:
+- **HUD Settings**
+- **Essentials** (Speed, Gear, RPMs)
+- **Inputs** (Steering, Force Feedback, Pedals, Car electronics like ABS, TCS and Brake Bias)
+- **Session Info** (Position, Laps, Time Left in Session / Session Duration)
+- **Laptime Delta** (Difference between own current lap and best lap, Predicted Laptime, Difference visualization bar)
+- **Sectors** (Shows current sector vs own best sectors, Pitlane speed, Race Flags (Yellow Flag, Blue flag, etc)
+- **Fuel** (Shows current fuel level (Litres or Gallons), calculated laps left)
+- **Personal Timings** (Current Laptime, Last Laptime, Best Laptime, Ideal Laptime, Last Lap History, Sectors)
+- **Tires** (Tire Pressure, Tire Temperature, Tire Wear, Brake Temperature)
+- **Leaderboard** (Position, Car Number, Driver Name, Car Name, Best Laptime, Last Laptime, Interval)
 
-- HUD Settings
-- Essentials (Speed, Gear, RPMs)
-- Inputs (Steering, Force Feedback, Pedals, Car electronics like ABS, TCS and Brake Bias)
-- Session Info (Position, Laps, Time Left in Session / Session Duration)
-- Delta (Difference between own current lap and best lap, Predicted Laptime, Difference visualization bar)
-- Sectors (Shows current sector vs own best sectors, Pitlane speed, Race Flags (Yellow Flag, Blue flag, etc)
-- Fuel (Shows current fuel level (Litres or Gallons), calculated laps left)
-- Personal Timings (Current Laptime, Last Laptime, Best Laptime, Ideal Laptime, Last Lap History, Sectors)
-- Tires (Tire Pressure, Tire Temperature, Tire Wear, Brake Temperature)
-- Leaderboard (Position, Car Number, Driver Name, Car Name, Best Laptime, Last Laptime, Interval)
+### HUD PREVIEW AND SETTINGS SHOWCASES
+<img src="https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/master/.github/img/preview.png" width="980">
+
+[<img src="https://xtz.s-ul.eu/AC/pVi888hZ.png" width="490"
+/>](https://youtu.be/0haxxHncR-o) [<img src="https://xtz.s-ul.eu/AC/rwQfAfNZ.png" width="490"
+/>](https://youtu.be/0_Cc36foxtM)
 
 ## License
 
