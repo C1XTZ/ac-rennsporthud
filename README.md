@@ -15,10 +15,10 @@ A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa
 - **Leaderboard** (Position, Car Number, Driver Name, Car Name, Best Laptime, Last Laptime, Interval)
 
 ### HUD PREVIEW AND SETTINGS SHOWCASES
-<img src="https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/master/.github/img/preview.png" width="980">
+<img src="https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/master/.github/img/preview.png" width="820">
 
-[<img src="https://xtz.s-ul.eu/AC/pVi888hZ.png" width="490"
-/>](https://youtu.be/0haxxHncR-o) [<img src="https://xtz.s-ul.eu/AC/rwQfAfNZ.png" width="490"
+[<img src="https://xtz.s-ul.eu/AC/pVi888hZ.png" width="410"
+/>](https://youtu.be/0haxxHncR-o) [<img src="https://xtz.s-ul.eu/AC/rwQfAfNZ.png" width="410"
 />](https://youtu.be/0_Cc36foxtM)
 
 ## License
