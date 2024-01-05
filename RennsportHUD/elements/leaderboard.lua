@@ -131,16 +131,6 @@ local maxCarLength = 0
 function onShowLeaderboard()
     updateInterval = setInterval(function()
         updateLeaderboard()
-        for i = 1, #lbTable do
-            local currentNameLength = string.len(lbTable[i].name)
-            if currentNameLength > maxNameLength then
-                maxNameLength = math.max(9, currentNameLength)
-            end
-            local currentCarLength = string.len(lbTable[i].car)
-            if currentCarLength > maxCarLength then
-                maxCarLength = math.max(9, currentCarLength)
-            end
-        end
     end, 0.25, 'LB')
 end
 
@@ -180,22 +170,44 @@ function script.leaderboard(dt)
     sim = ac.getSim()
     session = ac.getSession(sim.currentSessionIndex)
 
+    local fontSizeSmall = scale(14)
+    local prevFontSizeSmall = nil
+    local columSpace = scale(6)
+    local signWidth = scale(30)
+    local horiOffset, vertOffset = 0, app.padding
+    headerTotalWidth = (position.leaderboard.ends * 2) + signWidth
+
+
+    if fontSizeSmall ~= prevFontSizeSmall and lbTable then
+        maxNameLength = 0
+        maxCarLength = 0
+        ui.pushDWriteFont(app.font.black)
+        for i = 1, #lbTable do
+            local currentNameLength = math.round(ui.measureDWriteText(lbTable[i].name, fontSizeSmall).x)
+            if currentNameLength > maxNameLength then
+                maxNameLength = math.round(ui.measureDWriteText(lbTable[i].name, fontSizeSmall).x)
+            end
+            local currentCarLength = math.round(ui.measureDWriteText(lbTable[i].car, fontSizeSmall).x)
+            if currentCarLength > maxCarLength then
+                maxCarLength = math.round(ui.measureDWriteText(lbTable[i].car, fontSizeSmall).x)
+            end
+        end
+        ui.popDWriteFont()
+    end
+
+    prevFontSizeSmall = fontSizeSmall
+
+
     local displayData = {
         lbShowPos = { width = position.leaderboard.pnl, str = 'Pos.' },
         lbShowNum = { width = position.leaderboard.pnl, str = 'Num' },
-        lbShowName = { width = math.round((scale(7.8) * maxNameLength)), str = 'Name' },
-        lbShowCar = { width = math.round((scale(7.8) * maxCarLength)), str = 'Car' },
+        lbShowName = { width = (settings.lbManNameLength and settings.lbManNameLengthNum or maxNameLength), str = 'Name' },
+        lbShowCar = { width = (settings.lbManCarLength and settings.lbManCarLengthNum or maxCarLength), str = 'Car' },
         lbShowLap = { width = position.leaderboard.lap, str = 'Lap' },
         lbShowLast = { width = position.leaderboard.time, str = 'Last' },
         lbShowBest = { width = position.leaderboard.time, str = 'Best' },
         lbShowInt = { width = position.leaderboard.int, str = 'Interval' },
     }
-
-    local fontSizeSmall = scale(14)
-    local columSpace = scale(6)
-    local signWidth = scale(30)
-    local horiOffset, vertOffset = 0, app.padding
-    headerTotalWidth = (position.leaderboard.ends * 2) + signWidth
 
     for i, setting in ipairs(displayOrder) do
         local data = displayData[setting]

@@ -94,6 +94,10 @@ settings = ac.storage {
     lbShowBest = true,
     lbShowInt = true,
     lbMaxCars = 10,
+    lbManNameLength = false,
+    lbManNameLengthNum = 125,
+    lbManCarLength = false,
+    lbManCarLengthNum = 125,
 }
 
 app = getAppTable()
@@ -307,7 +311,27 @@ function script.windowMain(dt)
             if ui.checkbox('Show Position', settings.lbShowPos) then settings.lbShowPos = not settings.lbShowPos end
             if ui.checkbox('Show Car Number', settings.lbShowNum) then settings.lbShowNum = not settings.lbShowNum end
             if ui.checkbox('Show Driver Name', settings.lbShowName) then settings.lbShowName = not settings.lbShowName end
+            if settings.lbShowName then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Manual Name Length', settings.lbManNameLength) then settings.lbManNameLength = not settings.lbManNameLength end
+                if settings.lbManNameLength then
+                    ui.text('\t')
+                    ui.sameLine()
+                    settings.lbManNameLengthNum = ui.slider('##lbNameNum', settings.lbManNameLengthNum, 5, 1000, 'Name Length: ' .. '%.0f pixel')
+                end
+            end
             if ui.checkbox('Show Car Model', settings.lbShowCar) then settings.lbShowCar = not settings.lbShowCar end
+            if settings.lbShowCar then
+                ui.text('\t')
+                ui.sameLine()
+                if ui.checkbox('Manual Car Length', settings.lbManCarLength) then settings.lbManCarLength = not settings.lbManCarLength end
+                if settings.lbManCarLength then
+                    ui.text('\t')
+                    ui.sameLine()
+                    settings.lbManCarLengthNum = ui.slider('##lbCarNum', settings.lbManCarLengthNum, 5, 1000, 'Name Length: ' .. '%.0f pixel')
+                end
+            end
             if ui.checkbox('Show Laps Done', settings.lbShowLap) then settings.lbShowLap = not settings.lbShowLap end
             if ui.checkbox('Show Last Laptime', settings.lbShowLast) then settings.lbShowLast = not settings.lbShowLast end
             if ui.checkbox('Show Best Laptime', settings.lbShowBest) then settings.lbShowBest = not settings.lbShowBest end
