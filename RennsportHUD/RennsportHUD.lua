@@ -38,7 +38,7 @@ settings = ac.storage {
     inputsShowBrake = true,
     inputsShowGas = true,
     inputsShowElectronics = true,
-    inputsPedalColors = true,
+    inputsPedalColors = false,
 
     sessionShowPosition = true,
     sessionHideDisconnected = false,
@@ -48,7 +48,7 @@ settings = ac.storage {
     sessionTimerType = true,
     sessionAlwaysShowDuration = false,
 
-    deltaHidden = true,
+    deltaHidden = false,
     deltaShowTimer = true,
     deltaShowPrediction = true,
     deltaShowBar = true,
