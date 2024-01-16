@@ -1,6 +1,6 @@
----@param car ac.StateCar
----@return string
---takes a ac.StateCar and removes the brand from the car name
+---@param car ac.StateCar @The car from which the brand is to be removed.
+---@return string @The name of the car without the brand.
+--- Takes an ac.StateCar and retuns car name with the brand removed.
 function removeBrand(car)
     local brand = car:brand()
     local name = car:name()
@@ -12,9 +12,9 @@ function removeBrand(car)
     return name:match('^%s*(.-)%s*$')
 end
 
----@param timeMs integer
----@return string
---format laptime ms to MM:SS.sss, returns --.--- when 0 like in rennsport
+---@param timeMs integer @The lap time in milliseconds.
+---@return string @The formatted lap time.
+--- Formats lap time from milliseconds to MM:SS.sss, returns --:--.--- when 0.
 function formatLapTime(timeMs)
     local formattedTime = formatTime(timeMs, false, true, true, true)
     if formattedTime == '00:00.000' then
@@ -24,9 +24,9 @@ function formatLapTime(timeMs)
     end
 end
 
----@param car ac.StateCar
----@param i integer
---write and update car data
+---@param car ac.StateCar @The car to be updated.
+---@param i integer @The index of the car.
+--- Writes and updates car data.
 function updateCar(car, i)
     if not sim.isOnlineRace then
         lbTable[i + 1] = {
@@ -59,7 +59,8 @@ for i = 1, ac.getSim().carsCount do
     if ac.getCar(i - 1).isConnected and not ac.getCar(i - 1).isHidingLabels then carCount = carCount + 1 end
 end
 
---session.leaderboard sorting is dogshit in non race sessions so im writing my own
+--- Updates the leaderboard.
+--- A custom sorting function because the default session.leaderboard does not work like I want it to.
 function updateLeaderboard()
     if not lbTable then lbTable = {} end
     carCount = 0

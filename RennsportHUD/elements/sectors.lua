@@ -157,7 +157,7 @@ function script.sectors(dt)
                     ui.drawRectFilled(vec2(0, 0), vec2(ui.availableSpaceX() / 1, position.sectors.pitheight), color.black)
                     ui.drawRectFilled(vec2(ui.availableSpaceX() - ui.availableSpaceX() / 5, 0), vec2(ui.availableSpaceX() / 5, position.sectors.pitheight), color.white)
                 elseif playerSession.raceFlagType == ac.FlagType.Finished then
-                    ui.drawImage('./img/CequeredFlag.png', vec2(0, 0), vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight), true)
+                    ui.drawImage('./img/CequeredFlag.png', vec2(0, 0), vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight))
                     ui.drawRectFilled(vec2(ui.availableSpaceX() - ui.availableSpaceX() / 3, 0), vec2(ui.availableSpaceX() / 3, position.sectors.pitheight), color.black)
                 else
                     ui.drawRectFilled(vec2(0, 0), vec2(ui.availableSpaceX(), position.sectors.pitheight), flagColor)

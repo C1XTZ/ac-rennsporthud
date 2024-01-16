@@ -1,6 +1,6 @@
----@param hue number Hue value, should be 0-240
----@return rgb
---this function is a simplified version of a HSL to RGB converter where the saturation is always at 100%, and the lightness is at 50%.
+---@param hue number @Hue value, should be 0-240.
+---@return rgb @The RGB value.
+--- A simplified version of a HSL to RGB converter where the saturation is always at 100%, and the lightness is at 50%.
 function hueToRgb(hue)
     local h = hue / 60
     local c = 1
@@ -26,10 +26,9 @@ function hueToRgb(hue)
     return rgb(r + m, g + m, b + m)
 end
 
----@param lutStr string
----@return integer
---Thanks to leBluem for the inspiration
---takes a lut or lutstring and calculates the median temperature value of the highest performance value
+---@param lutStr string @A LUT string.
+---@return integer @The median temperature value of the highest performance value.
+--- Inspired by pseudo code from leBluem, this calculates the median temperature value of the highest performance value from a LUT string.
 function getLUTMedian(lutStr)
     local xTable, yTable = {}, {}
     local yHighest = -1
@@ -64,34 +63,64 @@ end
 local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
 local tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
 
----@return number frontPressure, number rearPressure
---reads and returns ideal tire pressure
+--- Retrieves a property value for a given tire name in a given section.
+---@param sectionName string @The section to look in.
+---@param propertyName string @The property to get.
+---@return any @The property value for the given tire name in the given section.
+local function getTireProperty(sectionName, propertyName)
+    for index, section in tireIni:iterate(sectionName, true) do
+        if tireIni:get(section, 'NAME', nil)[1] == tireName then
+            if propertyName == 'PERFORMANCE_CURVE' then
+                return tireIni:get('THERMAL_' .. section, propertyName, 'string')
+            else
+                return tireIni:get(section, propertyName, 'string')
+            end
+        end
+    end
+end
+
+--- Retrieves the optimal pressures for the front and rear tires.
+---@return number frontPressure @The optimal pressure for the front tires.
+---@return number rearPressure @The optimal pressure for the rear tires.
 local function getOptPressure()
-    local frontPressure, rearPressure
-
-    for index, section in tireIni:iterate('FRONT', true) do
-        if tireIni:get(section, 'NAME', nil)[1] == tireName then
-            frontPressure = tireIni:get(section, 'PRESSURE_IDEAL', 'number')
-            break
-        end
-    end
-
-    for index, section in tireIni:iterate('REAR', true) do
-        if tireIni:get(section, 'NAME', nil)[1] == tireName then
-            rearPressure = tireIni:get(section, 'PRESSURE_IDEAL', 'number')
-            break
-        end
-    end
-
+    local frontPressure = getTireProperty('FRONT', 'PRESSURE_IDEAL')
+    local rearPressure = getTireProperty('REAR', 'PRESSURE_IDEAL')
     return frontPressure, rearPressure
 end
+
+--- Retrieves the optimal temperatures for the front and rear tires.
+---@return number frontOptTemp @The optimal temperature for the front tires.
+---@return number rearOptTemp @The optimal temperature for the rear tires.
+local function getOptTemperature()
+    local frontCurve = getTireProperty('FRONT', 'PERFORMANCE_CURVE')
+    local rearCurve = getTireProperty('REAR', 'PERFORMANCE_CURVE')
+    local frontOptTemp, rearOptTemp
+
+    if string.match(frontCurve, '%.lut$') then
+        frontOptTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, frontCurve):serialize())
+    else
+        frontOptTemp = getLUTMedian(frontCurve)
+    end
+
+    if string.match(rearCurve, '%.lut$') then
+        rearOptTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, rearCurve):serialize())
+    else
+        rearOptTemp = getLUTMedian(rearCurve)
+    end
+
+    return frontOptTemp, rearOptTemp
+end
+
+local frontOptTemp, rearOptTemp = getOptTemperature()
 
 local brakeIni = ac.INIConfig.carData(playerCar().index, 'brakes.ini')
 local fOptBrakeTemp, rOptBrakeTemp, fBrakeLut, rBrakeLut
 
+local brakesFound = false
 if brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil) then
     fBrakeLut = tostring(brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil)[1])
     rBrakeLut = tostring(brakeIni:get('TEMPS_REAR', 'PERF_CURVE', nil)[1])
+    brakesFound = true
 end
 
 if not fBrakeLut or not rBrakeLut then
@@ -115,14 +144,18 @@ local flWearColor, frWearColor, rlWearColor, rrWearColor, rlPressure, unitTxt
 local currComp = -1
 
 local wearPercent = { 0.75, 0.50, 0.0 }
-local wearPercentColors = { getColorTable().red, getColorTable().orange, getColorTable().white }
+local wearPercentColors = { getColorTable().red, getColorTable().yellow, getColorTable().white }
+
+local tempCurrent = {}
+local tempOptimal = {}
+local tempCore = {}
 
 function script.tires(dt)
     local position = getPositionTable()
     local vertOffset = math.round(app.padding)
     local horiOffset = 0
 
-    if brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil) then
+    if brakesFound then
         settings.tiresBrakesConfigured = true
     else
         settings.tiresBrakesConfigured = false
@@ -166,20 +199,27 @@ function script.tires(dt)
         end
     end
 
-    local tempCurrent = {}
-    local tempOptimal = {}
-
     for i = 0, 3 do
         local wheel = playerCar().wheels[i]
+        tempOptimal[i + 1] = (i < 2) and frontOptTemp or rearOptTemp
         tempCurrent[i + 1] = { wheel.tyreOutsideTemperature, wheel.tyreMiddleTemperature, wheel.tyreInsideTemperature }
-        tempOptimal[i + 1] = wheel.tyreOptimumTemperature
+        if settings.tiresUseCore then tempCore[i + 1] = { wheel.tyreCoreTemperature, wheel.tyreCoreTemperature, wheel.tyreCoreTemperature } end
     end
 
-    for i = 1, 3 do
-        flTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[1][i] / tempOptimal[1]) ^ 3.5), 0, 2))
-        frTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[2][i] / tempOptimal[2]) ^ 3.5), 0, 2))
-        rlTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[3][i] / tempOptimal[3]) ^ 3.5), 0, 2))
-        rrTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[4][i] / tempOptimal[4]) ^ 3.5), 0, 2))
+    if settings.tiresUseCore then
+        for i = 1, 3 do
+            flTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCore[1][i] / tempOptimal[1]) ^ 3.5), 0, 2))
+            frTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCore[2][i] / tempOptimal[2]) ^ 3.5), 0, 2))
+            rlTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCore[3][i] / tempOptimal[3]) ^ 3.5), 0, 2))
+            rrTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCore[4][i] / tempOptimal[4]) ^ 3.5), 0, 2))
+        end
+    else
+        for i = 1, 3 do
+            flTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[1][i] / tempOptimal[1]) ^ 3.5), 0, 2))
+            frTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[2][i] / tempOptimal[2]) ^ 3.5), 0, 2))
+            rlTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[3][i] / tempOptimal[3]) ^ 3.5), 0, 2))
+            rrTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[4][i] / tempOptimal[4]) ^ 3.5), 0, 2))
+        end
     end
 
     if settings.decor then
@@ -208,7 +248,7 @@ function script.tires(dt)
             if settings.tiresShowWear then
                 ui.setCursorX(ui.getCursorX() - scale(34))
                 ui.setCursorY(ui.getCursorY() + position.tires.wheelpartsize.y)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - position.tires.wheelpartsize.y), setColorMult(color.black, 50))
+                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - position.tires.wheelpartsize.y), color.black)
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - (position.tires.wheelpartsize.y * (1 - playerCar().wheels[0].tyreWear))), flWearColor)
             end
 
@@ -255,7 +295,7 @@ function script.tires(dt)
             if settings.tiresShowWear then
                 ui.setCursorX(ui.getCursorX() + scale(18))
                 ui.setCursorY(ui.getCursorY() + position.tires.wheelpartsize.y)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - position.tires.wheelpartsize.y), setColorMult(color.black, 50))
+                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - position.tires.wheelpartsize.y), color.black)
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - (position.tires.wheelpartsize.y * (1 - playerCar().wheels[1].tyreWear))), frWearColor)
             end
 
@@ -383,7 +423,7 @@ function script.tires(dt)
             if settings.tiresShowWear then
                 ui.setCursorX(ui.getCursorX() - scale(34))
                 ui.setCursorY(ui.getCursorY() + position.tires.wheelpartsize.y)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - position.tires.wheelpartsize.y), setColorMult(color.black, 50))
+                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - position.tires.wheelpartsize.y), color.black)
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - (position.tires.wheelpartsize.y * (1 - playerCar().wheels[2].tyreWear))), rlWearColor)
             end
 
@@ -429,7 +469,7 @@ function script.tires(dt)
             if settings.tiresShowWear then
                 ui.setCursorX(ui.getCursorX() + scale(18))
                 ui.setCursorY(ui.getCursorY() + position.tires.wheelpartsize.y)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - position.tires.wheelpartsize.y), setColorMult(color.black, 50))
+                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - position.tires.wheelpartsize.y), color.black)
                 ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() - (position.tires.wheelpartsize.y * (1 - playerCar().wheels[3].tyreWear))), rrWearColor)
             end
 

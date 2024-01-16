@@ -1,5 +1,6 @@
----@param deltaLerp number
----@return number
+---@param deltaLerp number @The value to be scaled.
+---@return number @The scaled width.
+--- Scales the width based on the provided value.
 function scaleWidth(deltaLerp)
     local scaledWidth = (((math.abs(deltaLerp) ^ 0.3) / 1000) * getPositionTable().delta.elementsize.x / 2) * 1000
     if deltaLerp < 0 then

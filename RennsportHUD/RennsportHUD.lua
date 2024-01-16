@@ -77,6 +77,7 @@ settings = ac.storage {
     tiresShowWear = false,
     tiresPressureColor = false,
     tiresBrakesConfigured = false,
+    tiresUseCore = false,
 
     timingShowCurrentLap = true,
     timingShowLapStats = true,
@@ -257,6 +258,7 @@ function script.windowMain(dt)
             if settings.tiresShowTempVis then
                 ui.text('\t')
                 ui.sameLine()
+                if ui.checkbox('Visualize Core instead of Surface Temperatures', settings.tiresUseCore) then settings.tiresUseCore = not settings.tiresUseCore end
                 if ui.checkbox('Show Tire Pressure', settings.tiresShowPressure) then settings.tiresShowPressure = not settings.tiresShowPressure end
                 if settings.tiresShowPressure then
                     ui.text('\t')
@@ -281,7 +283,7 @@ function script.windowMain(dt)
                     if settings.tiresBrakesConfigured then ui.textColored('Brake Temps Found', rgbm.colors.green) else ui.textColored('Brake Temps Not Found', rgbm.colors.red) end
                 end
             end
-            if ui.checkbox('Show Tire Temperature Numbers', settings.tiresShowTempBar) then settings.tiresShowTempBar = not settings.tiresShowTempBar end
+            if ui.checkbox('Show Tire Section Temperature Numbers', settings.tiresShowTempBar) then settings.tiresShowTempBar = not settings.tiresShowTempBar end
             if settings.tiresShowTempBar then
                 ui.text('\t')
                 ui.sameLine()

@@ -1,13 +1,13 @@
----@param value number
----@return number
---Scales a value by the app scale
+---@param value number @The value to be scaled.
+---@return number @The scaled value.
+--- Scales a value by the app scale.
 function scale(value)
     return app.scale * value
 end
 
----@param gearNum number
----@return string
---Parses the gear number for Ui use
+--- Parses the gear number for UI use.
+---@param gearNum number @The gear number to be parsed.
+---@return string @The parsed gear number as a string.
 function parseGear(gearNum)
     if gearNum == 0 then
         return 'N'
@@ -18,8 +18,8 @@ function parseGear(gearNum)
     end
 end
 
----@return ac.StateCar
---returns the user car or the currently focused car if enabled
+--- Returns the user car or the currently focused car if enabled.
+---@return ac.StateCar @The user car or the currently focused car.
 function playerCar()
     if ac.getSim().focusedCar > 0 and not settings.ignorefocus then
         return ac.getCar(ac.getSim().focusedCar)
@@ -28,21 +28,21 @@ function playerCar()
     end
 end
 
----@param oldrgb rgb rgb() or rgbm() color
----@param percentage number Alpha percentage from 0-100
----@return rgbm
---returns color with the wanted percentage of opacity
+--- Returns color with the desired percentage of opacity.
+---@param oldrgb rgb @The original rgb() or rgbm() color.
+---@param percentage number @The desired alpha percentage from 0-100.
+---@return rgbm @The color with the desired percentage of opacity.
 function setColorMult(oldrgb, percentage)
     return rgbm(oldrgb.r, oldrgb.g, oldrgb.b, 1 * (percentage / 100))
 end
 
----@param milliseconds ms
----@param showHours boolean? if true, displays as HH
----@param showMinutes boolean? if true, displays as MM
----@param showSeconds boolean? if true displays as SS
----@param showSubSecond boolean? if true displays as sss
----@return string
---calculates the number of seconds, minutes and hours from milliseconds, I know that ac.lapTimeToString exists
+--- Calculates the number of seconds, minutes, and hours from milliseconds, I know that ac.lapTimeToString exists.
+---@param milliseconds ms @The time in milliseconds to be formatted.
+---@param showHours boolean @If true, displays hours as HH.
+---@param showMinutes boolean @If true, displays minutes as MM.
+---@param showSeconds boolean @If true, displays seconds as SS.
+---@param showSubSecond boolean @If true, displays milliseconds as sss.
+---@return string @The formatted time.
 function formatTime(milliseconds, showHours, showMinutes, showSeconds, showSubSecond)
     if milliseconds < 0 then milliseconds = milliseconds * -1 end
 

@@ -9,9 +9,9 @@ local sessionTypes = {
     [7] = 'DRAG',
 }
 
----@param sessionType ac.SessionType
----@return string
---takes ac.SessionType and returns the session name as a string
+--- Converts a session type to a string.
+---@param sessionType ac.SessionType @The session type to be converted.
+---@return string @The name of the session as a string.
 function getSessionTypeString(sessionType)
     if not settings.sessionTimerType then
         return sessionTypes[0]
