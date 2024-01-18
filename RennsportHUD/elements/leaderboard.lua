@@ -130,9 +130,10 @@ end
 local maxNameLength = 0
 local maxCarLength = 0
 function onShowLeaderboard()
+    updateLeaderboard()
     updateInterval = setInterval(function()
         updateLeaderboard()
-    end, 0.25, 'LB')
+    end, 1, 'LB')
 end
 
 function onHideLeaderboard()
@@ -265,10 +266,11 @@ function script.leaderboard(dt)
                         end
                         local data = displayData[setting]
                         if settings[setting] == true then
-                            local alignment = (setting == 'lbShowLap') and 0 or -1
+                            local displayValue = lbValue[settingsToTable[setting]]
+                            displayValue = (setting == 'lbShowPos') and displayValue .. '.' or displayValue
                             ui.setCursor(vec2(horiOffset + columSpace, 0))
                             ui.pushDWriteFont(app.font.black)
-                            ui.dwriteTextAligned(lbValue[settingsToTable[setting]], fontSizeSmall, alignment, 0, vec2(data.width, position.leaderboard.height), false, color.white)
+                            ui.dwriteTextAligned(displayValue, fontSizeSmall, -1, 0, vec2(data.width, position.leaderboard.height), false, color.white)
                             ui.popDWriteFont()
                             horiOffset = horiOffset + data.width + columSpace
                         end
