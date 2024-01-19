@@ -109,6 +109,8 @@ function getPositionTable()
             tempbarheight = scale(28),
             tempbartxt = vec2(22, 11):scale(app.scale),
             pressurepos = scale(28),
+            wearsize = vec2(6, 31):scale(app.scale),
+            wearpos = vec2(6, 55):scale(app.scale)
         },
         timing = {
             pos = {
