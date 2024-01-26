@@ -147,9 +147,10 @@ local wearBg = rgbm(0.4, 0.4, 0.4, 1)
 local wearPercent = { 0.50, 0.25, 0.0 }
 local wearPercentColors = { getColorTable().red, getColorTable().yellow, getColorTable().white }
 
-local tempCurrent = {}
+local tempSurface = {}
 local tempOptimal = {}
 local tempCore = {}
+local surfaceWeight = 0.2
 
 function script.tires(dt)
     local position = getPositionTable()
@@ -174,7 +175,6 @@ function script.tires(dt)
     ac.debug('REAR LEFT MT', ac.getCar(0).wheels[2].tyreMiddleTemperature)
     ac.debug('REAR LEFT IT', ac.getCar(0).wheels[2].tyreInsideTemperature)
     --]]
-
     for i = 0, 3 do
         local wheel = playerCar().wheels[i]
         local tyreWear = wheel.tyreWear
@@ -200,23 +200,21 @@ function script.tires(dt)
     for i = 0, 3 do
         local wheel = playerCar().wheels[i]
         tempOptimal[i + 1] = (i < 2) and frontOptTemp or rearOptTemp
-        tempCurrent[i + 1] = { wheel.tyreOutsideTemperature, wheel.tyreMiddleTemperature, wheel.tyreInsideTemperature }
-        if settings.tiresUseCore then tempCore[i + 1] = { wheel.tyreCoreTemperature, wheel.tyreCoreTemperature, wheel.tyreCoreTemperature } end
+        tempSurface[i + 1] = { wheel.tyreOutsideTemperature, wheel.tyreMiddleTemperature, wheel.tyreInsideTemperature }
+        tempCore[i + 1] = { wheel.tyreCoreTemperature, wheel.tyreCoreTemperature, wheel.tyreCoreTemperature }
     end
 
-    if settings.tiresUseCore then
+    if settings.tiresShowTempVis then
         for i = 1, 3 do
-            flTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCore[1][i] / tempOptimal[1]) ^ 3.5), 0, 2))
-            frTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCore[2][i] / tempOptimal[2]) ^ 3.5), 0, 2))
-            rlTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCore[3][i] / tempOptimal[3]) ^ 3.5), 0, 2))
-            rrTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCore[4][i] / tempOptimal[4]) ^ 3.5), 0, 2))
-        end
-    else
-        for i = 1, 3 do
-            flTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[1][i] / tempOptimal[1]) ^ 3.5), 0, 2))
-            frTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[2][i] / tempOptimal[2]) ^ 3.5), 0, 2))
-            rlTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[3][i] / tempOptimal[3]) ^ 3.5), 0, 2))
-            rrTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (tempCurrent[4][i] / tempOptimal[4]) ^ 3.5), 0, 2))
+            local flTempAvg = (tempCore[1][i] * (1 - surfaceWeight)) + (tempSurface[1][i] * surfaceWeight)
+            local frTempAvg = (tempCore[2][i] * (1 - surfaceWeight)) + (tempSurface[2][i] * surfaceWeight)
+            local rlTempAvg = (tempCore[3][i] * (1 - surfaceWeight)) + (tempSurface[3][i] * surfaceWeight)
+            local rrTempAvg = (tempCore[4][i] * (1 - surfaceWeight)) + (tempSurface[4][i] * surfaceWeight)
+
+            flTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (flTempAvg / tempOptimal[1]) ^ 3), 0, 2))
+            frTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (frTempAvg / tempOptimal[2]) ^ 3), 0, 2))
+            rlTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (rlTempAvg / tempOptimal[3]) ^ 3), 0, 2))
+            rrTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (rrTempAvg / tempOptimal[4]) ^ 3), 0, 2))
         end
     end
 
@@ -339,17 +337,17 @@ function script.tires(dt)
     end
 
     if settings.tiresShowTempBar then
-        local flTempNum = { tempCurrent[1][1], tempCurrent[1][2], tempCurrent[1][3] }
-        local frTempNum = { tempCurrent[2][1], tempCurrent[2][2], tempCurrent[2][3] }
-        local rlTempNum = { tempCurrent[3][1], tempCurrent[3][2], tempCurrent[3][3] }
-        local rrTempNum = { tempCurrent[4][1], tempCurrent[4][2], tempCurrent[4][3] }
+        local flTempNum = { tempSurface[1][1], tempSurface[1][2], tempSurface[1][3] }
+        local frTempNum = { tempSurface[2][1], tempSurface[2][2], tempSurface[2][3] }
+        local rlTempNum = { tempSurface[3][1], tempSurface[3][2], tempSurface[3][3] }
+        local rrTempNum = { tempSurface[4][1], tempSurface[4][2], tempSurface[4][3] }
 
         if settings.tiresTempUseFahrenheit then
             for i = 1, 3 do
-                flTempNum[i] = (tempCurrent[1][i] * 1.8) + 32
-                frTempNum[i] = (tempCurrent[2][i] * 1.8) + 32
-                rlTempNum[i] = (tempCurrent[3][i] * 1.8) + 32
-                rrTempNum[i] = (tempCurrent[4][i] * 1.8) + 32
+                flTempNum[i] = (tempSurface[1][i] * 1.8) + 32
+                frTempNum[i] = (tempSurface[2][i] * 1.8) + 32
+                rlTempNum[i] = (tempSurface[3][i] * 1.8) + 32
+                rrTempNum[i] = (tempSurface[4][i] * 1.8) + 32
             end
         end
 
