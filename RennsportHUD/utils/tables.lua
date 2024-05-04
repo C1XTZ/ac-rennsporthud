@@ -30,7 +30,7 @@ function getPositionTable()
                 right = vec2(35, 41):scale(app.scale),
                 size = vec2(4, 80):scale(app.scale),
             },
-            gear = vec2(17, 31):scale(app.scale),
+            gear = vec2(34, 31):scale(app.scale),
             rpm = {
                 num = vec2(46, 28):scale(app.scale),
                 txt = vec2(46, 3):scale(app.scale),

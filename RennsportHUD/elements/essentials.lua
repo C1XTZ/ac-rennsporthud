@@ -63,7 +63,7 @@ function script.essentials(dt)
         if settings.essentialsGears then
             ui.setCursor(vec2(centerx - position.essentials.gear.x, centery - position.essentials.gear.y))
             ui.pushDWriteFont(app.font.bold)
-            ui.dwriteTextAligned(parseGear(playerCar().gear), scale(60), 0, 0, vec2(36, 50):scale(app.scale), false, color.white)
+            ui.dwriteTextAligned(parseGear(playerCar().gear), scale(60), 0, 0, vec2(70, 50):scale(app.scale), false, color.white)
             ui.popDWriteFont()
         end
 
