@@ -19,6 +19,13 @@ settings = ac.storage {
     decor = true,
     ignorefocus = true,
 
+    updateLastCheck = 0,
+    updateAutoCheck = false,
+    updateInterval = 7,
+    updateStatus = 0,
+    updateAvailable = false,
+    updateURL = '',
+
     essentialsCompactMode = false,
     essentialsRpmBar = true,
     essentialsRpmBarColor = true,
@@ -103,8 +110,179 @@ settings = ac.storage {
 app = getAppTable()
 color = getColorTable()
 
+local updateStatusTable = {
+    [0] = 'C1XTZ: You shouldnt be reading this',
+    [1] = 'Updated: App successfully updated',
+    [2] = 'No Change: Latest version was already installed',
+    [3] = 'No Change: A newer version was already installed',
+    [4] = 'Error: Something went wrong, aborted update',
+    [5] = 'Update Available to Download and Install'
+}
+local updateStatusColor = {
+    [0] = rgbm.colors.white,
+    [1] = rgbm.colors.lime,
+    [2] = rgbm.colors.white,
+    [3] = rgbm.colors.white,
+    [4] = rgbm.colors.red,
+    [5] = rgbm.colors.lime
+}
+
+local appName = 'RennsportHUD'
+local appFolder = ac.getFolder(ac.FolderID.ACApps) .. '/lua/' .. appName .. '/'
+local manifest = ac.INIConfig.load(appFolder .. '/manifest.ini', ac.INIFormat.Extended)
+local appVersion = manifest:get('ABOUT', 'VERSION', 0.01)
+local releaseURL = 'https://api.github.com/repos/C1XTZ/ac-rennsporthud/releases/latest'
+local doUpdate = (os.time() - settings.updateLastCheck) / 86400 > settings.updateInterval
+local mainFile, assetFile = appName .. '.lua', appName .. '.zip'
+--xtz: The ingame updater idea was taken from tuttertep's comfy map app and rewritten to work with my github releases instead of pulling from the entire repository
+--xtz: JSON.parse returns a different json on 0.2.0 for some reason, ill do this for now, might bump recommended version to 0.2.1
+function handle2651(latestRelease)
+    local tagName, releaseAssets, getDownloadUrl
+    if ac.getPatchVersionCode() <= 2651 then
+        tagName = latestRelease.author.tag_name
+        releaseAssets = latestRelease.author.assets
+        getDownloadUrl = function(asset) return asset.uploader.browser_download_url end
+    else
+        tagName = latestRelease.tag_name
+        releaseAssets = latestRelease.assets
+        getDownloadUrl = function(asset) return asset.browser_download_url end
+    end
+    return tagName, releaseAssets, getDownloadUrl
+end
+
+function updateCheckVersion(manual)
+    settings.updateLastCheck = os.time()
+
+    web.get(releaseURL, function(err, response)
+        if err then
+            settings.updateStatus = 4
+            error(err)
+            return
+        end
+
+        local latestRelease = JSON.parse(response.body)
+        local tagName, releaseAssets, getDownloadUrl = handle2651(latestRelease)
+
+        if not (tagName and tagName:match('^v%d%d?%.%d%d?$')) then
+            settings.updateStatus = 4
+            error('URL unavailable or no Version recognized, aborted update')
+            return
+        end
+        local version = tonumber(tagName:sub(2))
+
+        if appVersion > version then
+            settings.updateStatus = 3
+            settings.updateAvailable = false
+            return
+        elseif appVersion == version then
+            settings.updateStatus = 2
+            settings.updateAvailable = false
+            return
+        else
+            local downloadUrl
+            for _, asset in ipairs(releaseAssets) do
+                if asset.name == assetFile then
+                    downloadUrl = getDownloadUrl(asset)
+                    break
+                end
+            end
+
+            if not downloadUrl then
+                settings.updateStatus = 4
+                error('No matching asset found, aborted update')
+                return
+            end
+
+            if manual then
+                updateApplyUpdate(downloadUrl)
+            else
+                settings.updateAvailable = true
+                settings.updateURL = downloadUrl
+                settings.updateStatus = 5
+            end
+        end
+    end)
+end
+
+function updateApplyUpdate(downloadUrl)
+    web.get(downloadUrl, function(downloadErr, downloadResponse)
+        if downloadErr then
+            settings.updateStatus = 4
+            error(downloadErr)
+            return
+        end
+
+        local mainFileContent
+        for _, file in ipairs(io.scanZip(downloadResponse.body)) do
+            local content = io.loadFromZip(downloadResponse.body, file)
+            if content then
+                local filePath = file:match('(.*)')
+                if filePath then
+                    filePath = filePath:gsub(appName .. '/', '')
+                    if filePath == mainFile then
+                        mainFileContent = content
+                    else
+                        if io.save(appFolder .. filePath, content) then print('Updating: ' .. file) end
+                    end
+                end
+            end
+        end
+
+        if mainFileContent then
+            if io.save(appFolder .. mainFile, mainFileContent) then print('Updating: ' .. mainFile) end
+        end
+
+        settings.updateStatus = 1
+        settings.updateAvailable = false
+        settings.updateURL = ''
+    end)
+end
+
 function script.windowMain(dt)
     ui.tabBar('Elements', function()
+        if ac.getPatchVersionCode() < 2651 then
+            ui.textColored('You are using a version of CSP older than 0.2.0!\nIf anything breaks update to the latest version\n ', rgbm.colors.red)
+            ui.newLine(-25)
+        end
+        if ac.getPatchVersionCode() >= 2651 then
+            ui.tabItem('Update', function()
+                ui.text('Currrently running version ' .. appVersion)
+                if ui.checkbox('Automatically Check for Updates', settings.updateAutoCheck) then
+                    settings.updateAutoCheck = not settings.updateAutoCheck
+                    if settings.updateAutoCheck then updateCheckVersion() end
+                end
+                if settings.updateAutoCheck then
+                    ui.text('\t')
+                    ui.sameLine()
+                    settings.updateInterval = ui.slider('##UpdateInterval', settings.updateInterval, 1, 60, 'Check for Update every ' .. '%.0f days')
+                end
+
+                local updateButtonText = settings.updateAvailable and 'Install Update' or 'Check for Update'
+                if ui.button(updateButtonText) then
+                    if settings.updateAvailable then
+                        updateCheckVersion(true)
+                    else
+                        updateCheckVersion(false)
+                    end
+                end
+                if settings.updateStatus > 0 then
+                    ui.textColored(updateStatusTable[settings.updateStatus], updateStatusColor[settings.updateStatus])
+
+                    local diff = os.time() - settings.updateLastCheck
+                    if diff > 600 then settings.updateStatus = 0 end
+                    local units = { 'seconds', 'minutes', 'hours', 'days' }
+                    local values = { 1, 60, 3600, 86400 }
+
+                    local i = #values
+                    while i > 1 and diff < values[i] do
+                        i = i - 1
+                    end
+
+                    local timeAgo = math.floor(diff / values[i])
+                    ui.text('Last checked ' .. timeAgo .. ' ' .. units[i] .. ' ago')
+                end
+            end)
+        end
         ui.tabItem('General', function()
             if ui.checkbox('Custom App Scaling', settings.changeScale) then settings.changeScale = not settings.changeScale end
             if settings.changeScale then
