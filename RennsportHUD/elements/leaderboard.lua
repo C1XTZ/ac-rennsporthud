@@ -1,3 +1,5 @@
+local onlineVersionCheck = ac.getSim().isOnlineRace and ac.getPatchVersionCode() < 3045
+
 ---@param car ac.StateCar @The car from which the brand is to be removed.
 ---@return string @The name of the car without the brand.
 --- Takes an ac.StateCar and retuns car name with the brand removed.
@@ -28,7 +30,7 @@ end
 ---@param i integer @The index of the car.
 --- Writes and updates car data.
 function updateCar(car, i)
-    if not sim.isOnlineRace then
+    if not onlineVersionCheck then
         lbTable[i + 1] = {
             dex = car.index,
             num = car:driverNumber(),
@@ -67,7 +69,7 @@ function updateLeaderboard()
     for i = 0, sim.carsCount - 1 do
         local car = ac.getCar(i)
         updateCar(car, i)
-        if ac.getCar(i).isConnected and not ac.getCar(i).isHidingLabels then carCount = carCount + 1 end
+        if car.isConnected and not car.isHidingLabels then carCount = carCount + 1 end
     end
 
     for i = #lbTable, 1, -1 do
@@ -77,7 +79,7 @@ function updateLeaderboard()
         end
     end
 
-    if not sim.isOnlineRace then
+    if not onlineVersionCheck then
         if session.type == ac.SessionType.Race then
             for i = 1, #lbTable do
                 lbTable[i].pos = ac.getCar(lbTable[i].dex).racePosition
@@ -108,7 +110,7 @@ function updateLeaderboard()
     end
 
     for i = 1, #lbTable do
-        if not sim.isOnlineRace then
+        if not onlineVersionCheck then
             local dex = (session.type == ac.SessionType.Race and i > 1) and lbTable[i - 1].dex or lbTable[1].dex
             local gap = ac.getGapBetweenCars(lbTable[i].dex, dex)
 
@@ -155,7 +157,7 @@ local settingsToTable = {
 
 local displayOrder = { 'lbShowPos', 'lbShowNum', 'lbShowName', 'lbShowCar', 'lbShowLap', 'lbShowLast', 'lbShowBest', 'lbShowInt' }
 
-if ac.getSim().isOnlineRace then
+if onlineVersionCheck then
     local itemsToRemove = { 'lbShowLap', 'lbShowLast', 'lbShowBest', 'lbShowInt' }
     for _, item in ipairs(itemsToRemove) do
         for i, v in ipairs(displayOrder) do
