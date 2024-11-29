@@ -51,7 +51,7 @@ function script.timing(dt)
     local vertOffset = app.padding
     local horiOffset = 0
     local fontSizeSmall = scale(14)
-    if not playerCar().isLapValid then timeColor = color.uired end
+    if playerCar().isLapValid then timeColor = color.white else timeColor = color.uired end
 
     local newSectorIndex = playerCar().currentSector + 1
     if newSectorIndex ~= previouslastTimedSector then
@@ -89,6 +89,8 @@ function script.timing(dt)
             end
         end
 
+        if playerCar().isLastLapValid then currentLap.color = color.white else currentLap.color = color.uired end
+
         table.insert(previousLaps, currentLap)
 
         if #previousLaps > 5 then
@@ -98,6 +100,7 @@ function script.timing(dt)
         resetTiming(false)
         idealLap = formatTime(IdealLaptime(true), false, true, true, true)
     end
+
     if settings.timingShowCurrentLap then
         ui.setCursor(vec2(0, vertOffset))
         ui.childWindow('CurrentTime', position.timing.currentLap, function()
@@ -137,6 +140,8 @@ function script.timing(dt)
         end
         if settings.timingLapStatsLast then
             local contentTxt = emptyTimeString
+            local lastLapColor = color.white
+            if #previousLaps > 0 then lastLapColor = previousLaps[#previousLaps].color end
             if playerCar().previousLapTimeMs > 0 then contentTxt = formatTime(playerCar().previousLapTimeMs, false, true, true, true) end
             ui.setCursor(vec2(0, vertOffset))
             ui.childWindow('StatsLast', position.timing.lapStats, function()
@@ -148,7 +153,7 @@ function script.timing(dt)
                 ui.popDWriteFont()
                 ui.setCursor(vec2(position.timing.lapStats.x * 0.44, 0))
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(contentTxt, fontSizeSmall, -1, 0, vec2(position.timing.lapStats.x * 0.66, position.timing.lapStats.y), false, timeColor)
+                ui.dwriteTextAligned(contentTxt, fontSizeSmall, -1, 0, vec2(position.timing.lapStats.x * 0.66, position.timing.lapStats.y), false, lastLapColor)
                 ui.popDWriteFont()
             end)
             vertOffset = math.floor(vertOffset + position.timing.lapStats.y)
@@ -219,7 +224,7 @@ function script.timing(dt)
             ui.dwriteTextAligned(currLapTime, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, timeColor)
             horiOffset = horiOffset + position.timing.table.time + columSpace
             ui.setCursor(vec2(horiOffset, 0))
-            ui.dwriteTextAligned(currLapDelta, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, color.white)
+            ui.dwriteTextAligned(currLapDelta, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, timeColor)
             horiOffset = horiOffset + position.timing.table.time + columSpace
             ui.popDWriteFont()
         end)
@@ -232,7 +237,7 @@ function script.timing(dt)
                 if currentLap.sectors[i] > 0 then currLapSector = formatTime(currentLap.sectors[i], false, true, true, true) end
                 ui.setCursor(vec2(secPos, 0))
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(currLapSector, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, color.white)
+                ui.dwriteTextAligned(currLapSector, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, timeColor)
                 ui.popDWriteFont()
                 secPos = (position.timing.table.time + columSpace) * i
             end
@@ -249,10 +254,10 @@ function script.timing(dt)
                 if previousLaps[p].delta > 0 then prevLapDelta = '+' .. formatTime(previousLaps[p].delta, false, true, true, true) end
                 ui.drawRectFilled(vec2(0, 0), vec2(position.timing.table.header.x, position.timing.table.contentheight), setColorMult(color.black, 50))
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(previousLaps[p].lapNum, fontSizeSmall, 0, 0, vec2(position.timing.table.lap, position.timing.table.contentheight), false, color.white)
+                ui.dwriteTextAligned(previousLaps[p].lapNum, fontSizeSmall, 0, 0, vec2(position.timing.table.lap, position.timing.table.contentheight), false, previousLaps[p].color)
                 horiOffset = 0 + position.timing.table.lap + columSpace
                 ui.setCursor(vec2(horiOffset, 0))
-                ui.dwriteTextAligned(prevLapTime, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, timeColor)
+                ui.dwriteTextAligned(prevLapTime, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, previousLaps[p].color)
                 horiOffset = horiOffset + position.timing.table.time + columSpace
                 ui.setCursor(vec2(horiOffset, 0))
                 ui.dwriteTextAligned(prevLapDelta, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, color.uired)
@@ -269,7 +274,7 @@ function script.timing(dt)
                     if previousLaps[p].sectors[i] > 0 then currLapSector = formatTime(previousLaps[p].sectors[i], false, true, true, true) end
                     ui.setCursor(vec2(secPos, 0))
                     ui.pushDWriteFont(app.font.black)
-                    ui.dwriteTextAligned(currLapSector, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, color.white)
+                    ui.dwriteTextAligned(currLapSector, fontSizeSmall, -1, 0, vec2(position.timing.table.time, position.timing.table.contentheight), false, previousLaps[p].color)
                     ui.popDWriteFont()
                     secPos = (position.timing.table.time + columSpace) * i
                 end
