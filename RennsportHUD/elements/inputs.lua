@@ -118,12 +118,14 @@ function script.inputs(dt)
         local absactive = playerCar().absMode
         local absmax = playerCar().absModes
         local absfinal
-        if absmax < 1 or absactive == 0 then absfinal = 'OFF' elseif absmax == 1 and absactive == 1 then absfinal = 'ON' else absfinal = absactive .. '/' .. absmax end
+        if absactive > 0 and absmax < 1 then absmax = absactive end
+        if absactive == 0 then absfinal = 'OFF' elseif absmax == 1 and absactive == 1 then absfinal = 'ON' else absfinal = absactive .. '/' .. absmax end
 
         local tcactive = playerCar().tractionControlMode
         local tcmax = playerCar().tractionControlModes
         local tcfinal
-        if tcmax < 1 or tcactive == 0 then tcfinal = 'OFF' elseif tcmax == 1 and tcactive == 1 then tcfinal = 'ON' else tcfinal = tcactive .. '/' .. tcmax end
+        if tcactive > 0 and tcmax < 1 then tcmax = tcactive end
+        if tcactive == 0 then tcfinal = 'OFF' elseif tcmax == 1 and tcactive == 1 then tcfinal = 'ON' else tcfinal = tcactive .. '/' .. tcmax end
 
         local brakebalance = math.round(playerCar().brakeBias * 100)
         local boost = playerCar().turboBoost
