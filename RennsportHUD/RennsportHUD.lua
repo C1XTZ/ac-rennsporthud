@@ -36,6 +36,7 @@ settings = ac.storage {
     essentialsSpeedNum = true,
     essentialsSpeedNumMPH = false,
     essentialsInputBars = false,
+    essentialsShowTurnLights = true,
 
     inputsShowWheel = true,
     inputsShowSteering = true,
@@ -312,6 +313,7 @@ function script.windowMain(dt)
                     settings.essentialsRpmBarShiftRed = ui.slider('##ShiftRed', settings.essentialsRpmBarShiftRed, 0, 100, 'Red shift at: ' .. '%.0f%%')
                 end
             end
+            if ui.checkbox('Show Indicators', settings.essentialsShowTurnLights) then settings.essentialsShowTurnLights = not settings.essentialsShowTurnLights end
             if ui.checkbox('Show Speed', settings.essentialsSpeedNum) then settings.essentialsSpeedNum = not settings.essentialsSpeedNum end
             if settings.essentialsSpeedNum then
                 ui.text('\t')

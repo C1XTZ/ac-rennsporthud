@@ -39,6 +39,9 @@ function getPositionTable()
                 pos = vec2(47, 25):scale(app.scale),
                 size = vec2(5, 43):scale(app.scale),
                 gap = 5,
+            },
+            indicators = {
+                size = vec2(55, 2)
             }
         },
         inputs = {

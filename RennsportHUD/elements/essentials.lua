@@ -1,5 +1,11 @@
+local function drawTurnLight(isRight)
+    local xPosition = isRight and ((centerx * 2) - getPositionTable().essentials.indicators.size.x) or 0
+    ui.setCursor(vec2(xPosition, position.essentials.rpmbarheight + 2))
+    ui.drawRectFilled(ui.getCursor(), ui.getCursor() + getPositionTable().essentials.indicators.size, rgbm.colors.yellow)
+end
+
 function script.essentials(dt)
-    local position = getPositionTable()
+    position = getPositionTable()
 
     if settings.essentialsCompactMode then
         position.essentials.elementsize = vec2(297, 85):scale(app.scale)
@@ -11,8 +17,8 @@ function script.essentials(dt)
 
     ui.setCursor(vec2(0, app.padding))
     ui.childWindow('main', position.essentials.elementsize, function()
-        local centerx = ui.availableSpaceX() / 2
-        local centery = ui.availableSpaceY() / 2
+        centerx = ui.availableSpaceX() / 2
+        centery = ui.availableSpaceY() / 2
 
         if settings.essentialsRpmBar then
             local rpmMix = playerCar().rpm / playerCar().rpmLimiter
@@ -107,6 +113,17 @@ function script.essentials(dt)
             ui.setCursor(vec2(centerx + position.essentials.inputbar.pos.x + position.essentials.inputbar.gap * 3, centery - position.essentials.inputbar.pos.y))
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - FFBlerp), FFBcolor)
+        end
+
+        if settings.essentialsShowTurnLights and playerCar().hasTurningLights and playerCar().turningLightsActivePhase then
+            if playerCar().turningLeftOnly then
+                drawTurnLight(false)
+            elseif playerCar().turningRightOnly then
+                drawTurnLight(true)
+            elseif playerCar().hazardLights then
+                drawTurnLight(false)
+                drawTurnLight(true)
+            end
         end
     end)
 end
