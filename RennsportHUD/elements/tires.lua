@@ -30,6 +30,7 @@ end
 ---@return integer @The median temperature value of the highest performance value.
 --- Inspired by pseudo code from leBluem, this calculates the median temperature value of the highest performance value from a LUT string.
 function getLUTMedian(lutStr)
+    if lutStr == '-1' then return -1 end
     local xTable, yTable = {}, {}
     local yHighest = -1
     for x, y in lutStr:gmatch('|(%d+)=(%d*%.?%d*)') do
@@ -69,12 +70,14 @@ local tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
 ---@return any @The property value for the given tire name in the given section.
 local function getTireProperty(sectionName, propertyName)
     for index, section in tireIni:iterate(sectionName, true) do
-        if tireIni:get(section, 'NAME', nil)[1] == tireName then
+        if tireIni:get(section, 'NAME', nil) and tireIni:get(section, 'NAME', nil)[1] == tireName then
             if propertyName == 'PERFORMANCE_CURVE' then
                 return tireIni:get('THERMAL_' .. section, propertyName, 'string')
             else
                 return tireIni:get(section, propertyName, 'string')
             end
+        else
+            return '-1'
         end
     end
 end
@@ -96,6 +99,10 @@ local function getOptTemperature()
     local rearCurve = getTireProperty('REAR', 'PERFORMANCE_CURVE')
     local frontOptTemp, rearOptTemp
 
+    if frontCurve == -1 or rearCurve == -1 then
+        return -1, -1
+    end
+
     if string.match(frontCurve, '%.lut$') then
         frontOptTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, frontCurve):serialize())
     else
@@ -108,6 +115,11 @@ local function getOptTemperature()
         rearOptTemp = getLUTMedian(rearCurve)
     end
 
+    if frontOptTemp == -1 or rearOptTemp == -1 then
+        return -1, -1
+    end
+
+    tiresFound = true
     return frontOptTemp, rearOptTemp
 end
 
@@ -159,11 +171,15 @@ function script.tires(dt)
     local wearOl = scale(1)
 
     settings.tiresBrakesConfigured = brakesFound
+    settings.tiresTiresConfigured = tiresFound
 
     if settings.tiresShowPressure and settings.tiresPressureColor and playerCar().compoundIndex ~= currComp then
         currComp = playerCar().compoundIndex
         tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
         tireIni.fPressOpt, tireIni.rPressOpt = getOptPressure()
+        if tireIni.fPressOpt == '-1' or tireIni.rPressOpt == '-1' then
+            tireIni.fPressOpt, tireIni.rPressOpt = 999, 999
+        end
     end
 
     --[[ LEFT SIDE TEMPS ARE FLIPPED, MEANING tyreInsideTemperature and tyreOutsideTemperature ARE FLIPPED FOR wheels[0] and wheels[2]
@@ -236,11 +252,11 @@ function script.tires(dt)
             ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
 
             ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(flTempHue[2]))
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[2]) or color.gray)
             ui.setCursorX(ui.getCursorX() - scale(8))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(flTempHue[3]), 5, 5)
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[3]) or color.gray, scale(5), 5)
             ui.setCursorX(ui.getCursorX() + scale(16))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(flTempHue[1]), 5, 10)
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[1]) or color.gray, scale(5), 10)
             if settings.tiresShowWear then
                 ui.setCursorX(ui.getCursorX() - scale(34))
                 ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
@@ -257,7 +273,7 @@ function script.tires(dt)
                 local flBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[0].discTemperature / fOptBrakeTemp)), 0, 2))
 
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(flBrakeHue))
+                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(flBrakeHue) or color.gray)
             end
 
             if settings.tiresShowPressure then
@@ -271,7 +287,7 @@ function script.tires(dt)
 
                 local flPressColor = color.white
                 if settings.tiresPressureColor then
-                    flPressColor = hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (flPressure / tireIni.fPressOpt) ^ 10), 0, 2)))
+                    flPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (flPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray
                 end
 
                 ui.setCursor(0)
@@ -288,11 +304,11 @@ function script.tires(dt)
             ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
 
             ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(frTempHue[2]))
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(frTempHue[2]) or color.gray)
             ui.setCursorX(ui.getCursorX() - scale(8))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(frTempHue[3]), 5, 5)
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(frTempHue[3]) or color.gray, scale(5), 5)
             ui.setCursorX(ui.getCursorX() + scale(16))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(frTempHue[1]), 5, 10)
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(frTempHue[1]) or color.gray, scale(5), 10)
             if settings.tiresShowWear then
                 ui.setCursorX(ui.getCursorX() + scale(18))
                 ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
@@ -308,8 +324,8 @@ function script.tires(dt)
             if settings.tiresShowBrakeTemp then
                 local frBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[1].discTemperature / fOptBrakeTemp)), 0, 2))
 
-                ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(2)), position.tires.brakepos.y))
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(frBrakeHue))
+                ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(3)), position.tires.brakepos.y))
+                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(frBrakeHue) or color.gray)
             end
 
             if settings.tiresShowPressure then
@@ -323,7 +339,7 @@ function script.tires(dt)
 
                 local frPressColor = color.white
                 if settings.tiresPressureColor then
-                    frPressColor = hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (frPressure / tireIni.fPressOpt) ^ 10), 0, 2)))
+                    frPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (frPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray
                 end
 
                 ui.setCursor(0)
@@ -421,11 +437,11 @@ function script.tires(dt)
             ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
 
             ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(rlTempHue[2]))
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[2]) or color.gray)
             ui.setCursorX(ui.getCursorX() - scale(8))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(rlTempHue[3]), 5, 5)
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[3]) or color.gray, scale(5), 5)
             ui.setCursorX(ui.getCursorX() + scale(16))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(rlTempHue[1]), 5, 10)
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[1]) or color.gray, scale(5), 10)
             if settings.tiresShowWear then
                 ui.setCursorX(ui.getCursorX() - scale(34))
                 ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
@@ -441,7 +457,7 @@ function script.tires(dt)
             if settings.tiresShowBrakeTemp then
                 local rlBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[2].discTemperature / rOptBrakeTemp)), 0, 2))
                 ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(rlBrakeHue))
+                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(rlBrakeHue) or color.gray)
             end
 
             if settings.tiresShowPressure then
@@ -455,7 +471,7 @@ function script.tires(dt)
 
                 local rlPressColor = color.white
                 if settings.tiresPressureColor then
-                    rlPressColor = hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rlPressure / tireIni.fPressOpt) ^ 10), 0, 2)))
+                    rlPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rlPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray
                 end
 
                 ui.setCursor(0)
@@ -472,11 +488,11 @@ function script.tires(dt)
             ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
 
             ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(rrTempHue[2]))
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rrTempHue[2]) or color.gray)
             ui.setCursorX(ui.getCursorX() - scale(8))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(rrTempHue[3]), 5, 5)
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rrTempHue[3]) or color.gray, scale(5), 5)
             ui.setCursorX(ui.getCursorX() + scale(16))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), hueToRgb(rrTempHue[1]), 5, 10)
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rrTempHue[1]) or color.gray, scale(5), 10)
             if settings.tiresShowWear then
                 ui.setCursorX(ui.getCursorX() + scale(18))
                 ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
@@ -491,8 +507,8 @@ function script.tires(dt)
 
             if settings.tiresShowBrakeTemp then
                 local rrBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[3].discTemperature / rOptBrakeTemp)), 0, 2))
-                ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(2)), position.tires.brakepos.y))
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), hueToRgb(rrBrakeHue))
+                ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(3)), position.tires.brakepos.y))
+                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(rrBrakeHue) or color.gray)
             end
 
             if settings.tiresShowPressure then
@@ -506,7 +522,7 @@ function script.tires(dt)
 
                 local rrPressColor = color.white
                 if settings.tiresPressureColor then
-                    rrPressColor = hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rrPressure / tireIni.fPressOpt) ^ 10), 0, 2)))
+                    rrPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rrPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray
                 end
 
                 ui.setCursor(0)
