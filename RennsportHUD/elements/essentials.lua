@@ -1,7 +1,45 @@
-local function drawTurnLight(isRight)
-    local xPosition = isRight and ((centerx * 2) - getPositionTable().essentials.indicators.size.x) or 0
-    ui.setCursor(vec2(xPosition, position.essentials.rpmbarheight + 2))
-    ui.drawRectFilled(ui.getCursor(), ui.getCursor() + getPositionTable().essentials.indicators.size, rgbm.colors.yellow)
+local indicatorState = {
+    left = { progress = 0, active = false },
+    right = { progress = 0, active = false },
+    phase = { time = nil, accumulator = 0 },
+    animDuration = 0.1,
+    minWidthPercent = 0.2
+}
+
+local function drawIndicator(isRight, dt)
+    local side = isRight and "right" or "left"
+    local state = indicatorState[side]
+    local baseWidth = position.essentials.indicators.size.x
+    local isLightOn = isRight and playerCar().turningRightLights or playerCar().turningLeftLights
+    local phaseDuration = indicatorState.phase.time or (indicatorState.animDuration + 0.15)
+
+    if isLightOn and not state.active then
+        state.progress = 0
+        indicatorState.phase.accumulator = 0
+    end
+    state.active = isLightOn
+
+    if (playerCar().turningLightsActivePhase and isLightOn) or (state.progress > 0 and state.progress < 1) then
+        state.progress = math.min(1, state.progress + dt / phaseDuration)
+
+        if not indicatorState.phase.time and playerCar().turningLightsActivePhase and isLightOn then
+            indicatorState.phase.accumulator = indicatorState.phase.accumulator + dt
+            if state.progress >= 1 then
+                indicatorState.phase.time = indicatorState.phase.accumulator
+            end
+        end
+
+        local width = baseWidth * (indicatorState.minWidthPercent + (2 - indicatorState.minWidthPercent) * state.progress)
+        local xPosition = isRight and (centerx * 2 - baseWidth) or (baseWidth - width)
+
+        ui.setCursor(vec2(xPosition, 12))
+        ui.drawRectFilled(ui.getCursor(), ui.getCursor() + vec2(width, position.essentials.indicators.size.y), color.yellow)
+    elseif state.progress >= 1 then
+        state.progress = 0
+        if indicatorState.left.progress == 0 and indicatorState.right.progress == 0 then
+            indicatorState.phase = { time = nil, accumulator = 0 }
+        end
+    end
 end
 
 function script.essentials(dt)
@@ -115,15 +153,9 @@ function script.essentials(dt)
             ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - FFBlerp), FFBcolor)
         end
 
-        if settings.essentialsShowTurnLights and playerCar().hasTurningLights and playerCar().turningLightsActivePhase then
-            if playerCar().turningLeftOnly then
-                drawTurnLight(false)
-            elseif playerCar().turningRightOnly then
-                drawTurnLight(true)
-            elseif playerCar().hazardLights then
-                drawTurnLight(false)
-                drawTurnLight(true)
-            end
+        if playerCar().hasTurningLights then
+            if playerCar().turningLeftLights or indicatorState.left.progress > 0 then drawIndicator(false, dt) end
+            if playerCar().turningRightLights or indicatorState.right.progress > 0 then drawIndicator(true, dt) end
         end
     end)
 end
