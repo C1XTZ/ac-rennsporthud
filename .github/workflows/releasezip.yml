@@ -21,3 +21,29 @@ jobs:
       uses: ncipollo/release-action@v1.12.0
       with:
         artifacts: "RennsportHUD.zip"
+        tag: ${{ github.ref }}
+        name: "RennsportHUD ${{ github.ref_name }}"
+        body: |
+          **Supported CSP Versions: CSP 0.2.0 (2651) and newer**
+
+          ## Added:
+
+          ## Changes:
+
+          ## Updating & Installation:
+
+          ### Updating Ingame:
+            ![](https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/main/.github/img/updater.png)
+          1. Open the RennsportHUD Settings Ingame
+          2. Select the `Update` Tab
+          3. Click the `Check for Update` button
+          4. Click the `Install Update` button
+
+          ### Automatic Installation via Content Manager: 
+          1. Download `RennsportHUD.zip`
+          2. Drag & Drop `RennsportHUD.zip` into Content Manager and click `Install`
+
+          ### Manual Installation: 
+          1. Download `RennsportHUD.zip`
+          2. Extract and place the `RennsportHUD` folder inside the `\apps\lua` folder of your Assetto Corsa installation
+          (By default: `C:\Steam\steamapps\common\assettocorsa\apps\lua`)
