@@ -85,6 +85,7 @@ settings = ac.storage {
     tiresShowWear = false,
     tiresPressureColor = false,
     tiresBrakesConfigured = false,
+    tiresTiresConfigured = false,
 
     timingShowCurrentLap = true,
     timingShowLapStats = true,
@@ -435,6 +436,8 @@ function script.windowMain(dt)
         ui.tabItem('Tires', function()
             if ui.checkbox('Show Tire Temperature Visualisation', settings.tiresShowTempVis) then settings.tiresShowTempVis = not settings.tiresShowTempVis end
             if settings.tiresShowTempVis then
+                ui.sameLine()
+                if settings.tiresTiresConfigured then ui.textColored('Tire Information Found', rgbm.colors.green) else ui.textColored('Tire Information Not Found', rgbm.colors.red) end    
                 ui.text('\t')
                 ui.sameLine()
                 if ui.checkbox('Show Tire Pressure', settings.tiresShowPressure) then settings.tiresShowPressure = not settings.tiresShowPressure end
