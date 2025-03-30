@@ -7,8 +7,8 @@ function script.fuel(dt)
 
     ui.setCursor(vec2(0, vertOffset))
     ui.childWindow('FuelBar', position.fuel.barsize, function()
-        ui.drawRectFilled(vec2(0, 0), vec2(ui.windowWidth(), position.fuel.barsize.y), color.black)
-        ui.drawRectFilled(vec2(0, 0), vec2(fuelLerp, position.fuel.barsize.y), fuelBarColor)
+        ui.drawRectFilled(vec2(0, 0), vec2(ui.windowWidth(), math.floor(position.fuel.barsize.y)), color.black)
+        ui.drawRectFilled(vec2(0, 0), vec2(fuelLerp, math.floor(position.fuel.barsize.y)), fuelBarColor)
         vertOffset = vertOffset + position.fuel.barsize.y
     end)
 

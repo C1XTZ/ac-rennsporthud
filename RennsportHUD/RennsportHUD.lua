@@ -290,7 +290,7 @@ function script.windowMain(dt)
             if settings.changeScale then
                 ui.text('\t')
                 ui.sameLine()
-                settings.scale = ui.slider('##AppScale', settings.scale, 1, 5, 'App Scale: ' .. '%.01f%')
+                settings.scale = ui.slider('##AppScale', settings.scale, 0.5, 5, 'App Scale: ' .. '%.01f%')
                 if settings.changeScale and app.scale ~= settings.scale then app.scale = settings.scale end
             else
                 settings.changeScale = 1

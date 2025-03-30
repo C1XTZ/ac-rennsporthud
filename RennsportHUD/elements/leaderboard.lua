@@ -238,7 +238,7 @@ function script.leaderboard(dt)
     end)
 
     ui.setCursor(vec2(0, position.leaderboard.height))
-    ui.childWindow('LeaderboardEntries', vec2(headerTotalWidth, (position.leaderboard.height * (math.max(1, math.min(carCount, settings.lbMaxCars)) + 1) + scale(2))), function()
+    ui.childWindow('LeaderboardEntries', vec2(headerTotalWidth, (position.leaderboard.height * (math.max(1, math.min(carCount, settings.lbMaxCars)) + 3))), function()
         if lbTable then
             local maxCars = math.min(#lbTable, settings.lbMaxCars)
             for i = 1, maxCars do

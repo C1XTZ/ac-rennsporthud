@@ -249,7 +249,7 @@ function script.tires(dt)
     if settings.tiresShowTempVis then
         ui.setCursor(vec2(0, vertOffset))
         ui.childWindow('tiresFL', position.tires.wheelelement, function()
-            ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
+            ui.drawRectFilled(vec2(0, 0), vec2(math.floor(position.tires.wheelelement.x), position.tires.wheelelement.y), setColorMult(color.black, 50))
 
             ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
             ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[2]) or color.gray)
@@ -434,7 +434,7 @@ function script.tires(dt)
     if settings.tiresShowTempVis then
         ui.setCursor(vec2(0, vertOffset))
         ui.childWindow('tiresRL', position.tires.wheelelement, function()
-            ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
+            ui.drawRectFilled(vec2(0, 0), vec2(math.floor(position.tires.wheelelement.x), position.tires.wheelelement.y), setColorMult(color.black, 50))
 
             ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
             ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[2]) or color.gray)

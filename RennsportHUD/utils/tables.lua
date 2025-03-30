@@ -50,7 +50,7 @@ function getPositionTable()
             decorimg = vec2(48, 34):scale(app.scale),
             decorheight = scale(40),
             steeringbar = vec2(6, 16):scale(app.scale),
-            pedalheight = scale(18),
+            pedalheight = math.floor(scale(18)),
             electronics = {
                 lightbg = scale(34),
                 darkbg = vec2(45, 34):scale(app.scale),

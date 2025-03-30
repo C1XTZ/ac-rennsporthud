@@ -39,7 +39,7 @@ function script.delta(dt)
             vertOffset = position.delta.txtpos.y
             ui.setCursor(vec2(0, childOffset))
             ui.childWindow('DeltaTimer', vec2(position.delta.elementsize.x, position.delta.contentheight / 2 + vertOffset), false, app.flags, function()
-                ui.drawRectFilled(vec2(0, 0), vec2(position.delta.elementsize.x, position.delta.contentheight / 2 + position.delta.txtpos.y), setColorMult(color.black, 40))
+                ui.drawRectFilled(vec2(0, 0), vec2(position.delta.elementsize.x, math.floor(position.delta.contentheight / 2 + position.delta.txtpos.y)), setColorMult(color.black, 40))
                 ui.setCursor(vec2(position.delta.txtpos.x, position.delta.txtpos.y))
                 ui.pushDWriteFont(app.font.black)
                 ui.dwriteTextAligned('Delta Best', fontsize, -1, 0, vec2(position.delta.elementsize.x, position.delta.contentheight / 2), false, txtcolor)
