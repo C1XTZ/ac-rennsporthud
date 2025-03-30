@@ -153,6 +153,8 @@ local rlTempHue = { 240, 240, 240 }
 local rrTempHue = { 240, 240, 240 }
 
 local flWearColor, frWearColor, rlWearColor, rrWearColor, rlPressure, unitTxt
+local rrPressureTxt, rlPressureTxt, flPressureTxt, frPressureTxt
+
 local currComp = -1
 local wearBg = rgbm(0.4, 0.4, 0.4, 1)
 
@@ -163,6 +165,7 @@ local tempSurface = {}
 local tempOptimal = {}
 local tempCore = {}
 local surfaceWeight = 0.2
+local barMult = 0.0689475729
 
 function script.tires(dt)
     local position = getPositionTable()
@@ -277,12 +280,13 @@ function script.tires(dt)
             end
 
             if settings.tiresShowPressure then
+                flPressure = playerCar().wheels[0].tyrePressure
                 if settings.tiresPressureUseBar then
                     unitTxt = ' bar'
-                    flPressure = playerCar().wheels[0].tyrePressure * 0.0689475729
+                    flPressureTxt = string.format('%.1f', flPressure * barMult):gsub('%.', ',')
                 else
                     unitTxt = ' psi'
-                    flPressure = playerCar().wheels[0].tyrePressure
+                    flPressureTxt = string.format('%.1f', flPressure):gsub('%.', ',')
                 end
 
                 local flPressColor = color.white
@@ -292,7 +296,7 @@ function script.tires(dt)
 
                 ui.setCursor(0)
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(string.format('%.1f', flPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, flPressColor)
+                ui.dwriteTextAligned(flPressureTxt .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, flPressColor)
                 ui.popDWriteFont()
             end
         end)
@@ -329,12 +333,13 @@ function script.tires(dt)
             end
 
             if settings.tiresShowPressure then
+                frPressure = playerCar().wheels[1].tyrePressure
                 if settings.tiresPressureUseBar then
                     unitTxt = ' bar'
-                    frPressure = playerCar().wheels[1].tyrePressure * 0.0689475729
+                    frPressureTxt = string.format('%.1f', frPressure * barMult):gsub('%.', ',')
                 else
                     unitTxt = ' psi'
-                    frPressure = playerCar().wheels[1].tyrePressure
+                    frPressureTxt = string.format('%.1f', frPressure):gsub('%.', ',')
                 end
 
                 local frPressColor = color.white
@@ -344,7 +349,7 @@ function script.tires(dt)
 
                 ui.setCursor(0)
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(string.format('%.1f', frPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, frPressColor)
+                ui.dwriteTextAligned(frPressureTxt .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, frPressColor)
                 ui.popDWriteFont()
             end
         end)
@@ -461,12 +466,13 @@ function script.tires(dt)
             end
 
             if settings.tiresShowPressure then
+                rlPressure = playerCar().wheels[2].tyrePressure
                 if settings.tiresPressureUseBar then
                     unitTxt = ' bar'
-                    rlPressure = playerCar().wheels[2].tyrePressure * 0.0689475729
+                    rlPressureTxt = string.format('%.1f', rlPressure * barMult):gsub('%.', ',')
                 else
                     unitTxt = ' psi'
-                    rlPressure = playerCar().wheels[2].tyrePressure
+                    rlPressureTxt = string.format('%.1f', rlPressure):gsub('%.', ',')
                 end
 
                 local rlPressColor = color.white
@@ -476,7 +482,7 @@ function script.tires(dt)
 
                 ui.setCursor(0)
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(string.format('%.1f', rlPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, rlPressColor)
+                ui.dwriteTextAligned(rlPressureTxt .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, rlPressColor)
                 ui.popDWriteFont()
             end
         end)
@@ -512,12 +518,13 @@ function script.tires(dt)
             end
 
             if settings.tiresShowPressure then
+                rrPressure = playerCar().wheels[3].tyrePressure
                 if settings.tiresPressureUseBar then
                     unitTxt = ' bar'
-                    rrPressure = playerCar().wheels[3].tyrePressure * 0.0689475729
+                    rrPressureTxt = string.format('%.1f', rrPressure * barMult):gsub('%.', ',')
                 else
                     unitTxt = ' psi'
-                    rrPressure = playerCar().wheels[3].tyrePressure
+                    rrPressureTxt = string.format('%.1f', rrPressure):gsub('%.', ',')
                 end
 
                 local rrPressColor = color.white
@@ -527,7 +534,7 @@ function script.tires(dt)
 
                 ui.setCursor(0)
                 ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(string.format('%.1f', rrPressure):gsub('%.', ',') .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, rrPressColor)
+                ui.dwriteTextAligned(rrPressureTxt .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, rrPressColor)
                 ui.popDWriteFont()
             end
         end)
