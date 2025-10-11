@@ -1,18 +1,24 @@
 # RennsportHUD for AC
+
+[![](https://img.shields.io/github/v/release/c1xtz/ac-rennsporthud?sort=date&display_name=tag&style=for-the-badge&logo=github&label=Download%20Latest&color=black)](https://github.com/C1XTZ/ac-rennsporthud/releases/latest)
+
 A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa
+
+Note: Reference UI images were captured during the free-to-play beta and may not be 100% accurate to the current release version of the game.
 
 ### Currently Available Elements:
 
-- **HUD Settings**
-- **Essentials** (Speed, Gear, RPMs)
-- **Inputs** (Steering, Force Feedback, Pedals, Car electronics like ABS, TCS and Brake Bias)
-- **Session Info** (Position, Laps, Time Left in Session / Session Duration)
-- **Laptime Delta** (Difference between own current lap and best lap, Predicted Laptime, Difference visualization bar)
-- **Sectors** (Shows current sector vs own best sectors, Pitlane speed, Race Flags (Yellow Flag, Blue flag, etc)
-- **Fuel** (Shows current fuel level (Litres or Gallons), calculated laps left)
-- **Personal Timings** (Current Laptime, Last Laptime, Best Laptime, Ideal Laptime, Last Lap History, Sectors)
-- **Tires** (Tire Pressure, Tire Temperature, Tire Wear, Brake Temperature)
-- **Leaderboard** (Position, Car Number, Driver Name, Car Name, Best Laptime, Last Laptime, Interval)
+- **HUD Settings** – Extensive options to personalize your experience by opening the settings via the cogwheel
+- **In-Game Updater** – Update directly from within the app
+- **Essentials** – Speed, Gear, RPMs
+- **Inputs** – Steering, Force Feedback, Pedals, Electronics (ABS, TCS, Brake Bias)
+- **Session Info** – Position, Laps, Time Left/Session Duration
+- **Laptime Delta** – Current vs. Best Lap, Predicted Laptime, Visual Delta Bar
+- **Sectors** – Current vs. Best Sectors, Pitlane Speed Limit, Race Flags
+- **Fuel** – Current Level (Liters/Gallons), Calculated Laps Remaining
+- **Personal Timings** – Current/Last/Best/Ideal Laptimes, Lap History, Sectors
+- **Tires** – Pressure, Temperature, Wear, Brake Temperature
+- **Leaderboard** – Position, Car Number, Driver Name, Car Name, Best/Last Laptime, Interval
 
 ### HUD PREVIEW AND SETTINGS SHOWCASES
 <img src="https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/master/.github/img/preview.png" width="820">
