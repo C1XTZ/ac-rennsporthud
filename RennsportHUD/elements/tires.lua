@@ -76,10 +76,9 @@ local function getTireProperty(sectionName, propertyName)
             else
                 return tireIni:get(section, propertyName, 'string')
             end
-        else
-            return '-1'
         end
     end
+    return '-1'
 end
 
 --- Retrieves the optimal pressures for the front and rear tires.
