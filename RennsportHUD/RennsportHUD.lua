@@ -1,16 +1,4 @@
 --app made by XTZ
-require('utils/helpers')
-require('utils/tables')
-
-require('elements/essentials')
-require('elements/inputs')
-require('elements/session')
-require('elements/delta')
-require('elements/sectors')
-require('elements/fuel')
-require('elements/tires')
-require('elements/timing')
-require('elements/leaderboard')
 
 settings = ac.storage {
     changeScale = false,
@@ -108,6 +96,19 @@ settings = ac.storage {
     lbManCarLength = false,
     lbManCarLengthNum = 125,
 }
+
+require('utils/helpers')
+require('utils/tables')
+
+require('elements/essentials')
+require('elements/inputs')
+require('elements/session')
+require('elements/delta')
+require('elements/sectors')
+require('elements/fuel')
+require('elements/tires')
+require('elements/timing')
+require('elements/leaderboard')
 
 app = getAppTable()
 color = getColorTable()
@@ -437,7 +438,7 @@ function script.windowMain(dt)
             if ui.checkbox('Show Tire Temperature Visualisation', settings.tiresShowTempVis) then settings.tiresShowTempVis = not settings.tiresShowTempVis end
             if settings.tiresShowTempVis then
                 ui.sameLine()
-                if settings.tiresTiresConfigured then ui.textColored('Tire Information Found', rgbm.colors.green) else ui.textColored('Tire Information Not Found', rgbm.colors.red) end    
+                if settings.tiresTiresConfigured then ui.textColored('Tire Information Found', rgbm.colors.green) else ui.textColored('Tire Information Not Found', rgbm.colors.red) end
                 ui.text('\t')
                 ui.sameLine()
                 if ui.checkbox('Show Tire Pressure', settings.tiresShowPressure) then settings.tiresShowPressure = not settings.tiresShowPressure end
