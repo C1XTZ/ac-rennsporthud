@@ -4,7 +4,9 @@
 
 A app that brings the ingame HUD of the racing game "Rennsport" to Assetto Corsa
 
-Note: Reference UI images were captured during the free-to-play beta and may not be 100% accurate to the current release version of the game.
+> [!IMPORTANT]  
+> Reference images were captured during the free-to-play beta and do not reflect the release version UI.  
+> I prefer the simpler style of the beta UI and as such have no plans on updating the styling.  
 
 ### Currently Available Elements:
 
