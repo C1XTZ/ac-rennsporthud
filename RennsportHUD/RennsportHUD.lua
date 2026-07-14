@@ -225,7 +225,9 @@ function updateApplyUpdate(downloadUrl)
                     if filePath == mainFile then
                         mainFileContent = content
                     else
-                        if io.save(appFolder .. filePath, content) then print('Updating: ' .. file) end
+                        local fullPath = appFolder .. filePath
+                        io.createFileDir(fullPath)
+                        if io.save(fullPath, content) then print('Updating: ' .. file) end
                     end
                 end
             end
