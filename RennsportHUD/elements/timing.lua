@@ -3,7 +3,7 @@ local totalSectors = #ac.getSim().lapSplits
 --- Calculates the ideal lap time in milliseconds from the best overall splits.
 ---@param doOnce boolean @This is here so this is only executed once.
 ---@return integer @The ideal lap time in milliseconds.
-function IdealLaptime(doOnce)
+function idealLapTime(doOnce)
     if doOnce then
         doOnce = false
         local IdealMs = 0
@@ -98,7 +98,7 @@ function script.timing(dt)
         end
 
         resetTiming(false)
-        idealLap = formatTime(IdealLaptime(true), false, true, true, true)
+        idealLap = formatTime(idealLapTime(true), false, true, true, true)
     end
 
     if settings.timingShowCurrentLap then
@@ -107,7 +107,7 @@ function script.timing(dt)
             ui.drawRectFilled(vec2(0, 0), position.timing.currentLap, setColorMult(color.black, 50))
             ui.setCursor(position.timing.pos.currentLapTxt)
             ui.pushDWriteFont(app.font.black)
-            ui.dwriteTextAligned('CURRENT TIME', fontSizeSmall, 0, 0, vec2(104, 16):scale(app.scale), false, color.white)
+            ui.dwriteTextAligned('CURRENT TIME', fontSizeSmall, 0, 0, ui.measureDWriteText('CURRENT TIME', fontSizeSmall), false, color.white)
             ui.popDWriteFont()
             ui.pushDWriteFont(app.font.medium)
             ui.setCursor(position.timing.pos.currentLapContent)
