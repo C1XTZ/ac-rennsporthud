@@ -2,63 +2,57 @@
 ---@return rgb @The RGB value.
 --- A simplified version of a HSL to RGB converter where the saturation is always at 100%, and the lightness is at 50%.
 function hueToRgb(hue)
-    local h = hue / 60
-    local c = 1
-    local x = 1 - math.abs(h % 2 - 1)
-    local r, g, b
+  local h = hue / 60
+  local c = 1
+  local x = 1 - math.abs(h % 2 - 1)
+  local r, g, b
 
-    if h >= 0 and h < 1 then
-        r, g, b = c, x, 0
-    elseif h >= 1 and h < 2 then
-        r, g, b = x, c, 0
-    elseif h >= 2 and h < 3 then
-        r, g, b = 0, c, x
-    elseif h >= 3 and h < 4 then
-        r, g, b = 0, x, c
-    elseif h >= 4 and h < 5 then
-        r, g, b = x, 0, c
-    else
-        r, g, b = c, 0, x
-    end
+  if h >= 0 and h < 1 then
+    r, g, b = c, x, 0
+  elseif h >= 1 and h < 2 then
+    r, g, b = x, c, 0
+  elseif h >= 2 and h < 3 then
+    r, g, b = 0, c, x
+  elseif h >= 3 and h < 4 then
+    r, g, b = 0, x, c
+  elseif h >= 4 and h < 5 then
+    r, g, b = x, 0, c
+  else
+    r, g, b = c, 0, x
+  end
 
-    local m = 0.5 - c / 2
+  local m = 0.5 - c / 2
 
-    return rgb(r + m, g + m, b + m)
+  return rgb(r + m, g + m, b + m)
 end
 
 ---@param lutStr string @A LUT string.
 ---@return integer @The median temperature value of the highest performance value.
 --- Inspired by pseudo code from leBluem, this calculates the median temperature value of the highest performance value from a LUT string.
 function getLUTMedian(lutStr)
-    if lutStr == '-1' then return -1 end
-    local xTable, yTable = {}, {}
-    local yHighest = -1
-    for x, y in lutStr:gmatch('|(%d+)=(%d*%.?%d*)') do
-        table.insert(xTable, tonumber(x))
-        local yValue = tonumber(y)
-        table.insert(yTable, yValue)
-        if yValue > yHighest then
-            yHighest = yValue
-        end
-    end
+  if lutStr == '-1' then return -1 end
+  local xTable, yTable = {}, {}
+  local yHighest = -1
+  for x, y in lutStr:gmatch('|(%d+)=(%d*%.?%d*)') do
+    table.insert(xTable, tonumber(x))
+    local yValue = tonumber(y)
+    table.insert(yTable, yValue)
+    if yValue > yHighest then yHighest = yValue end
+  end
 
-    if yHighest == -1 then
-        return 0
-    end
+  if yHighest == -1 then return 0 end
 
-    local xHighest = {}
-    for i, y in ipairs(yTable) do
-        if y == yHighest then
-            table.insert(xHighest, xTable[i])
-        end
-    end
+  local xHighest = {}
+  for i, y in ipairs(yTable) do
+    if y == yHighest then table.insert(xHighest, xTable[i]) end
+  end
 
-    local xTotal = 0
-    for _, x in ipairs(xHighest) do
-        xTotal = xTotal + x
-    end
+  local xTotal = 0
+  for _, x in ipairs(xHighest) do
+    xTotal = xTotal + x
+  end
 
-    return xTotal / #xHighest
+  return xTotal / #xHighest
 end
 
 local tireIni = ac.INIConfig.carData(playerCar().index, 'tyres.ini')
@@ -69,57 +63,53 @@ local tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
 ---@param propertyName string @The property to get.
 ---@return any @The property value for the given tire name in the given section.
 local function getTireProperty(sectionName, propertyName)
-    for index, section in tireIni:iterate(sectionName, true) do
-        if tireIni:get(section, 'NAME', nil) and tireIni:get(section, 'NAME', nil)[1] == tireName then
-            if propertyName == 'PERFORMANCE_CURVE' then
-                return tireIni:get('THERMAL_' .. section, propertyName, 'string')
-            else
-                return tireIni:get(section, propertyName, 'string')
-            end
-        end
+  for index, section in tireIni:iterate(sectionName, true) do
+    if tireIni:get(section, 'NAME', nil) and tireIni:get(section, 'NAME', nil)[1] == tireName then
+      if propertyName == 'PERFORMANCE_CURVE' then
+        return tireIni:get('THERMAL_' .. section, propertyName, 'string')
+      else
+        return tireIni:get(section, propertyName, 'string')
+      end
     end
-    return '-1'
+  end
+  return '-1'
 end
 
 --- Retrieves the optimal pressures for the front and rear tires.
 ---@return number frontPressure @The optimal pressure for the front tires.
 ---@return number rearPressure @The optimal pressure for the rear tires.
 local function getOptPressure()
-    local frontPressure = getTireProperty('FRONT', 'PRESSURE_IDEAL')
-    local rearPressure = getTireProperty('REAR', 'PRESSURE_IDEAL')
-    return frontPressure, rearPressure
+  local frontPressure = getTireProperty('FRONT', 'PRESSURE_IDEAL')
+  local rearPressure = getTireProperty('REAR', 'PRESSURE_IDEAL')
+  return frontPressure, rearPressure
 end
 
 --- Retrieves the optimal temperatures for the front and rear tires.
 ---@return number frontOptTemp @The optimal temperature for the front tires.
 ---@return number rearOptTemp @The optimal temperature for the rear tires.
 local function getOptTemperature()
-    local frontCurve = getTireProperty('FRONT', 'PERFORMANCE_CURVE')
-    local rearCurve = getTireProperty('REAR', 'PERFORMANCE_CURVE')
-    local frontOptTemp, rearOptTemp
+  local frontCurve = getTireProperty('FRONT', 'PERFORMANCE_CURVE')
+  local rearCurve = getTireProperty('REAR', 'PERFORMANCE_CURVE')
+  local frontOptTemp, rearOptTemp
 
-    if frontCurve == -1 or rearCurve == -1 then
-        return -1, -1
-    end
+  if frontCurve == -1 or rearCurve == -1 then return -1, -1 end
 
-    if string.match(frontCurve, '%.lut$') then
-        frontOptTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, frontCurve):serialize())
-    else
-        frontOptTemp = getLUTMedian(frontCurve)
-    end
+  if string.match(frontCurve, '%.lut$') then
+    frontOptTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, frontCurve):serialize())
+  else
+    frontOptTemp = getLUTMedian(frontCurve)
+  end
 
-    if string.match(rearCurve, '%.lut$') then
-        rearOptTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, rearCurve):serialize())
-    else
-        rearOptTemp = getLUTMedian(rearCurve)
-    end
+  if string.match(rearCurve, '%.lut$') then
+    rearOptTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, rearCurve):serialize())
+  else
+    rearOptTemp = getLUTMedian(rearCurve)
+  end
 
-    if frontOptTemp == -1 or rearOptTemp == -1 then
-        return -1, -1
-    end
+  if frontOptTemp == -1 or rearOptTemp == -1 then return -1, -1 end
 
-    tiresFound = true
-    return frontOptTemp, rearOptTemp
+  tiresFound = true
+  return frontOptTemp, rearOptTemp
 end
 
 local frontOptTemp, rearOptTemp = getOptTemperature()
@@ -129,21 +119,21 @@ local fOptBrakeTemp, rOptBrakeTemp, fBrakeLut, rBrakeLut
 
 local brakesFound = false
 if brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil) then
-    fBrakeLut = tostring(brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil)[1])
-    rBrakeLut = tostring(brakeIni:get('TEMPS_REAR', 'PERF_CURVE', nil)[1])
-    brakesFound = true
+  fBrakeLut = tostring(brakeIni:get('TEMPS_FRONT', 'PERF_CURVE', nil)[1])
+  rBrakeLut = tostring(brakeIni:get('TEMPS_REAR', 'PERF_CURVE', nil)[1])
+  brakesFound = true
 end
 
 if not fBrakeLut or not rBrakeLut then
-    fOptBrakeTemp, rOptBrakeTemp = -1, -1
+  fOptBrakeTemp, rOptBrakeTemp = -1, -1
 else
-    if string.match(fBrakeLut, '%.lut$') and string.match(rBrakeLut, '%.lut$') then
-        fOptBrakeTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, fBrakeLut):serialize())
-        rOptBrakeTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, rBrakeLut):serialize())
-    else
-        fOptBrakeTemp = getLUTMedian(fBrakeLut)
-        rOptBrakeTemp = getLUTMedian(rBrakeLut)
-    end
+  if string.match(fBrakeLut, '%.lut$') and string.match(rBrakeLut, '%.lut$') then
+    fOptBrakeTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, fBrakeLut):serialize())
+    rOptBrakeTemp = getLUTMedian(ac.DataLUT11.carData(playerCar().index, rBrakeLut):serialize())
+  else
+    fOptBrakeTemp = getLUTMedian(fBrakeLut)
+    rOptBrakeTemp = getLUTMedian(rBrakeLut)
+  end
 end
 
 local flTempHue = { 240, 240, 240 }
@@ -166,25 +156,37 @@ local tempCore = {}
 local surfaceWeight = 0.2
 local barMult = 0.0689475729
 
+--- Draws tiretemp numbers
+---@param position table @Position table
+---@param cursorPos vec2
+---@param value number
+local function drawTempNum(position, cursorPos, value)
+  local box = vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2)
+  local txt = string.format('%1.f', value)
+  local fontSize = fitFontSize(txt, app.font.black, position.tires.tempbartxt.y, box)
+  ui.setCursor(cursorPos)
+  ui.dwriteTextAligned(txt, fontSize, 0, -1, box, false, color.white)
+end
+
 function script.tires(dt)
-    local position = getPositionTable()
-    local vertOffset = math.round(app.padding)
-    local horiOffset = 0
-    local wearOl = scale(1)
+  local position = getPositionTable()
+  local vertOffset = math.round(app.padding)
+  local horiOffset = 0
+  local wearOl = scale(1)
 
-    settings.tiresBrakesConfigured = brakesFound
-    settings.tiresTiresConfigured = tiresFound
+  settings.tiresBrakesConfigured = brakesFound
+  settings.tiresTiresConfigured = tiresFound
 
-    if settings.tiresShowPressure and settings.tiresPressureColor and playerCar().compoundIndex ~= currComp then
-        currComp = playerCar().compoundIndex
-        tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
-        tireIni.fPressOpt, tireIni.rPressOpt = getOptPressure()
-        if tireIni.fPressOpt == '-1' or tireIni.rPressOpt == '-1' then
-            tireIni.fPressOpt, tireIni.rPressOpt = 999, 999
-        end
+  if settings.tiresShowPressure and settings.tiresPressureColor and playerCar().compoundIndex ~= currComp then
+    currComp = playerCar().compoundIndex
+    tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
+    tireIni.fPressOpt, tireIni.rPressOpt = getOptPressure()
+    if tireIni.fPressOpt == '-1' or tireIni.rPressOpt == '-1' then
+      tireIni.fPressOpt, tireIni.rPressOpt = 999, 999
     end
+  end
 
-    --[[ LEFT SIDE TEMPS ARE FLIPPED, MEANING tyreInsideTemperature and tyreOutsideTemperature ARE FLIPPED FOR wheels[0] and wheels[2]
+  --[[ LEFT SIDE TEMPS ARE FLIPPED, MEANING tyreInsideTemperature and tyreOutsideTemperature ARE FLIPPED FOR wheels[0] and wheels[2]
     ac.debug('FRONT LEFT OT', ac.getCar(0).wheels[0].tyreOutsideTemperature)
     ac.debug('FRONT LEFT MT', ac.getCar(0).wheels[0].tyreMiddleTemperature)
     ac.debug('FRONT LEFT IT', ac.getCar(0).wheels[0].tyreInsideTemperature)
@@ -193,349 +195,357 @@ function script.tires(dt)
     ac.debug('REAR LEFT MT', ac.getCar(0).wheels[2].tyreMiddleTemperature)
     ac.debug('REAR LEFT IT', ac.getCar(0).wheels[2].tyreInsideTemperature)
     --]]
-    for i = 0, 3 do
-        local wheel = playerCar().wheels[i]
-        local tyreWear = wheel.tyreWear
+  for i = 0, 3 do
+    local wheel = playerCar().wheels[i]
+    local tyreWear = wheel.tyreWear
 
-        local wearColor = color.white
-        for j = 1, #wearPercent do
-            if tyreWear > wearPercent[j] then
-                wearColor = wearPercentColors[j]
-                break
-            end
-        end
-        if i == 0 then
-            flWearColor = wearColor
-        elseif i == 1 then
-            frWearColor = wearColor
-        elseif i == 2 then
-            rlWearColor = wearColor
-        elseif i == 3 then
-            rrWearColor = wearColor
-        end
+    local wearColor = color.white
+    for j = 1, #wearPercent do
+      if tyreWear > wearPercent[j] then
+        wearColor = wearPercentColors[j]
+        break
+      end
     end
-
-    for i = 0, 3 do
-        local wheel = playerCar().wheels[i]
-        tempOptimal[i + 1] = (i < 2) and frontOptTemp or rearOptTemp
-        tempSurface[i + 1] = { wheel.tyreOutsideTemperature, wheel.tyreMiddleTemperature, wheel.tyreInsideTemperature }
-        tempCore[i + 1] = { wheel.tyreCoreTemperature, wheel.tyreCoreTemperature, wheel.tyreCoreTemperature }
+    if i == 0 then
+      flWearColor = wearColor
+    elseif i == 1 then
+      frWearColor = wearColor
+    elseif i == 2 then
+      rlWearColor = wearColor
+    elseif i == 3 then
+      rrWearColor = wearColor
     end
+  end
 
-    if settings.tiresShowTempVis then
-        for i = 1, 3 do
-            local flTempAvg = (tempCore[1][i] * (1 - surfaceWeight)) + (tempSurface[1][i] * surfaceWeight)
-            local frTempAvg = (tempCore[2][i] * (1 - surfaceWeight)) + (tempSurface[2][i] * surfaceWeight)
-            local rlTempAvg = (tempCore[3][i] * (1 - surfaceWeight)) + (tempSurface[3][i] * surfaceWeight)
-            local rrTempAvg = (tempCore[4][i] * (1 - surfaceWeight)) + (tempSurface[4][i] * surfaceWeight)
+  for i = 0, 3 do
+    local wheel = playerCar().wheels[i]
+    tempOptimal[i + 1] = (i < 2) and frontOptTemp or rearOptTemp
+    tempSurface[i + 1] = { wheel.tyreOutsideTemperature, wheel.tyreMiddleTemperature, wheel.tyreInsideTemperature }
+    tempCore[i + 1] = { wheel.tyreCoreTemperature, wheel.tyreCoreTemperature, wheel.tyreCoreTemperature }
+  end
 
-            flTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (flTempAvg / tempOptimal[1]) ^ 3), 0, 2))
-            frTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (frTempAvg / tempOptimal[2]) ^ 3), 0, 2))
-            rlTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (rlTempAvg / tempOptimal[3]) ^ 3), 0, 2))
-            rrTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (rrTempAvg / tempOptimal[4]) ^ 3), 0, 2))
-        end
+  if settings.tiresShowTempVis then
+    for i = 1, 3 do
+      local flTempAvg = (tempCore[1][i] * (1 - surfaceWeight)) + (tempSurface[1][i] * surfaceWeight)
+      local frTempAvg = (tempCore[2][i] * (1 - surfaceWeight)) + (tempSurface[2][i] * surfaceWeight)
+      local rlTempAvg = (tempCore[3][i] * (1 - surfaceWeight)) + (tempSurface[3][i] * surfaceWeight)
+      local rrTempAvg = (tempCore[4][i] * (1 - surfaceWeight)) + (tempSurface[4][i] * surfaceWeight)
+
+      flTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (flTempAvg / tempOptimal[1]) ^ 3), 0, 2))
+      frTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (frTempAvg / tempOptimal[2]) ^ 3), 0, 2))
+      rlTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (rlTempAvg / tempOptimal[3]) ^ 3), 0, 2))
+      rrTempHue[i] = math.lerp(240, 0, math.lerpInvSat(math.max(0, (rrTempAvg / tempOptimal[4]) ^ 3), 0, 2))
     end
+  end
 
-    if settings.decor then
-        ui.setCursor(vec2(0, vertOffset))
-        ui.childWindow('tiresDecor', position.tires.decorsize, function()
-            ui.drawRectFilled(vec2(0, 0), position.tires.decorsize, color.white)
-            ui.setCursorX(scale(15))
-            ui.pushDWriteFont(app.font.black)
-            ui.dwriteTextAligned('TIRES', scale(14), -1, 0, position.tires.decorsize, false, color.black)
-            ui.popDWriteFont()
-        end)
-        vertOffset = math.round(vertOffset + position.tires.decorsize.y)
-    end
+  if settings.decor then
+    ui.setCursor(vec2(0, vertOffset))
+    ui.childWindow('tiresDecor', position.tires.decorsize, function()
+      ui.drawRectFilled(vec2(0, 0), position.tires.decorsize, color.white)
+      ui.setCursorX(scale(15))
+      ui.pushDWriteFont(app.font.black)
+      ui.dwriteTextAligned('TIRES', scale(14), -1, 0, position.tires.decorsize, false, color.black)
+      ui.popDWriteFont()
+    end)
+    vertOffset = math.round(vertOffset + position.tires.decorsize.y)
+  end
 
-    if settings.tiresShowTempVis then
-        ui.setCursor(vec2(0, vertOffset))
-        ui.childWindow('tiresFL', position.tires.wheelelement, function()
-            ui.drawRectFilled(vec2(0, 0), vec2(math.floor(position.tires.wheelelement.x), position.tires.wheelelement.y), setColorMult(color.black, 50))
+  if settings.tiresShowTempVis then
+    ui.setCursor(vec2(0, vertOffset))
+    ui.childWindow('tiresFL', position.tires.wheelelement, function()
+      ui.drawRectFilled(vec2(0, 0), vec2(math.floor(position.tires.wheelelement.x), position.tires.wheelelement.y), setColorMult(color.black, 50))
 
-            ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[2]) or color.gray)
-            ui.setCursorX(ui.getCursorX() - scale(8))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[3]) or color.gray, scale(5), 5)
-            ui.setCursorX(ui.getCursorX() + scale(16))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[1]) or color.gray, scale(5), 10)
-            if settings.tiresShowWear then
-                ui.setCursorX(ui.getCursorX() - scale(34))
-                ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
-                ui.drawRectFilled(vec2(ui.getCursorX() - wearOl, ui.getCursorY() + wearOl), vec2(ui.getCursorX() + (position.tires.wearsize.x + wearOl), ui.getCursorY() - (position.tires.wearsize.y + wearOl)), color.black)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - position.tires.wearsize.y), wearBg)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - (position.tires.wearsize.y * (1 - playerCar().wheels[0].tyreWear))), flWearColor)
-                ui.setCursor(vec2(ui.getCursorX() - scale(6), ui.getCursorY() + scale(1)))
-                ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(math.round((1 - playerCar().wheels[0].tyreWear) * 100), scale(9), 0, 0, vec2(17, 12):scale(app.scale), false, color.white)
-                ui.popDWriteFont()
-            end
+      local flPartSpacing = scale(8)
+      ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[2]) or color.gray)
+      ui.setCursorX(ui.getCursorX() - flPartSpacing)
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[3]) or color.gray, scale(5), 5)
+      ui.setCursorX(ui.getCursorX() + flPartSpacing * 2)
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(flTempHue[1]) or color.gray, scale(5), 10)
+      if settings.tiresShowWear then
+        ui.setCursorX(ui.getCursorX() - scale(34))
+        ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
+        ui.drawRectFilled(vec2(ui.getCursorX() - wearOl, ui.getCursorY() + wearOl), vec2(ui.getCursorX() + (position.tires.wearsize.x + wearOl), ui.getCursorY() - (position.tires.wearsize.y + wearOl)), color.black)
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - position.tires.wearsize.y), wearBg)
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - (position.tires.wearsize.y * (1 - playerCar().wheels[0].tyreWear))), flWearColor)
+        ui.setCursor(vec2(ui.getCursorX() - scale(6), ui.getCursorY() + scale(1)))
+        ui.pushDWriteFont(app.font.black)
+        local flWearTxt = tostring(math.round((1 - playerCar().wheels[0].tyreWear) * 100))
+        local flWearBox = scaleVec2(17, 12)
+        local flWearFontSize = fitFontSize(flWearTxt, app.font.black, scale(9), flWearBox)
+        ui.dwriteTextAligned(flWearTxt, flWearFontSize, 0, 0, flWearBox, false, color.white)
+        ui.popDWriteFont()
+      end
 
-            if settings.tiresShowBrakeTemp then
-                local flBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[0].discTemperature / fOptBrakeTemp)), 0, 2))
+      if settings.tiresShowBrakeTemp then
+        local flBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[0].discTemperature / fOptBrakeTemp)), 0, 2))
 
-                ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(flBrakeHue) or color.gray)
-            end
+        ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(flBrakeHue) or color.gray)
+      end
 
-            if settings.tiresShowPressure then
-                flPressure = playerCar().wheels[0].tyrePressure
-                if settings.tiresPressureUseBar then
-                    unitTxt = ' bar'
-                    flPressureTxt = string.format('%.1f', flPressure * barMult):gsub('%.', ',')
-                else
-                    unitTxt = ' psi'
-                    flPressureTxt = string.format('%.1f', flPressure):gsub('%.', ',')
-                end
-
-                local flPressColor = color.white
-                if settings.tiresPressureColor then
-                    flPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (flPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray
-                end
-
-                ui.setCursor(0)
-                ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(flPressureTxt .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, flPressColor)
-                ui.popDWriteFont()
-            end
-        end)
-
-        horiOffset = horiOffset + position.tires.wheelelement.x
-
-        ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.childWindow('tiresFR', position.tires.wheelelement, function()
-            ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
-
-            ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(frTempHue[2]) or color.gray)
-            ui.setCursorX(ui.getCursorX() - scale(8))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(frTempHue[3]) or color.gray, scale(5), 5)
-            ui.setCursorX(ui.getCursorX() + scale(16))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(frTempHue[1]) or color.gray, scale(5), 10)
-            if settings.tiresShowWear then
-                ui.setCursorX(ui.getCursorX() + scale(18))
-                ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
-                ui.drawRectFilled(vec2(ui.getCursorX() - wearOl, ui.getCursorY() + wearOl), vec2(ui.getCursorX() + (position.tires.wearsize.x + wearOl), ui.getCursorY() - (position.tires.wearsize.y + wearOl)), color.black)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - position.tires.wearsize.y), wearBg)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - (position.tires.wearsize.y * (1 - playerCar().wheels[1].tyreWear))), frWearColor)
-                ui.setCursor(vec2(ui.getCursorX() - scale(6), ui.getCursorY() + scale(1)))
-                ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(math.round((1 - playerCar().wheels[1].tyreWear) * 100), scale(9), 0, 0, vec2(17, 12):scale(app.scale), false, color.white)
-                ui.popDWriteFont()
-            end
-
-            if settings.tiresShowBrakeTemp then
-                local frBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[1].discTemperature / fOptBrakeTemp)), 0, 2))
-
-                ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(3)), position.tires.brakepos.y))
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(frBrakeHue) or color.gray)
-            end
-
-            if settings.tiresShowPressure then
-                frPressure = playerCar().wheels[1].tyrePressure
-                if settings.tiresPressureUseBar then
-                    unitTxt = ' bar'
-                    frPressureTxt = string.format('%.1f', frPressure * barMult):gsub('%.', ',')
-                else
-                    unitTxt = ' psi'
-                    frPressureTxt = string.format('%.1f', frPressure):gsub('%.', ',')
-                end
-
-                local frPressColor = color.white
-                if settings.tiresPressureColor then
-                    frPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (frPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray
-                end
-
-                ui.setCursor(0)
-                ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(frPressureTxt .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, frPressColor)
-                ui.popDWriteFont()
-            end
-        end)
-
-        vertOffset = math.floor(vertOffset + position.tires.wheelelement.y)
-    end
-
-    if settings.tiresShowTempBar then
-        local flTempNum = { tempSurface[1][1], tempSurface[1][2], tempSurface[1][3] }
-        local frTempNum = { tempSurface[2][1], tempSurface[2][2], tempSurface[2][3] }
-        local rlTempNum = { tempSurface[3][1], tempSurface[3][2], tempSurface[3][3] }
-        local rrTempNum = { tempSurface[4][1], tempSurface[4][2], tempSurface[4][3] }
-
-        if settings.tiresTempUseFahrenheit then
-            for i = 1, 3 do
-                flTempNum[i] = (tempSurface[1][i] * 1.8) + 32
-                frTempNum[i] = (tempSurface[2][i] * 1.8) + 32
-                rlTempNum[i] = (tempSurface[3][i] * 1.8) + 32
-                rrTempNum[i] = (tempSurface[4][i] * 1.8) + 32
-            end
+      if settings.tiresShowPressure then
+        flPressure = playerCar().wheels[0].tyrePressure
+        if settings.tiresPressureUseBar then
+          unitTxt = ' bar'
+          flPressureTxt = string.format('%.1f', flPressure * barMult):gsub('%.', ',')
+        else
+          unitTxt = ' psi'
+          flPressureTxt = string.format('%.1f', flPressure):gsub('%.', ',')
         end
 
-        local tempTxtL = vec2(4, 0):scale(app.scale)
-        local tempTxtM = vec2(30, 0):scale(app.scale)
-        local tempTxtR = vec2(56, 0):scale(app.scale)
+        local flPressColor = color.white
+        if settings.tiresPressureColor then flPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (flPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray end
 
-        ui.setCursor(vec2(0, vertOffset))
-        ui.childWindow('tempBarFL', vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), function()
-            ui.drawRectFilled(ui.getCursor(), vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), color.black)
-            ui.pushDWriteFont(app.font.black)
-            ui.setCursor(tempTxtL)
-            ui.dwriteTextAligned(string.format('%1.f', flTempNum[3]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.setCursor(tempTxtM)
-            ui.dwriteTextAligned(string.format('%1.f', flTempNum[2]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.setCursor(tempTxtR)
-            ui.dwriteTextAligned(string.format('%1.f', flTempNum[1]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.popDWriteFont()
-        end)
+        ui.setCursor(0)
+        ui.pushDWriteFont(app.font.black)
+        local flPressText = flPressureTxt .. unitTxt
+        local flPressBox = vec2(position.tires.wheelelement.x, position.tires.pressurepos)
+        local flPressFontSize = fitFontSize(flPressText, app.font.black, scale(10), flPressBox)
+        ui.dwriteTextAligned(flPressText, flPressFontSize, 0, 0, flPressBox, false, flPressColor)
+        ui.popDWriteFont()
+      end
+    end)
 
-        ui.setCursor(vec2(0, vertOffset + position.tires.tempbarheight / 2))
-        ui.childWindow('tempBarRL', vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), function()
-            ui.drawRectFilled(ui.getCursor(), vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), color.black)
-            ui.pushDWriteFont(app.font.black)
-            ui.setCursor(tempTxtL)
-            ui.dwriteTextAligned(string.format('%1.f', rlTempNum[3]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.setCursor(tempTxtM)
-            ui.dwriteTextAligned(string.format('%1.f', rlTempNum[2]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.setCursor(tempTxtR)
-            ui.dwriteTextAligned(string.format('%1.f', rlTempNum[1]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.popDWriteFont()
-        end)
+    horiOffset = horiOffset + position.tires.wheelelement.x
 
-        horiOffset = position.tires.decorsize.x / 2
+    ui.setCursor(vec2(horiOffset, vertOffset))
+    ui.childWindow('tiresFR', position.tires.wheelelement, function()
+      ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
 
-        ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.childWindow('tempBarFR', vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), function()
-            ui.drawRectFilled(ui.getCursor(), vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), color.black)
-            ui.pushDWriteFont(app.font.black)
-            ui.setCursor(tempTxtL)
-            ui.dwriteTextAligned(string.format('%1.f', frTempNum[3]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.setCursor(tempTxtM)
-            ui.dwriteTextAligned(string.format('%1.f', frTempNum[2]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.setCursor(tempTxtR)
-            ui.dwriteTextAligned(string.format('%1.f', frTempNum[1]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.popDWriteFont()
-        end)
+      local frPartSpacing = scale(8)
+      ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(frTempHue[2]) or color.gray)
+      ui.setCursorX(ui.getCursorX() - frPartSpacing)
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(frTempHue[3]) or color.gray, scale(5), 5)
+      ui.setCursorX(ui.getCursorX() + frPartSpacing * 2)
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(frTempHue[1]) or color.gray, scale(5), 10)
+      if settings.tiresShowWear then
+        ui.setCursorX(ui.getCursorX() + scale(18))
+        ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
+        ui.drawRectFilled(vec2(ui.getCursorX() - wearOl, ui.getCursorY() + wearOl), vec2(ui.getCursorX() + (position.tires.wearsize.x + wearOl), ui.getCursorY() - (position.tires.wearsize.y + wearOl)), color.black)
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - position.tires.wearsize.y), wearBg)
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - (position.tires.wearsize.y * (1 - playerCar().wheels[1].tyreWear))), frWearColor)
+        ui.setCursor(vec2(ui.getCursorX() - scale(6), ui.getCursorY() + scale(1)))
+        ui.pushDWriteFont(app.font.black)
+        local frWearTxt = tostring(math.round((1 - playerCar().wheels[1].tyreWear) * 100))
+        local frWearBox = scaleVec2(17, 12)
+        local frWearFontSize = fitFontSize(frWearTxt, app.font.black, scale(9), frWearBox)
+        ui.dwriteTextAligned(frWearTxt, frWearFontSize, 0, 0, frWearBox, false, color.white)
+        ui.popDWriteFont()
+      end
 
-        ui.setCursor(vec2(horiOffset, vertOffset + position.tires.tempbarheight / 2))
-        ui.childWindow('tempBarRR', vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), function()
-            ui.drawRectFilled(ui.getCursor(), vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), color.black)
-            ui.pushDWriteFont(app.font.black)
-            ui.setCursor(tempTxtL)
-            ui.dwriteTextAligned(string.format('%1.f', rrTempNum[3]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.setCursor(tempTxtM)
-            ui.dwriteTextAligned(string.format('%1.f', rrTempNum[2]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.setCursor(tempTxtR)
-            ui.dwriteTextAligned(string.format('%1.f', rrTempNum[1]), position.tires.tempbartxt.y, 0, -1, vec2(position.tires.tempbartxt.x, position.tires.tempbarheight / 2), false, color.white)
-            ui.popDWriteFont()
-        end)
+      if settings.tiresShowBrakeTemp then
+        local frBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[1].discTemperature / fOptBrakeTemp)), 0, 2))
 
-        vertOffset = math.round(vertOffset + math.floor(position.tires.tempbarheight))
-        if vertOffset % 2 ~= 0 then vertOffset = vertOffset - 1 end
-        horiOffset = 0
-        horiOffset = 0
+        ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(3)), position.tires.brakepos.y))
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(frBrakeHue) or color.gray)
+      end
+
+      if settings.tiresShowPressure then
+        frPressure = playerCar().wheels[1].tyrePressure
+        if settings.tiresPressureUseBar then
+          unitTxt = ' bar'
+          frPressureTxt = string.format('%.1f', frPressure * barMult):gsub('%.', ',')
+        else
+          unitTxt = ' psi'
+          frPressureTxt = string.format('%.1f', frPressure):gsub('%.', ',')
+        end
+
+        local frPressColor = color.white
+        if settings.tiresPressureColor then frPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (frPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray end
+
+        ui.setCursor(0)
+        ui.pushDWriteFont(app.font.black)
+        local frPressText = frPressureTxt .. unitTxt
+        local frPressBox = vec2(position.tires.wheelelement.x, position.tires.pressurepos)
+        local frPressFontSize = fitFontSize(frPressText, app.font.black, scale(10), frPressBox)
+        ui.dwriteTextAligned(frPressText, frPressFontSize, 0, 0, frPressBox, false, frPressColor)
+        ui.popDWriteFont()
+      end
+    end)
+
+    vertOffset = math.floor(vertOffset + position.tires.wheelelement.y)
+  end
+
+  if settings.tiresShowTempBar then
+    local flTempNum = { tempSurface[1][1], tempSurface[1][2], tempSurface[1][3] }
+    local frTempNum = { tempSurface[2][1], tempSurface[2][2], tempSurface[2][3] }
+    local rlTempNum = { tempSurface[3][1], tempSurface[3][2], tempSurface[3][3] }
+    local rrTempNum = { tempSurface[4][1], tempSurface[4][2], tempSurface[4][3] }
+
+    if settings.tiresTempUseFahrenheit then
+      for i = 1, 3 do
+        flTempNum[i] = (tempSurface[1][i] * 1.8) + 32
+        frTempNum[i] = (tempSurface[2][i] * 1.8) + 32
+        rlTempNum[i] = (tempSurface[3][i] * 1.8) + 32
+        rrTempNum[i] = (tempSurface[4][i] * 1.8) + 32
+      end
     end
 
-    if settings.tiresShowTempVis then
-        ui.setCursor(vec2(0, vertOffset))
-        ui.childWindow('tiresRL', position.tires.wheelelement, function()
-            ui.drawRectFilled(vec2(0, 0), vec2(math.floor(position.tires.wheelelement.x), position.tires.wheelelement.y), setColorMult(color.black, 50))
+    local tempTxtL = scaleVec2(4, 0)
+    local tempTxtM = scaleVec2(30, 0)
+    local tempTxtR = scaleVec2(56, 0)
 
-            ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[2]) or color.gray)
-            ui.setCursorX(ui.getCursorX() - scale(8))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[3]) or color.gray, scale(5), 5)
-            ui.setCursorX(ui.getCursorX() + scale(16))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[1]) or color.gray, scale(5), 10)
-            if settings.tiresShowWear then
-                ui.setCursorX(ui.getCursorX() - scale(34))
-                ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
-                ui.drawRectFilled(vec2(ui.getCursorX() - wearOl, ui.getCursorY() + wearOl), vec2(ui.getCursorX() + (position.tires.wearsize.x + wearOl), ui.getCursorY() - (position.tires.wearsize.y + wearOl)), color.black)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - position.tires.wearsize.y), wearBg)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - (position.tires.wearsize.y * (1 - playerCar().wheels[2].tyreWear))), rlWearColor)
-                ui.setCursor(vec2(ui.getCursorX() - scale(6), ui.getCursorY() + scale(1)))
-                ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(math.round((1 - playerCar().wheels[2].tyreWear) * 100), scale(9), 0, 0, vec2(17, 12):scale(app.scale), false, color.white)
-                ui.popDWriteFont()
-            end
+    ui.setCursor(vec2(0, vertOffset))
+    ui.childWindow('tempBarFL', vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), function()
+      ui.drawRectFilled(ui.getCursor(), vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), color.black)
+      ui.pushDWriteFont(app.font.black)
+      drawTempNum(position, tempTxtL, flTempNum[3])
+      drawTempNum(position, tempTxtM, flTempNum[2])
+      drawTempNum(position, tempTxtR, flTempNum[1])
+      ui.popDWriteFont()
+    end)
 
-            if settings.tiresShowBrakeTemp then
-                local rlBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[2].discTemperature / rOptBrakeTemp)), 0, 2))
-                ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(rlBrakeHue) or color.gray)
-            end
+    ui.setCursor(vec2(0, vertOffset + position.tires.tempbarheight / 2))
+    ui.childWindow('tempBarRL', vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), function()
+      ui.drawRectFilled(ui.getCursor(), vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), color.black)
+      ui.pushDWriteFont(app.font.black)
+      drawTempNum(position, tempTxtL, rlTempNum[3])
+      drawTempNum(position, tempTxtM, rlTempNum[2])
+      drawTempNum(position, tempTxtR, rlTempNum[1])
+      ui.popDWriteFont()
+    end)
 
-            if settings.tiresShowPressure then
-                rlPressure = playerCar().wheels[2].tyrePressure
-                if settings.tiresPressureUseBar then
-                    unitTxt = ' bar'
-                    rlPressureTxt = string.format('%.1f', rlPressure * barMult):gsub('%.', ',')
-                else
-                    unitTxt = ' psi'
-                    rlPressureTxt = string.format('%.1f', rlPressure):gsub('%.', ',')
-                end
+    horiOffset = position.tires.decorsize.x / 2
 
-                local rlPressColor = color.white
-                if settings.tiresPressureColor then
-                    rlPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rlPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray
-                end
+    ui.setCursor(vec2(horiOffset, vertOffset))
+    ui.childWindow('tempBarFR', vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), function()
+      ui.drawRectFilled(ui.getCursor(), vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), color.black)
+      ui.pushDWriteFont(app.font.black)
+      drawTempNum(position, tempTxtL, frTempNum[3])
+      drawTempNum(position, tempTxtM, frTempNum[2])
+      drawTempNum(position, tempTxtR, frTempNum[1])
+      ui.popDWriteFont()
+    end)
 
-                ui.setCursor(0)
-                ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(rlPressureTxt .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, rlPressColor)
-                ui.popDWriteFont()
-            end
-        end)
+    ui.setCursor(vec2(horiOffset, vertOffset + position.tires.tempbarheight / 2))
+    ui.childWindow('tempBarRR', vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), function()
+      ui.drawRectFilled(ui.getCursor(), vec2(position.tires.decorsize.x / 2, position.tires.tempbarheight / 2), color.black)
+      ui.pushDWriteFont(app.font.black)
+      drawTempNum(position, tempTxtL, rrTempNum[3])
+      drawTempNum(position, tempTxtM, rrTempNum[2])
+      drawTempNum(position, tempTxtR, rrTempNum[1])
+      ui.popDWriteFont()
+    end)
 
-        horiOffset = position.tires.wheelelement.x
+    vertOffset = math.round(vertOffset + math.floor(position.tires.tempbarheight))
+    if vertOffset % 2 ~= 0 then vertOffset = vertOffset - 1 end
+    horiOffset = 0
+    horiOffset = 0
+  end
 
-        ui.setCursor(vec2(horiOffset, vertOffset))
-        ui.childWindow('tiresRR', position.tires.wheelelement, function()
-            ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
+  if settings.tiresShowTempVis then
+    ui.setCursor(vec2(0, vertOffset))
+    ui.childWindow('tiresRL', position.tires.wheelelement, function()
+      ui.drawRectFilled(vec2(0, 0), vec2(math.floor(position.tires.wheelelement.x), position.tires.wheelelement.y), setColorMult(color.black, 50))
 
-            ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rrTempHue[2]) or color.gray)
-            ui.setCursorX(ui.getCursorX() - scale(8))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rrTempHue[3]) or color.gray, scale(5), 5)
-            ui.setCursorX(ui.getCursorX() + scale(16))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rrTempHue[1]) or color.gray, scale(5), 10)
-            if settings.tiresShowWear then
-                ui.setCursorX(ui.getCursorX() + scale(18))
-                ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
-                ui.drawRectFilled(vec2(ui.getCursorX() - wearOl, ui.getCursorY() + wearOl), vec2(ui.getCursorX() + (position.tires.wearsize.x + wearOl), ui.getCursorY() - (position.tires.wearsize.y + wearOl)), color.black)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - position.tires.wearsize.y), wearBg)
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - (position.tires.wearsize.y * (1 - playerCar().wheels[3].tyreWear))), rrWearColor)
-                ui.setCursor(vec2(ui.getCursorX() - scale(6), ui.getCursorY() + scale(1)))
-                ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(math.round((1 - playerCar().wheels[3].tyreWear) * 100), scale(9), 0, 0, vec2(17, 12):scale(app.scale), false, color.white)
-                ui.popDWriteFont()
-            end
+      local rlPartSpacing = scale(8)
+      ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[2]) or color.gray)
+      ui.setCursorX(ui.getCursorX() - rlPartSpacing)
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[3]) or color.gray, scale(5), 5)
+      ui.setCursorX(ui.getCursorX() + rlPartSpacing * 2)
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rlTempHue[1]) or color.gray, scale(5), 10)
+      if settings.tiresShowWear then
+        ui.setCursorX(ui.getCursorX() - scale(34))
+        ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
+        ui.drawRectFilled(vec2(ui.getCursorX() - wearOl, ui.getCursorY() + wearOl), vec2(ui.getCursorX() + (position.tires.wearsize.x + wearOl), ui.getCursorY() - (position.tires.wearsize.y + wearOl)), color.black)
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - position.tires.wearsize.y), wearBg)
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - (position.tires.wearsize.y * (1 - playerCar().wheels[2].tyreWear))), rlWearColor)
+        ui.setCursor(vec2(ui.getCursorX() - scale(6), ui.getCursorY() + scale(1)))
+        ui.pushDWriteFont(app.font.black)
+        local rlWearTxt = tostring(math.round((1 - playerCar().wheels[2].tyreWear) * 100))
+        local rlWearBox = scaleVec2(17, 12)
+        local rlWearFontSize = fitFontSize(rlWearTxt, app.font.black, scale(9), rlWearBox)
+        ui.dwriteTextAligned(rlWearTxt, rlWearFontSize, 0, 0, rlWearBox, false, color.white)
+        ui.popDWriteFont()
+      end
 
-            if settings.tiresShowBrakeTemp then
-                local rrBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[3].discTemperature / rOptBrakeTemp)), 0, 2))
-                ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(3)), position.tires.brakepos.y))
-                ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(rrBrakeHue) or color.gray)
-            end
+      if settings.tiresShowBrakeTemp then
+        local rlBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[2].discTemperature / rOptBrakeTemp)), 0, 2))
+        ui.setCursor(vec2(position.tires.wheelelement.x / 2 + position.tires.brakepos.x, position.tires.brakepos.y))
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(rlBrakeHue) or color.gray)
+      end
 
-            if settings.tiresShowPressure then
-                rrPressure = playerCar().wheels[3].tyrePressure
-                if settings.tiresPressureUseBar then
-                    unitTxt = ' bar'
-                    rrPressureTxt = string.format('%.1f', rrPressure * barMult):gsub('%.', ',')
-                else
-                    unitTxt = ' psi'
-                    rrPressureTxt = string.format('%.1f', rrPressure):gsub('%.', ',')
-                end
+      if settings.tiresShowPressure then
+        rlPressure = playerCar().wheels[2].tyrePressure
+        if settings.tiresPressureUseBar then
+          unitTxt = ' bar'
+          rlPressureTxt = string.format('%.1f', rlPressure * barMult):gsub('%.', ',')
+        else
+          unitTxt = ' psi'
+          rlPressureTxt = string.format('%.1f', rlPressure):gsub('%.', ',')
+        end
 
-                local rrPressColor = color.white
-                if settings.tiresPressureColor then
-                    rrPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rrPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray
-                end
+        local rlPressColor = color.white
+        if settings.tiresPressureColor then rlPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rlPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray end
 
-                ui.setCursor(0)
-                ui.pushDWriteFont(app.font.black)
-                ui.dwriteTextAligned(rrPressureTxt .. unitTxt, scale(10), 0, 0, vec2(position.tires.wheelelement.x, position.tires.pressurepos), false, rrPressColor)
-                ui.popDWriteFont()
-            end
-        end)
-    end
+        ui.setCursor(0)
+        ui.pushDWriteFont(app.font.black)
+        local rlPressText = rlPressureTxt .. unitTxt
+        local rlPressBox = vec2(position.tires.wheelelement.x, position.tires.pressurepos)
+        local rlPressFontSize = fitFontSize(rlPressText, app.font.black, scale(10), rlPressBox)
+        ui.dwriteTextAligned(rlPressText, rlPressFontSize, 0, 0, rlPressBox, false, rlPressColor)
+        ui.popDWriteFont()
+      end
+    end)
+
+    horiOffset = position.tires.wheelelement.x
+
+    ui.setCursor(vec2(horiOffset, vertOffset))
+    ui.childWindow('tiresRR', position.tires.wheelelement, function()
+      ui.drawRectFilled(vec2(0, 0), position.tires.wheelelement, setColorMult(color.black, 50))
+
+      local rrPartSpacing = scale(8)
+      ui.setCursor(vec2(position.tires.wheelelement.x / 2 - position.tires.wheelpartsize.x / 2, position.tires.wheelpos))
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rrTempHue[2]) or color.gray)
+      ui.setCursorX(ui.getCursorX() - rrPartSpacing)
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rrTempHue[3]) or color.gray, scale(5), 5)
+      ui.setCursorX(ui.getCursorX() + rrPartSpacing * 2)
+      ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wheelpartsize.x, ui.getCursorY() + position.tires.wheelpartsize.y), tiresFound and hueToRgb(rrTempHue[1]) or color.gray, scale(5), 10)
+      if settings.tiresShowWear then
+        ui.setCursorX(ui.getCursorX() + scale(18))
+        ui.setCursorY(ui.getCursorY() + position.tires.wearsize.y)
+        ui.drawRectFilled(vec2(ui.getCursorX() - wearOl, ui.getCursorY() + wearOl), vec2(ui.getCursorX() + (position.tires.wearsize.x + wearOl), ui.getCursorY() - (position.tires.wearsize.y + wearOl)), color.black)
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - position.tires.wearsize.y), wearBg)
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - (position.tires.wearsize.y * (1 - playerCar().wheels[3].tyreWear))), rrWearColor)
+        ui.setCursor(vec2(ui.getCursorX() - scale(6), ui.getCursorY() + scale(1)))
+        ui.pushDWriteFont(app.font.black)
+        local rrWearTxt = tostring(math.round((1 - playerCar().wheels[3].tyreWear) * 100))
+        local rrWearBox = scaleVec2(17, 12)
+        local rrWearFontSize = fitFontSize(rrWearTxt, app.font.black, scale(9), rrWearBox)
+        ui.dwriteTextAligned(rrWearTxt, rrWearFontSize, 0, 0, rrWearBox, false, color.white)
+        ui.popDWriteFont()
+      end
+
+      if settings.tiresShowBrakeTemp then
+        local rrBrakeHue = math.lerp(240, 0, math.lerpInvSat(math.max(0, (playerCar().wheels[3].discTemperature / rOptBrakeTemp)), 0, 2))
+        ui.setCursor(vec2(position.tires.wheelelement.x / 2 - (position.tires.brakepos.x + scale(3)), position.tires.brakepos.y))
+        ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.brakesize.x, ui.getCursorY() + position.tires.brakesize.y), brakesFound and hueToRgb(rrBrakeHue) or color.gray)
+      end
+
+      if settings.tiresShowPressure then
+        rrPressure = playerCar().wheels[3].tyrePressure
+        if settings.tiresPressureUseBar then
+          unitTxt = ' bar'
+          rrPressureTxt = string.format('%.1f', rrPressure * barMult):gsub('%.', ',')
+        else
+          unitTxt = ' psi'
+          rrPressureTxt = string.format('%.1f', rrPressure):gsub('%.', ',')
+        end
+
+        local rrPressColor = color.white
+        if settings.tiresPressureColor then rrPressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (rrPressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray end
+
+        ui.setCursor(0)
+        ui.pushDWriteFont(app.font.black)
+        local rrPressText = rrPressureTxt .. unitTxt
+        local rrPressBox = vec2(position.tires.wheelelement.x, position.tires.pressurepos)
+        local rrPressFontSize = fitFontSize(rrPressText, app.font.black, scale(10), rrPressBox)
+        ui.dwriteTextAligned(rrPressText, rrPressFontSize, 0, 0, rrPressBox, false, rrPressColor)
+        ui.popDWriteFont()
+      end
+    end)
+  end
 end
