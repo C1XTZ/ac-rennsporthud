@@ -1,3 +1,47 @@
+--- Draws one pedal bar
+---@param position table @Position table
+---@param name string @childWindow name
+---@param bgColor rgbm @Background color
+---@param fontBig number @Label font size
+---@param lerp number @Fill width in px, 0 to pedalsize.x
+---@param barColor rgbm @Fill color
+---@param label string @Centered label text
+---@param textColor rgbm @Label text color
+---@param cursorPos vec2 @Top-left corner to draw this bar at.
+local function drawPedalBar(position, name, bgColor, fontBig, lerp, barColor, label, textColor, cursorPos)
+  ui.setCursor(cursorPos)
+  ui.childWindow(name, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
+    ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgColor)
+    ui.drawRectFilled(vec2(0, 0), vec2(lerp, position.inputs.pedalheight), barColor)
+    ui.pushDWriteFont(app.font.bold)
+    ui.dwriteTextAligned(label, fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, textColor)
+    ui.popDWriteFont()
+  end)
+end
+
+--- Draws one electronics block's label + value
+---@param position table @Position table
+---@param fontSmall number @Font size
+---@param txtcolor rgbm @Text color
+---@param x number @Left edge X
+---@param y number @Top edge Y
+---@param label string @Left-side label, e.g. 'ABS'
+---@param value any @Right-side value text
+local function drawElectronicsBlock(position, fontSmall, txtcolor, x, y, label, value)
+  local rowH = position.inputs.electronics.darkbg.y / 2
+  ui.setCursor(vec2(x, y))
+  ui.pushDWriteFont(app.font.black)
+  ui.dwriteTextAligned(label, fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, rowH), false, txtcolor)
+  ui.popDWriteFont()
+
+  ui.setCursor(vec2(x + position.inputs.electronics.darkbg.x, y))
+  ui.pushDWriteFont(app.font.black)
+  local valBox = vec2(position.inputs.electronics.val.x, position.inputs.electronics.val.y / 2)
+  local valFontSize = fitFontSize(value, app.font.black, fontSmall, valBox)
+  ui.dwriteTextAligned(value, valFontSize, 0, 0, valBox, false, txtcolor)
+  ui.popDWriteFont()
+end
+
 function script.inputs(dt)
   local position = getPositionTable()
   local bgcolor = setColorMult(color.black, 70)
@@ -76,49 +120,17 @@ function script.inputs(dt)
     local gasLerp = math.lerp(0, position.inputs.pedalsize.x, playerCar().gas)
     if FFBlerp >= position.inputs.pedalsize.x then FFBlerp = position.inputs.pedalsize.x end
 
-    if settings.inputsShowFFB then
-      ui.setCursor(vec2(horiOffset, vertOffset))
-      ui.childWindow('FFB', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
-        ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
-        ui.drawRectFilled(vec2(0, 0), vec2(FFBlerp, position.inputs.pedalheight), FFBcolor)
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('FORCE FEEDBACK', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, ffbTextColor)
-        ui.popDWriteFont()
-      end)
-      vertOffset = math.floor(vertOffset + position.inputs.pedalheight)
-    end
-    if settings.inputsShowClutch then
-      ui.setCursor(vec2(horiOffset, vertOffset))
-      ui.childWindow('Clutch', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
-        ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
-        ui.drawRectFilled(vec2(0, 0), vec2(clutchLerp, position.inputs.pedalheight), clutchColor)
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('CLUTCH', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, clutchTextColor)
-        ui.popDWriteFont()
-      end)
-      vertOffset = math.floor(vertOffset + position.inputs.pedalheight)
-    end
-    if settings.inputsShowBrake then
-      ui.setCursor(vec2(horiOffset, vertOffset))
-      ui.childWindow('Brake', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
-        ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
-        ui.drawRectFilled(vec2(0, 0), vec2(brakeLerp, position.inputs.pedalheight), brakeColor)
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('BRAKE', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, brakeTextColor)
-        ui.popDWriteFont()
-      end)
-      vertOffset = math.floor(vertOffset + position.inputs.pedalheight)
-    end
-    if settings.inputsShowGas then
-      ui.setCursor(vec2(horiOffset, vertOffset))
-      ui.childWindow('Gas', vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
-        ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgcolor)
-        ui.drawRectFilled(vec2(0, 0), vec2(gasLerp, position.inputs.pedalheight), gasColor)
-        ui.pushDWriteFont(app.font.bold)
-        ui.dwriteTextAligned('THROTTLE', fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, gasTextColor)
-        ui.popDWriteFont()
-      end)
-      vertOffset = math.floor(vertOffset + position.inputs.pedalheight)
+    local pedals = {
+      { enabled = settings.inputsShowFFB, name = 'FFB', lerp = FFBlerp, color = FFBcolor, label = 'FORCE FEEDBACK', textColor = ffbTextColor },
+      { enabled = settings.inputsShowClutch, name = 'Clutch', lerp = clutchLerp, color = clutchColor, label = 'CLUTCH', textColor = clutchTextColor },
+      { enabled = settings.inputsShowBrake, name = 'Brake', lerp = brakeLerp, color = brakeColor, label = 'BRAKE', textColor = brakeTextColor },
+      { enabled = settings.inputsShowGas, name = 'Gas', lerp = gasLerp, color = gasColor, label = 'THROTTLE', textColor = gasTextColor },
+    }
+    for _, p in ipairs(pedals) do
+      if p.enabled then
+        drawPedalBar(position, p.name, bgcolor, fontBig, p.lerp, p.color, p.label, p.textColor, vec2(horiOffset, vertOffset))
+        vertOffset = math.floor(vertOffset + position.inputs.pedalheight)
+      end
     end
   end
 
@@ -159,54 +171,26 @@ function script.inputs(dt)
     ui.childWindow('Electronics', vec2(position.inputs.pedalsize.x, position.inputs.electronics.lightbg), false, app.flags, function()
       ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.electronics.lightbg), bgcolor)
 
-      ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y / 2), ABScolor)
-      ui.pushDWriteFont(app.font.black)
-      ui.dwriteTextAligned('ABS', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
-      ui.popDWriteFont()
-      ui.setCursor(vec2(position.inputs.electronics.darkbg.x, 0))
-      ui.pushDWriteFont(app.font.black)
-      local absValBox = vec2(position.inputs.electronics.val.x, position.inputs.electronics.val.y / 2)
-      local absFontSize = fitFontSize(absfinal, app.font.black, fontSmall, absValBox)
-      ui.dwriteTextAligned(absfinal, absFontSize, 0, 0, absValBox, false, txtcolor)
-      ui.popDWriteFont()
+      local rowH = position.inputs.electronics.darkbg.y / 2
 
-      ui.setCursor(vec2(0, position.inputs.electronics.darkbg.y / 2))
-      ui.pushDWriteFont(app.font.black)
-      ui.drawRectFilled(vec2(0, position.inputs.electronics.darkbg.y / 2), vec2(position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y), TCcolor)
-      ui.dwriteTextAligned('TC', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, (position.inputs.electronics.darkbg.y / 2)), false, txtcolor)
-      ui.popDWriteFont()
-      ui.setCursor(vec2(position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y / 2))
-      ui.pushDWriteFont(app.font.black)
-      local tcValBox = vec2(position.inputs.electronics.val.x, position.inputs.electronics.val.y / 2)
-      local tcFontSize = fitFontSize(tcfinal, app.font.black, fontSmall, tcValBox)
-      ui.dwriteTextAligned(tcfinal, tcFontSize, 0, 0, tcValBox, false, txtcolor)
-      ui.popDWriteFont()
+      local leftBlocks = {
+        { label = 'ABS', value = absfinal, bgColor = ABScolor, y = 0 },
+        { label = 'TC', value = tcfinal, bgColor = TCcolor, y = rowH },
+      }
+      for _, block in ipairs(leftBlocks) do
+        ui.drawRectFilled(vec2(0, block.y), vec2(position.inputs.electronics.darkbg.x, block.y + rowH), block.bgColor)
+        drawElectronicsBlock(position, fontSmall, txtcolor, 0, block.y, block.label, block.value)
+      end
 
-      ui.setCursor(vec2(ui.availableSpaceX() / 2, 0))
-      ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.inputs.electronics.darkbg.x, ui.getCursorY() + position.inputs.electronics.darkbg.y), darkbgcolor)
-
-      ui.pushDWriteFont(app.font.black)
-      ui.dwriteTextAligned('BB', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y / 2), false, txtcolor)
-      ui.popDWriteFont()
-      ui.setCursor(vec2(ui.availableSpaceX() / 2 + position.inputs.electronics.darkbg.x, 0))
-      ui.pushDWriteFont(app.font.black)
-      local bbText = brakebalance .. '%'
-      local bbValBox = vec2(position.inputs.electronics.val.x, position.inputs.electronics.val.y / 2)
-      local bbFontSize = fitFontSize(bbText, app.font.black, fontSmall, bbValBox)
-      ui.dwriteTextAligned(bbText, bbFontSize, 0, 0, bbValBox, false, txtcolor)
-      ui.popDWriteFont()
-
-      ui.setCursor(vec2(ui.availableSpaceX() / 2, position.inputs.electronics.darkbg.y / 2))
-      ui.pushDWriteFont(app.font.black)
-      ui.dwriteTextAligned('TRB', fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y / 2), false, txtcolor)
-      ui.popDWriteFont()
-      ui.setCursor(vec2(ui.availableSpaceX() / 2 + position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y / 2))
-      ui.pushDWriteFont(app.font.black)
-      local boostText = string.format('%.2f', math.round(boost, 2))
-      local boostValBox = vec2(position.inputs.electronics.val.x, position.inputs.electronics.val.y / 2)
-      local boostFontSize = fitFontSize(boostText, app.font.black, fontSmall, boostValBox)
-      ui.dwriteTextAligned(boostText, boostFontSize, 0, 0, boostValBox, false, txtcolor)
-      ui.popDWriteFont()
+      local rightX = ui.availableSpaceX() / 2
+      ui.drawRectFilled(vec2(rightX, 0), vec2(rightX + position.inputs.electronics.darkbg.x, position.inputs.electronics.darkbg.y), darkbgcolor)
+      local rightBlocks = {
+        { label = 'BB', value = brakebalance .. '%', y = 0 },
+        { label = 'TRB', value = string.format('%.2f', math.round(boost, 2)), y = rowH },
+      }
+      for _, block in ipairs(rightBlocks) do
+        drawElectronicsBlock(position, fontSmall, txtcolor, rightX, block.y, block.label, block.value)
+      end
     end)
   end
 end

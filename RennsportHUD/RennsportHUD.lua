@@ -245,6 +245,13 @@ function updateApplyUpdate(downloadUrl)
   end)
 end
 
+--- Toggles a boolean settings field when its checkbox is clicked.
+---@param label string @Checkbox label shown in the UI.
+---@param key string @settings field name to read/toggle.
+local function settingsCheckbox(label, key)
+  if ui.checkbox(label, settings[key]) then settings[key] = not settings[key] end
+end
+
 function script.windowMain(dt)
   ui.tabBar('Elements', function()
     if ac.getPatchVersionCode() < 2651 then
@@ -291,7 +298,7 @@ function script.windowMain(dt)
       end)
     end
     ui.tabItem('General', function()
-      if ui.checkbox('Custom App Scaling', settings.changeScale) then settings.changeScale = not settings.changeScale end
+      settingsCheckbox('Custom App Scaling', 'changeScale')
       if settings.changeScale then
         ui.text('\t')
         ui.sameLine()
@@ -300,16 +307,16 @@ function script.windowMain(dt)
       else
         settings.changeScale = 1
       end
-      if ui.checkbox('Show Own Stats When Spectating', settings.ignorefocus) then settings.ignorefocus = not settings.ignorefocus end
-      if ui.checkbox('Show Decorations', settings.decor) then settings.decor = not settings.decor end
+      settingsCheckbox('Show Own Stats When Spectating', 'ignorefocus')
+      settingsCheckbox('Show Decorations', 'decor')
     end)
     ui.tabItem('Essentials', function()
-      if ui.checkbox('Enable Compact Mode', settings.essentialsCompactMode) then settings.essentialsCompactMode = not settings.essentialsCompactMode end
-      if ui.checkbox('Show RPM Bar', settings.essentialsRpmBar) then settings.essentialsRpmBar = not settings.essentialsRpmBar end
+      settingsCheckbox('Enable Compact Mode', 'essentialsCompactMode')
+      settingsCheckbox('Show RPM Bar', 'essentialsRpmBar')
       if settings.essentialsRpmBar then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Enable Shift Colors', settings.essentialsRpmBarColor) then settings.essentialsRpmBarColor = not settings.essentialsRpmBarColor end
+        settingsCheckbox('Enable Shift Colors', 'essentialsRpmBarColor')
         if settings.essentialsRpmBarColor then
           ui.text('\t')
           ui.sameLine()
@@ -319,75 +326,74 @@ function script.windowMain(dt)
           settings.essentialsRpmBarShiftRed = ui.slider('##ShiftRed', settings.essentialsRpmBarShiftRed, 0, 100, 'Red shift at: ' .. '%.0f%%')
         end
       end
-      if ui.checkbox('Show Indicators', settings.essentialsShowTurnLights) then settings.essentialsShowTurnLights = not settings.essentialsShowTurnLights end
-      if ui.checkbox('Show Speed', settings.essentialsSpeedNum) then settings.essentialsSpeedNum = not settings.essentialsSpeedNum end
+      settingsCheckbox('Show Indicators', 'essentialsShowTurnLights')
+      settingsCheckbox('Show Speed', 'essentialsSpeedNum')
       if settings.essentialsSpeedNum then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Use MPH Instead', settings.essentialsSpeedNumMPH) then settings.essentialsSpeedNumMPH = not settings.essentialsSpeedNumMPH end
+        settingsCheckbox('Use MPH Instead', 'essentialsSpeedNumMPH')
         if settings.essentialsSpeedNumMPH then
           speedText = 'MP/H'
         else
           speedText = 'KM/H'
         end
       end
-      if ui.checkbox('Show Gears', settings.essentialsGears) then settings.essentialsGears = not settings.essentialsGears end
-
-      if ui.checkbox('Show RPM Numbers', settings.essentialsRpmNum) then settings.essentialsRpmNum = not settings.essentialsRpmNum end
+      settingsCheckbox('Show Gears', 'essentialsGears')
+      settingsCheckbox('Show RPM Numbers', 'essentialsRpmNum')
       if settings.essentialsRpmNum then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Pedal Inputs Instead', settings.essentialsInputBars) then settings.essentialsInputBars = not settings.essentialsInputBars end
+        settingsCheckbox('Show Pedal Inputs Instead', 'essentialsInputBars')
       end
     end)
     ui.tabItem('Inputs', function()
-      if ui.checkbox('Show Steering Wheel', settings.inputsShowWheel) then settings.inputsShowWheel = not settings.inputsShowWheel end
-      if ui.checkbox('Show Steering Bar', settings.inputsShowSteering) then settings.inputsShowSteering = not settings.inputsShowSteering end
-      if ui.checkbox('Show Input Bars', settings.inputsShowPedals) then settings.inputsShowPedals = not settings.inputsShowPedals end
+      settingsCheckbox('Show Steering Wheel', 'inputsShowWheel')
+      settingsCheckbox('Show Steering Bar', 'inputsShowSteering')
+      settingsCheckbox('Show Input Bars', 'inputsShowPedals')
       if settings.inputsShowPedals then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Force Feedback', settings.inputsShowFFB) then settings.inputsShowFFB = not settings.inputsShowFFB end
+        settingsCheckbox('Show Force Feedback', 'inputsShowFFB')
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Clutch', settings.inputsShowClutch) then settings.inputsShowClutch = not settings.inputsShowClutch end
+        settingsCheckbox('Show Clutch', 'inputsShowClutch')
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Brake', settings.inputsShowBrake) then settings.inputsShowBrake = not settings.inputsShowBrake end
+        settingsCheckbox('Show Brake', 'inputsShowBrake')
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Throttle', settings.inputsShowGas) then settings.inputsShowGas = not settings.inputsShowGas end
+        settingsCheckbox('Show Throttle', 'inputsShowGas')
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Color Fully Pressed Pedals', settings.inputsPedalColors) then settings.inputsPedalColors = not settings.inputsPedalColors end
+        settingsCheckbox('Color Fully Pressed Pedals', 'inputsPedalColors')
       end
 
-      if ui.checkbox('Show Car Electronics', settings.inputsShowElectronics) then settings.inputsShowElectronics = not settings.inputsShowElectronics end
+      settingsCheckbox('Show Car Electronics', 'inputsShowElectronics')
     end)
     ui.tabItem('Session', function()
-      if ui.checkbox('Show Position', settings.sessionShowPosition) then settings.sessionShowPosition = not settings.sessionShowPosition end
+      settingsCheckbox('Show Position', 'sessionShowPosition')
       if settings.sessionShowPosition then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Remove Disconnected Cars from Total', settings.sessionHideDisconnected) then settings.sessionHideDisconnected = not settings.sessionHideDisconnected end
-        if ui.checkbox('Also Remove Traffic Cars', settings.sessionHideAI) then settings.sessionHideAI = not settings.sessionHideAI end
+        settingsCheckbox('Remove Disconnected Cars from Total', 'sessionHideDisconnected')
+        settingsCheckbox('Also Remove Traffic Cars', 'sessionHideAI')
       end
-      if ui.checkbox('Show Laps', settings.sessionShowLaps) then settings.sessionShowLaps = not settings.sessionShowLaps end
-      if ui.checkbox('Show Session Timer', settings.sessionShowTimer) then settings.sessionShowTimer = not settings.sessionShowTimer end
+      settingsCheckbox('Show Laps', 'sessionShowLaps')
+      settingsCheckbox('Show Session Timer', 'sessionShowTimer')
       if settings.sessionShowTimer then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Session Type', settings.sessionTimerType) then settings.sessionTimerType = not settings.sessionTimerType end
+        settingsCheckbox('Show Session Type', 'sessionTimerType')
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Time Since Join Instead', settings.sessionAlwaysShowDuration) then settings.sessionAlwaysShowDuration = not settings.sessionAlwaysShowDuration end
+        settingsCheckbox('Show Time Since Join Instead', 'sessionAlwaysShowDuration')
       end
     end)
     ui.tabItem('Delta', function()
-      if ui.checkbox('Hide When No Delta Available', settings.deltaHidden) then settings.deltaHidden = not settings.deltaHidden end
-      if ui.checkbox('Show Delta', settings.deltaShowTimer) then settings.deltaShowTimer = not settings.deltaShowTimer end
-      if ui.checkbox('Show Predicted Laptime', settings.deltaShowPrediction) then settings.deltaShowPrediction = not settings.deltaShowPrediction end
-      if ui.checkbox('Show Delta Bar', settings.deltaShowBar) then settings.deltaShowBar = not settings.deltaShowBar end
+      settingsCheckbox('Hide When No Delta Available', 'deltaHidden')
+      settingsCheckbox('Show Delta', 'deltaShowTimer')
+      settingsCheckbox('Show Predicted Laptime', 'deltaShowPrediction')
+      settingsCheckbox('Show Delta Bar', 'deltaShowBar')
       if settings.deltaShowBar then
         ui.text('\t')
         ui.sameLine()
@@ -396,23 +402,23 @@ function script.windowMain(dt)
     end)
     ui.tabItem('Sectors', function()
       if #ac.getSim().lapSplits > 0 then
-        if ui.checkbox('Show Sectors', settings.sectorsShowSectors) then settings.sectorsShowSectors = not settings.sectorsShowSectors end
+        settingsCheckbox('Show Sectors', 'sectorsShowSectors')
         if settings.sectorsShowSectors then
           ui.text('\t')
           ui.sameLine()
           settings.sectorsDisplayDuration = ui.slider('##SectorDisplayDuration', settings.sectorsDisplayDuration, 1, 60, 'Display Last Lap Sectors For: ' .. '%1.0f s')
         end
       end
-      if ui.checkbox('Show Pitlane Info', settings.sectorsShowPitInfo) then settings.sectorsShowPitInfo = not settings.sectorsShowPitInfo end
+      settingsCheckbox('Show Pitlane Info', 'sectorsShowPitInfo')
       if settings.sectorsShowPitInfo then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Pitlane Speed Limit', settings.sectorsShowSpeedLimit) then settings.sectorsShowSpeedLimit = not settings.sectorsShowSpeedLimit end
+        settingsCheckbox('Show Pitlane Speed Limit', 'sectorsShowSpeedLimit')
       end
-      if ui.checkbox('Show Race Flags', settings.sectorsShowRaceFlags) then settings.sectorsShowRaceFlags = not settings.sectorsShowRaceFlags end
+      settingsCheckbox('Show Race Flags', 'sectorsShowRaceFlags')
     end)
     ui.tabItem('Fuel', function()
-      if ui.checkbox('Change Bar Color', settings.fuelChangeBarColor) then settings.fuelChangeBarColor = not settings.fuelChangeBarColor end
+      settingsCheckbox('Change Bar Color', 'fuelChangeBarColor')
       if settings.fuelChangeBarColor then
         ui.text('\t')
         ui.sameLine()
@@ -426,7 +432,7 @@ function script.windowMain(dt)
         if settings.fuelYellowBar <= settings.fuelRedBar then settings.fuelYellowBar = settings.fuelRedBar + 1 end
       end
 
-      if ui.checkbox('Show Remaining Fuel', settings.fuelShowRemaining) then settings.fuelShowRemaining = not settings.fuelShowRemaining end
+      settingsCheckbox('Show Remaining Fuel', 'fuelShowRemaining')
       if settings.fuelShowRemaining then
         ui.text('\t')
         ui.sameLine()
@@ -443,7 +449,7 @@ function script.windowMain(dt)
       end
     end)
     ui.tabItem('Tires', function()
-      if ui.checkbox('Show Tire Temperature Visualisation', settings.tiresShowTempVis) then settings.tiresShowTempVis = not settings.tiresShowTempVis end
+      settingsCheckbox('Show Tire Temperature Visualisation', 'tiresShowTempVis')
       if settings.tiresShowTempVis then
         ui.sameLine()
         if settings.tiresTiresConfigured then
@@ -453,25 +459,25 @@ function script.windowMain(dt)
         end
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Tire Pressure', settings.tiresShowPressure) then settings.tiresShowPressure = not settings.tiresShowPressure end
+        settingsCheckbox('Show Tire Pressure', 'tiresShowPressure')
         if settings.tiresShowPressure then
           ui.text('\t')
           ui.sameLine()
           ui.text('\t')
           ui.sameLine()
-          if ui.checkbox('Use Bar instead', settings.tiresPressureUseBar) then settings.tiresPressureUseBar = not settings.tiresPressureUseBar end
+          settingsCheckbox('Use Bar instead', 'tiresPressureUseBar')
           ui.text('\t')
           ui.sameLine()
           ui.text('\t')
           ui.sameLine()
-          if ui.checkbox('Color Tire Pressures', settings.tiresPressureColor) then settings.tiresPressureColor = not settings.tiresPressureColor end
+          settingsCheckbox('Color Tire Pressures', 'tiresPressureColor')
         end
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Tire Wear', settings.tiresShowWear) then settings.tiresShowWear = not settings.tiresShowWear end
+        settingsCheckbox('Show Tire Wear', 'tiresShowWear')
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Brake Temperature', settings.tiresShowBrakeTemp) then settings.tiresShowBrakeTemp = not settings.tiresShowBrakeTemp end
+        settingsCheckbox('Show Brake Temperature', 'tiresShowBrakeTemp')
         if settings.tiresShowBrakeTemp then
           ui.sameLine()
           if settings.tiresBrakesConfigured then
@@ -481,64 +487,64 @@ function script.windowMain(dt)
           end
         end
       end
-      if ui.checkbox('Show Tire Section Temperature Numbers', settings.tiresShowTempBar) then settings.tiresShowTempBar = not settings.tiresShowTempBar end
+      settingsCheckbox('Show Tire Section Temperature Numbers', 'tiresShowTempBar')
       if settings.tiresShowTempBar then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Use Fahrenheit Instead', settings.tiresTempUseFahrenheit) then settings.tiresTempUseFahrenheit = not settings.tiresTempUseFahrenheit end
+        settingsCheckbox('Use Fahrenheit Instead', 'tiresTempUseFahrenheit')
       end
     end)
     ui.tabItem('Timing', function()
-      if ui.checkbox('Show Current Laptime', settings.timingShowCurrentLap) then settings.timingShowCurrentLap = not settings.timingShowCurrentLap end
-      if ui.checkbox('Show Lapstats', settings.timingShowLapStats) then settings.timingShowLapStats = not settings.timingShowLapStats end
+      settingsCheckbox('Show Current Laptime', 'timingShowCurrentLap')
+      settingsCheckbox('Show Lapstats', 'timingShowLapStats')
       if settings.timingShowLapStats then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Best Laptime', settings.timingLapStatsBest) then settings.timingLapStatsBest = not settings.timingLapStatsBest end
+        settingsCheckbox('Show Best Laptime', 'timingLapStatsBest')
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Last Laptime', settings.timingLapStatsLast) then settings.timingLapStatsLast = not settings.timingLapStatsLast end
+        settingsCheckbox('Show Last Laptime', 'timingLapStatsLast')
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Ideal Laptime', settings.timingLapStatsIdeal) then settings.timingLapStatsIdeal = not settings.timingLapStatsIdeal end
+        settingsCheckbox('Show Ideal Laptime', 'timingLapStatsIdeal')
       end
-      if ui.checkbox('Show Lap History', settings.timingShowTable) then settings.timingShowTable = not settings.timingShowTable end
+      settingsCheckbox('Show Lap History', 'timingShowTable')
     end)
     ui.tabItem('Leaderboard', function()
       ui.text('\t')
       ui.sameLine()
       settings.lbMaxCars = ui.slider('##lbMaxCars', settings.lbMaxCars, 1, 50, 'Show: ' .. '%.0f cars')
-      if ui.checkbox('Show Position', settings.lbShowPos) then settings.lbShowPos = not settings.lbShowPos end
-      if ui.checkbox('Show Car Number', settings.lbShowNum) then settings.lbShowNum = not settings.lbShowNum end
-      if ui.checkbox('Show Driver Name', settings.lbShowName) then settings.lbShowName = not settings.lbShowName end
+      settingsCheckbox('Show Position', 'lbShowPos')
+      settingsCheckbox('Show Car Number', 'lbShowNum')
+      settingsCheckbox('Show Driver Name', 'lbShowName')
       if settings.lbShowName then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Manual Name Length', settings.lbManNameLength) then settings.lbManNameLength = not settings.lbManNameLength end
+        settingsCheckbox('Manual Name Length', 'lbManNameLength')
         if settings.lbManNameLength then
           ui.text('\t')
           ui.sameLine()
           settings.lbManNameLengthNum = ui.slider('##lbNameNum', settings.lbManNameLengthNum, 5, 1000, 'Name Length: ' .. '%.0f pixel')
         end
       end
-      if ui.checkbox('Show Car Model', settings.lbShowCar) then settings.lbShowCar = not settings.lbShowCar end
+      settingsCheckbox('Show Car Model', 'lbShowCar')
       if settings.lbShowCar then
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Show Brand Names', settings.lbShowBrand) then settings.lbShowBrand = not settings.lbShowBrand end
+        settingsCheckbox('Show Brand Names', 'lbShowBrand')
         ui.text('\t')
         ui.sameLine()
-        if ui.checkbox('Manual Car Length', settings.lbManCarLength) then settings.lbManCarLength = not settings.lbManCarLength end
+        settingsCheckbox('Manual Car Length', 'lbManCarLength')
         if settings.lbManCarLength then
           ui.text('\t')
           ui.sameLine()
           settings.lbManCarLengthNum = ui.slider('##lbCarNum', settings.lbManCarLengthNum, 5, 1000, 'Name Length: ' .. '%.0f pixel')
         end
       end
-      if ui.checkbox('Show Laps Done', settings.lbShowLap) then settings.lbShowLap = not settings.lbShowLap end
-      if ui.checkbox('Show Last Laptime', settings.lbShowLast) then settings.lbShowLast = not settings.lbShowLast end
-      if ui.checkbox('Show Best Laptime', settings.lbShowBest) then settings.lbShowBest = not settings.lbShowBest end
-      if ui.checkbox('Show Interval', settings.lbShowInt) then settings.lbShowInt = not settings.lbShowInt end
+      settingsCheckbox('Show Laps Done', 'lbShowLap')
+      settingsCheckbox('Show Last Laptime', 'lbShowLast')
+      settingsCheckbox('Show Best Laptime', 'lbShowBest')
+      settingsCheckbox('Show Interval', 'lbShowInt')
     end)
   end)
 end

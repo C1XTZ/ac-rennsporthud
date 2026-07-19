@@ -1,6 +1,3 @@
----@meta
----@diagnostic disable: lowercase-global
-
 local totalSectors = #ac.getSim().lapSplits
 
 --- Calculates the ideal lap time in milliseconds from the best overall splits.
@@ -47,6 +44,17 @@ ac.onSessionStart(function(sessionIndex, restarted) resetTiming(true) end)
 resetTiming(true)
 
 --- Draws one BEST/LAST/IDEAL stat at a shared width so all three match regardless of content length.
+---@param position table @Position table
+---@param name string @childWindow name
+---@param vertOffset number @Y position to draw this stat at.
+---@param label string @Left-side label, e.g. 'BEST'
+---@param contentTxt string @Right-side value text, e.g. a lap time
+---@param labelWidth number @Shared label zone width, from measureBoxMax across all visible stats.
+---@param valueWidth number @Shared value zone width, from measureBoxMax across all visible stats.
+---@param statWidth number @Total width (labelWidth + valueWidth + gap).
+---@param bgLeft rgbm @Label zone background color
+---@param bgRight rgbm @Value zone background color
+---@param contentColor rgbm @Value text color
 ---@return number @Stat height, for vertOffset bookkeeping.
 local function drawStat(position, name, vertOffset, label, contentTxt, labelWidth, valueWidth, statWidth, bgLeft, bgRight, contentColor)
   local statHeight = position.timing.lapStats.y

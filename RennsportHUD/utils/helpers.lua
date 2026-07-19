@@ -1,15 +1,15 @@
+--- Scales a value by the app scale and rounds to even values.
 ---@param value number @The value to be scaled.
 ---@return number @The scaled value, rounded to nearest even pixel.
---- Scales a value by the app scale and rounds to even values.
 function scale(value)
   local scaled = app.scale * value
   return math.round(scaled / 2) * 2
 end
 
+--- Scales a vec2 by the app scale and rounds to even values.
 ---@param x number
 ---@param y number
 ---@return vec2 @Scaled vec2, both components via scale().
---- Scales a vec2 by the app scale and rounds to even values.
 function scaleVec2(x, y) return vec2(scale(x), scale(y)) end
 
 --- Parses the gear number for UI use.

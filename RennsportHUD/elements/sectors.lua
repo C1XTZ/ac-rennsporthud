@@ -152,7 +152,7 @@ function script.sectors(dt)
     end
 
     ui.setCursor(vec2(0, vertOffset))
-    ui.childWindow('PitLane', vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight), function()
+    ui.childWindow('Flags', vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight), function()
       if string.len(flagTxt) > 0 then
         if playerSession.raceFlagType == ac.FlagType.ReturnToPits then
           ui.drawRectFilled(vec2(0, 0), vec2(ui.availableSpaceX() / 1, position.sectors.pitheight), color.black)

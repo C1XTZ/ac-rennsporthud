@@ -143,6 +143,7 @@ function getPositionTable()
   }
 
   position.essentials.inputbar.gap = scale(position.essentials.inputbar.gap + position.essentials.inputbar.size.x / app.scale)
+  position.tires.decorsize.x = position.tires.wheelelement.x * 2
 
   return position
 end

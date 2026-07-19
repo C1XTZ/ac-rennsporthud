@@ -38,6 +38,17 @@ local function drawIndicator(isRight, dt)
   end
 end
 
+--- Draws one input bar (Clutch/Brake/Gas/FFB) inside the RPM display.
+---@param position table @Position table
+---@param cursorPos vec2 @Top-left corner to draw this bar at.
+---@param lerp number @Fill height in px, 0 to inputbar.size.y
+---@param barColor rgbm @Fill color
+local function drawInputBar(position, cursorPos, lerp, barColor)
+  ui.setCursor(cursorPos)
+  ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
+  ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - lerp), barColor)
+end
+
 function script.essentials(dt)
   position = getPositionTable()
 
@@ -144,21 +155,16 @@ function script.essentials(dt)
 
       if FFBlerp > position.essentials.inputbar.size.y then FFBlerp = position.essentials.inputbar.size.y end
 
-      ui.setCursor(vec2(centerx + position.essentials.inputbar.pos.x, centery - position.essentials.inputbar.pos.y))
-      ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
-      ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - clutchLerp), color.aqua)
-
-      ui.setCursor(vec2(centerx + position.essentials.inputbar.pos.x + position.essentials.inputbar.gap, centery - position.essentials.inputbar.pos.y))
-      ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
-      ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - brakeLerp), color.red)
-
-      ui.setCursor(vec2(centerx + position.essentials.inputbar.pos.x + position.essentials.inputbar.gap * 2, centery - position.essentials.inputbar.pos.y))
-      ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
-      ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - gasLerp), color.green)
-
-      ui.setCursor(vec2(centerx + position.essentials.inputbar.pos.x + position.essentials.inputbar.gap * 3, centery - position.essentials.inputbar.pos.y))
-      ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY()), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y), setColorMult(color.black, 50))
-      ui.drawRectFilled(vec2(ui.getCursorX(), ui.getCursorY() + position.essentials.inputbar.size.y), vec2(ui.getCursorX() + position.essentials.inputbar.size.x, ui.getCursorY() + position.essentials.inputbar.size.y - FFBlerp), FFBcolor)
+      local inputBars = {
+        { lerp = clutchLerp, color = color.aqua },
+        { lerp = brakeLerp, color = color.red },
+        { lerp = gasLerp, color = color.green },
+        { lerp = FFBlerp, color = FFBcolor },
+      }
+      for i, bar in ipairs(inputBars) do
+        local cursorPos = vec2(centerx + position.essentials.inputbar.pos.x + position.essentials.inputbar.gap * (i - 1), centery - position.essentials.inputbar.pos.y)
+        drawInputBar(position, cursorPos, bar.lerp, bar.color)
+      end
     end
 
     if playerCar().hasTurningLights then

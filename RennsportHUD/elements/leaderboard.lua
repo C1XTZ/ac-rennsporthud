@@ -235,21 +235,22 @@ function script.leaderboard(dt)
         ui.childWindow('Entry' .. lbValue.dex, vec2(headerTotalWidth, position.leaderboard.height), function()
           ui.drawRectFilled(vec2(0, 0), vec2(headerTotalWidth, position.leaderboard.height), setColorMult(color.black, 50))
 
+          if lbValue['dex'] == playerCar().index then ui.drawRectFilled(vec2(0, 0), vec2(position.leaderboard.ends, position.leaderboard.height), color.uired) end
+          if lbValue['dnf'] then
+            ui.setCursor(vec2(headerTotalWidth - signWidth, 0))
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + signWidth, ui.getCursorY() + position.leaderboard.height), color.black)
+            ui.pushDWriteFont(app.font.black)
+            ui.dwriteTextAligned('DNF', fontSizeSmall, 0, 0, vec2(signWidth, position.leaderboard.height), false, color.white)
+            ui.popDWriteFont()
+          elseif lbValue['pit'] then
+            ui.setCursor(vec2(headerTotalWidth - signWidth, 0))
+            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + signWidth, ui.getCursorY() + position.leaderboard.height), color.white)
+            ui.pushDWriteFont(app.font.black)
+            ui.dwriteTextAligned('PIT', fontSizeSmall, 0, 0, vec2(signWidth, position.leaderboard.height), false, color.black)
+            ui.popDWriteFont()
+          end
+
           for _, setting in ipairs(displayOrder) do
-            if lbValue['dex'] == playerCar().index then ui.drawRectFilled(vec2(0, 0), vec2(position.leaderboard.ends, position.leaderboard.height), color.uired) end
-            if lbValue['dnf'] then
-              ui.setCursor(vec2(headerTotalWidth - signWidth, 0))
-              ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + signWidth, ui.getCursorY() + position.leaderboard.height), color.black)
-              ui.pushDWriteFont(app.font.black)
-              ui.dwriteTextAligned('DNF', fontSizeSmall, 0, 0, vec2(signWidth, position.leaderboard.height), false, color.white)
-              ui.popDWriteFont()
-            elseif lbValue['pit'] then
-              ui.setCursor(vec2(headerTotalWidth - signWidth, 0))
-              ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + signWidth, ui.getCursorY() + position.leaderboard.height), color.white)
-              ui.pushDWriteFont(app.font.black)
-              ui.dwriteTextAligned('PIT', fontSizeSmall, 0, 0, vec2(signWidth, position.leaderboard.height), false, color.black)
-              ui.popDWriteFont()
-            end
             local data = displayData[setting]
             if settings[setting] == true then
               local displayValue = lbValue[settingsToTable[setting]]
