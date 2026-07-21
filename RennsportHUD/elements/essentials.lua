@@ -6,7 +6,26 @@ local indicatorState = {
   minWidthPercent = 0.2,
 }
 
-local function drawIndicator(isRight, dt)
+--- Parses the gear number for UI use.
+---@param gearNum number @The gear number to be parsed.
+---@return string @The parsed gear number as a string.
+---@diagnostic disable-next-line: lowercase-global
+function parseGear(gearNum)
+  if gearNum == 0 then
+    return 'N'
+  elseif gearNum == -1 then
+    return 'R'
+  else
+    return tostring(gearNum)
+  end
+end
+
+--- Draws one turn indicator (left or right), animating its width in/out over animDuration.
+---@param position table @Position table
+---@param centerx number @Horizontal center of the essentials window.
+---@param isRight boolean @true for the right indicator, false for left.
+---@param dt number @Frame delta time.
+local function drawIndicator(position, centerx, isRight, dt)
   local side = isRight and 'right' or 'left'
   local state = indicatorState[side]
   local baseWidth = position.essentials.indicators.size.x
@@ -50,20 +69,23 @@ local function drawInputBar(position, cursorPos, lerp, barColor)
 end
 
 function script.essentials(dt)
-  position = getPositionTable()
+  local position = getPositionTable()
 
   if settings.essentialsCompactMode then
-    position.essentials.elementsize = scaleVec2(297, 85)
-    position.essentials.rpmbarheight = scale(10)
-    position.essentials.decor.left = scaleVec2(38, 30)
-    position.essentials.decor.right = scaleVec2(35, 30)
-    position.essentials.decor.size = scaleVec2(4, 51)
+    local essentials = {}
+    for k, v in pairs(position.essentials) do
+      essentials[k] = v
+    end
+    essentials.elementsize = scaleVec2(297, 85)
+    essentials.rpmbarheight = scale(10)
+    essentials.decor = { left = scaleVec2(38, 30), right = scaleVec2(35, 30), size = scaleVec2(4, 51) }
+    position = { essentials = essentials }
   end
 
   ui.setCursor(vec2(0, app.padding))
   ui.childWindow('main', position.essentials.elementsize, function()
-    centerx = ui.availableSpaceX() / 2
-    centery = ui.availableSpaceY() / 2
+    local centerx = ui.availableSpaceX() / 2
+    local centery = ui.availableSpaceY() / 2
 
     if settings.essentialsRpmBar then
       local rpmMix = playerCar().rpm / playerCar().rpmLimiter
@@ -97,7 +119,7 @@ function script.essentials(dt)
       ui.pushDWriteFont(app.font.bold)
       local speedBox = scaleVec2(60, 28)
       local speedFontSize = fitFontSize(speedNumber, app.font.bold, scale(34), speedBox)
-      ui.dwriteTextAligned(speedNumber, speedFontSize, 1, 0, speedBox, false, color.white)
+      ui.dwriteTextAligned(tostring(speedNumber), speedFontSize, 1, 0, speedBox, false, color.white)
       ui.popDWriteFont()
 
       ui.setCursor(vec2(centerx - position.essentials.speed.txt.x, centery + position.essentials.speed.txt.y))
@@ -129,7 +151,7 @@ function script.essentials(dt)
       local rpmTxt = math.round(playerCar().rpm)
       local rpmBox = scaleVec2(150, 28)
       local rpmFontSize = fitFontSize(rpmTxt, app.font.bold, scale(34), rpmBox)
-      ui.dwriteTextAligned(rpmTxt, rpmFontSize, -1, 0, rpmBox, false, color.white)
+      ui.dwriteTextAligned(tostring(rpmTxt), rpmFontSize, -1, 0, rpmBox, false, color.white)
       ui.popDWriteFont()
 
       ui.setCursor(vec2(centerx + position.essentials.rpm.txt.x, centery + position.essentials.rpm.txt.y))
@@ -168,8 +190,8 @@ function script.essentials(dt)
     end
 
     if playerCar().hasTurningLights then
-      if playerCar().turningLeftLights or indicatorState.left.progress > 0 then drawIndicator(false, dt) end
-      if playerCar().turningRightLights or indicatorState.right.progress > 0 then drawIndicator(true, dt) end
+      if playerCar().turningLeftLights or indicatorState.left.progress > 0 then drawIndicator(position, centerx, false, dt) end
+      if playerCar().turningRightLights or indicatorState.right.progress > 0 then drawIndicator(position, centerx, true, dt) end
     end
   end)
 end

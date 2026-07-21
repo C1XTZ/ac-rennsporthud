@@ -1,41 +1,18 @@
----@param hue number @Hue value, should be 0-240.
----@return rgb @The RGB value.
---- A simplified version of a HSL to RGB converter where the saturation is always at 100%, and the lightness is at 50%.
-function hueToRgb(hue)
-  local h = hue / 60
-  local c = 1
-  local x = 1 - math.abs(h % 2 - 1)
-  local r, g, b
-
-  if h >= 0 and h < 1 then
-    r, g, b = c, x, 0
-  elseif h >= 1 and h < 2 then
-    r, g, b = x, c, 0
-  elseif h >= 2 and h < 3 then
-    r, g, b = 0, c, x
-  elseif h >= 3 and h < 4 then
-    r, g, b = 0, x, c
-  elseif h >= 4 and h < 5 then
-    r, g, b = x, 0, c
-  else
-    r, g, b = c, 0, x
-  end
-
-  local m = 0.5 - c / 2
-
-  return rgb(r + m, g + m, b + m)
-end
+---@param hue number @Hue value in degrees, should be 0-240.
+---@return rgbm @The RGBm value.
+--- Full saturation, full value — just the hue wheel.
+local function hueToRgb(hue) return hsv(hue, 1, 1):rgb():rgbm() end
 
 ---@param lutStr string @A LUT string.
 ---@return integer @The median temperature value of the highest performance value.
 --- Inspired by pseudo code from leBluem, this calculates the median temperature value of the highest performance value from a LUT string.
-function getLUTMedian(lutStr)
+local function getLUTMedian(lutStr)
   if lutStr == '-1' then return -1 end
   local xTable, yTable = {}, {}
   local yHighest = -1
   for x, y in lutStr:gmatch('|(%d+)=(%d*%.?%d*)') do
     table.insert(xTable, tonumber(x))
-    local yValue = tonumber(y)
+    local yValue = tonumber(y) --[[@as number]]
     table.insert(yTable, yValue)
     if yValue > yHighest then yHighest = yValue end
   end
@@ -63,7 +40,7 @@ local tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
 ---@param propertyName string @The property to get.
 ---@return any @The property value for the given tire name in the given section.
 local function getTireProperty(sectionName, propertyName)
-  for index, section in tireIni:iterate(sectionName, true) do
+  for _, section in tireIni:iterate(sectionName, true) do
     if tireIni:get(section, 'NAME', nil) and tireIni:get(section, 'NAME', nil)[1] == tireName then
       if propertyName == 'PERFORMANCE_CURVE' then
         return tireIni:get('THERMAL_' .. section, propertyName, 'string')
@@ -83,6 +60,8 @@ local function getOptPressure()
   local rearPressure = getTireProperty('REAR', 'PRESSURE_IDEAL')
   return frontPressure, rearPressure
 end
+
+local tiresFound = false
 
 --- Retrieves the optimal temperatures for the front and rear tires.
 ---@return number frontOptTemp @The optimal temperature for the front tires.
@@ -137,10 +116,11 @@ else
 end
 
 local currComp = -1
+local fPressOpt, rPressOpt
 local wearBg = rgbm(0.4, 0.4, 0.4, 1)
 
 local wearPercent = { 0.50, 0.25, 0.0 }
-local wearPercentColors = { getColorTable().red, getColorTable().yellow, getColorTable().white }
+local wearPercentColors = { color.red, color.yellow, color.white }
 
 local tempSurface = {}
 local tempOptimal = {}
@@ -216,7 +196,7 @@ local function drawWheel(position, name, wheelIdx, hueRow, wearColor, side, optB
       end
 
       local pressColor = color.white
-      if settings.tiresPressureColor then pressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (pressure / tireIni.fPressOpt) ^ 10), 0, 2))) or color.gray end
+      if settings.tiresPressureColor then pressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (pressure / fPressOpt) ^ 10), 0, 2))) or color.gray end
 
       ui.setCursor(0)
       ui.pushDWriteFont(app.font.black)
@@ -244,9 +224,9 @@ function script.tires(dt)
   if settings.tiresShowPressure and settings.tiresPressureColor and playerCar().compoundIndex ~= currComp then
     currComp = playerCar().compoundIndex
     tireName = playerCar():tyresLongName():gsub('%s?%b()', '')
-    tireIni.fPressOpt, tireIni.rPressOpt = getOptPressure()
-    if tireIni.fPressOpt == '-1' or tireIni.rPressOpt == '-1' then
-      tireIni.fPressOpt, tireIni.rPressOpt = 999, 999
+    fPressOpt, rPressOpt = getOptPressure()
+    if fPressOpt == '-1' or rPressOpt == '-1' then
+      fPressOpt, rPressOpt = 999, 999
     end
   end
 

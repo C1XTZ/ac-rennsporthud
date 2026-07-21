@@ -1,9 +1,10 @@
 local onlineVersionCheck = ac.getSim().isOnlineRace and ac.getPatchVersionCode() < 3045
+local lbTable, sim, session, updateInterval
 
 ---@param car ac.StateCar @The car from which the brand is to be removed.
 ---@return string @The name of the car without the brand.
 --- Takes an ac.StateCar and retuns car name with the brand removed.
-function removeBrand(car)
+local function removeBrand(car)
   local brand = car:brand()
   local name = car:name()
   local brandParts = brand:split('-')
@@ -17,7 +18,7 @@ end
 ---@param timeMs integer @The lap time in milliseconds.
 ---@return string @The formatted lap time.
 --- Formats lap time from milliseconds to MM:SS.sss, returns --:--.--- when 0.
-function formatLapTime(timeMs)
+local function formatLapTime(timeMs)
   local formattedTime = formatTime(timeMs, false, true, true, true)
   if formattedTime == '00:00.000' then
     return '--:--.---'
@@ -29,7 +30,7 @@ end
 ---@param car ac.StateCar @The car to be updated.
 ---@param i integer @The index of the car.
 --- Writes and updates car data.
-function updateCar(car, i)
+local function updateCar(car, i)
   if not onlineVersionCheck then
     lbTable[i + 1] = {
       dex = car.index,
@@ -61,17 +62,19 @@ end
 
 --- Updates the leaderboard.
 --- A custom sorting function because the default session.leaderboard does not work like I want it to.
-function updateLeaderboard()
+local function updateLeaderboard()
   if not lbTable then lbTable = {} end
   carCount = 0
   for i = 0, sim.carsCount - 1 do
     local car = ac.getCar(i)
+    if not car then return end
     updateCar(car, i)
     if car.isConnected and not car.isHidingLabels then carCount = carCount + 1 end
   end
 
   for i = #lbTable, 1, -1 do
     local car = ac.getCar(lbTable[i].dex)
+    if not car then return end
     if car.isHidingLabels or not car.isConnected then table.remove(lbTable, i) end
   end
 
@@ -123,11 +126,16 @@ end
 
 local maxNameLength = 0
 local maxCarLength = 0
+
+---Function to be called once when element window opens, defined in `manifest.ini`
+---@diagnostic disable-next-line: lowercase-global
 function onShowLeaderboard()
   updateLeaderboard()
   updateInterval = setInterval(function() updateLeaderboard() end, 1, 'LB')
 end
 
+---Function to be called once when element window closes, defined in `manifest.ini`
+---@diagnostic disable-next-line: lowercase-global
 function onHideLeaderboard()
   clearInterval(updateInterval)
   updateInterval = nil
@@ -168,7 +176,7 @@ function script.leaderboard(dt)
   local columSpace = scale(6)
   local signWidth = scale(30)
   local horiOffset, vertOffset = 0, app.padding
-  headerTotalWidth = (position.leaderboard.ends * 2) + signWidth
+  local headerTotalWidth = (position.leaderboard.ends * 2) + signWidth
 
   local maxPosLength, maxNumLength, maxLapLength, maxLastLength, maxBestLength, maxIntLength = 0, 0, 0, 0, 0, 0
   if lbTable then
@@ -201,7 +209,7 @@ function script.leaderboard(dt)
     lbShowInt = { width = math.max(position.leaderboard.int, maxIntLength), str = 'Interval' },
   }
 
-  for i, setting in ipairs(displayOrder) do
+  for _, setting in ipairs(displayOrder) do
     local data = displayData[setting]
     if settings[setting] == true then headerTotalWidth = headerTotalWidth + data.width + columSpace end
   end
@@ -211,7 +219,7 @@ function script.leaderboard(dt)
     ui.drawRectFilled(vec2(0, 0), vec2(headerTotalWidth, position.leaderboard.height), setColorMult(color.black, 80))
     horiOffset = horiOffset + position.leaderboard.ends
 
-    for i, setting in ipairs(displayOrder) do
+    for _, setting in ipairs(displayOrder) do
       local data = displayData[setting]
       if settings[setting] == true then
         ui.setCursor(vec2(horiOffset + columSpace, 0))

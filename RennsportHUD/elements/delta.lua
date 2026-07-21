@@ -1,8 +1,9 @@
+--- Scales the width based on the provided value.
+---@param position table @Position table
 ---@param deltaLerp number @The value to be scaled.
 ---@return number @The scaled width.
---- Scales the width based on the provided value.
-function scaleWidth(deltaLerp)
-  local scaledWidth = (((math.abs(deltaLerp) ^ 0.3) / 1000) * getPositionTable().delta.elementsize.x / 2) * 1000
+local function scaleWidth(position, deltaLerp)
+  local scaledWidth = (((math.abs(deltaLerp) ^ 0.3) / 1000) * position.delta.elementsize.x / 2) * 1000
   if deltaLerp < 0 then
     return scaledWidth * -1
   else
@@ -14,12 +15,12 @@ function script.delta(dt)
   local position = getPositionTable()
   local childOffset = app.padding
   if (settings.deltaHidden and playerCar().estimatedLapTimeMs > 0) or not settings.deltaHidden then
-    local playerSession = ac.getSim()
     local vertOffset = 0
     local fontsize = scale(14)
+    local txtcolor = color.white
     local deltaColor = color.white
     local deltaBestTxt = '00.000'
-    local predictionTxt = '0:00.000'
+    local predictionTxt
 
     if playerCar().performanceMeter > 0 then
       deltaBestTxt = string.format('+%.3f', playerCar().performanceMeter)
@@ -81,7 +82,7 @@ function script.delta(dt)
       elseif deltaClamp < 0 then
         deltaLerp = -math.lerpInvSat(deltaClamp, 0, -settings.deltaBarTime)
       end
-      local deltaWidth = scaleWidth(deltaLerp)
+      local deltaWidth = scaleWidth(position, deltaLerp)
       ui.setCursor(vec2(0, childOffset))
       ui.childWindow('Deltabar', vec2(position.delta.elementsize.x, position.delta.barheight), false, app.flags, function()
         ui.setCursor(vec2(position.delta.elementsize.x / 2, vertOffset))

@@ -7,7 +7,7 @@ local timedSectorColor = {}
 local bestSectorTime = {}
 local totalSectors = math.max(#ac.getSim().lapSplits, 2)
 for i = 1, totalSectors do
-  timedSectorColor[i] = setColorMult(getColorTable().black, 50)
+  timedSectorColor[i] = setColorMult(color.black, 50)
 end
 
 ac.onSessionStart(function(sessionIndex, restarted)
@@ -15,7 +15,7 @@ ac.onSessionStart(function(sessionIndex, restarted)
   timedSectorColor = {}
   bestSectorTime = {}
   for i = 1, totalSectors do
-    timedSectorColor[i] = setColorMult(getColorTable().black, 50)
+    timedSectorColor[i] = setColorMult(color.black, 50)
   end
 end)
 
@@ -87,7 +87,7 @@ function script.sectors(dt)
       ui.setCursor(vec2(horiOffset, vertOffset))
       ui.childWindow('Sector' .. i, vec2(position.sectors.sectorwidth, position.sectors.sectorheight), function()
         ui.drawRectFilled(vec2(0, 0), vec2(position.sectors.sectorwidth, position.sectors.sectorheight), timedSectorColor[i])
-        ui.setCursor(0, 0)
+        ui.setCursor(0)
         ui.pushDWriteFont(app.font.black)
         ui.dwriteTextAligned('S' .. i, scale(14), 0, 0, vec2(position.sectors.sectorwidth, position.sectors.sectorheight), false, color.white)
         ui.popDWriteFont()
@@ -108,7 +108,7 @@ function script.sectors(dt)
     ui.childWindow('PitLane', vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight), function()
       if playerCar().isInPitlane then
         ui.drawRectFilled(vec2(0, 0), vec2(ui.availableSpaceX(), position.sectors.pitheight), pitColor)
-        ui.setCursor(0, 0)
+        ui.setCursor(0)
         ui.pushDWriteFont(app.font.black)
         local pitTxt = 'IN PIT LANE. CURRENT SPEED: ' .. playerSpeed .. speedLimit
         local pitBox = vec2(position.sectors.sectorwidth * totalSectors, position.sectors.sectorheight)
@@ -155,15 +155,15 @@ function script.sectors(dt)
     ui.childWindow('Flags', vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight), function()
       if string.len(flagTxt) > 0 then
         if playerSession.raceFlagType == ac.FlagType.ReturnToPits then
-          ui.drawRectFilled(vec2(0, 0), vec2(ui.availableSpaceX() / 1, position.sectors.pitheight), color.black)
+          ui.drawRectFilled(vec2(0, 0), vec2(ui.availableSpaceX(), position.sectors.pitheight), color.black)
           ui.drawRectFilled(vec2(ui.availableSpaceX() - ui.availableSpaceX() / 5, 0), vec2(ui.availableSpaceX() / 5, position.sectors.pitheight), color.white)
         elseif playerSession.raceFlagType == ac.FlagType.Finished then
-          ui.drawImage('./img/CequeredFlag.png', vec2(0, 0), vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight))
+          ui.drawImage('./img/ChequeredFlag.png', vec2(0, 0), vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight))
           ui.drawRectFilled(vec2(ui.availableSpaceX() - ui.availableSpaceX() / 3, 0), vec2(ui.availableSpaceX() / 3, position.sectors.pitheight), color.black)
         else
           ui.drawRectFilled(vec2(0, 0), vec2(ui.availableSpaceX(), position.sectors.pitheight), flagColor)
         end
-        ui.setCursor(0, 0)
+        ui.setCursor(0)
         ui.pushDWriteFont(app.font.black)
         local flagBox = vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight)
         local flagFontSize = fitFontSize(flagTxt, app.font.black, flagTxtSize, flagBox)

@@ -1,9 +1,7 @@
----@meta
----@diagnostic disable: lowercase-global
-
+---@diagnostic disable-next-line: lowercase-global
 function getAppTable()
   local app = {
-    scale = 1, --on 1920x1080, at >3.6 scale, some of the app windows reach a maximum size (mostly width) that I cant change. Ill file this under "non-issues"
+    scale = 1,
     padding = 22,
     flags = bit.bor(ui.WindowFlags.NoDecoration, ui.WindowFlags.NoBackground, ui.WindowFlags.NoNav, ui.WindowFlags.NoInputs, ui.WindowFlags.NoScrollbar),
     font = {
@@ -19,7 +17,12 @@ function getAppTable()
   return app
 end
 
+local cachedPosition, cachedScale
+
+---@diagnostic disable-next-line: lowercase-global
 function getPositionTable()
+  if cachedPosition and cachedScale == app.scale then return cachedPosition end
+
   local position = {
     essentials = {
       elementsize = scaleVec2(325, 121),
@@ -145,9 +148,11 @@ function getPositionTable()
   position.essentials.inputbar.gap = scale(position.essentials.inputbar.gap + position.essentials.inputbar.size.x / app.scale)
   position.tires.decorsize.x = position.tires.wheelelement.x * 2
 
+  cachedPosition, cachedScale = position, app.scale
   return position
 end
 
+---@diagnostic disable-next-line: lowercase-global
 function getColorTable()
   local colors = {
     white = rgbm.colors.white,

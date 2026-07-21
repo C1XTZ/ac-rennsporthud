@@ -1,5 +1,6 @@
 --app made by XTZ
 
+---@diagnostic disable-next-line: lowercase-global
 settings = ac.storage {
   changeScale = false,
   scale = 1,
@@ -102,6 +103,11 @@ require('utils/helpers')
 require('utils/tables')
 require('utils/layout')
 
+---@diagnostic disable-next-line: lowercase-global
+app = getAppTable()
+---@diagnostic disable-next-line: lowercase-global
+color = getColorTable()
+
 require('elements/essentials')
 require('elements/inputs')
 require('elements/session')
@@ -111,9 +117,6 @@ require('elements/fuel')
 require('elements/tires')
 require('elements/timing')
 require('elements/leaderboard')
-
-app = getAppTable()
-color = getColorTable()
 
 local updateStatusTable = {
   [0] = 'C1XTZ: You shouldnt be reading this',
@@ -137,11 +140,10 @@ local appFolder = ac.getFolder(ac.FolderID.ACApps) .. '/lua/' .. appName .. '/'
 local manifest = ac.INIConfig.load(appFolder .. '/manifest.ini', ac.INIFormat.Extended)
 local appVersion = manifest:get('ABOUT', 'VERSION', 0.01)
 local releaseURL = 'https://api.github.com/repos/C1XTZ/ac-rennsporthud/releases/latest'
-local doUpdate = (os.time() - settings.updateLastCheck) / 86400 > settings.updateInterval
 local mainFile, assetFile = appName .. '.lua', appName .. '.zip'
 --xtz: The ingame updater idea was taken from tuttertep's comfy map app and rewritten to work with my github releases instead of pulling from the entire repository
 --xtz: JSON.parse returns a different json on 0.2.0 for some reason, ill do this for now, might bump recommended version to 0.2.1
-function handle2651(latestRelease)
+local function handle2651(latestRelease)
   local tagName, releaseAssets, getDownloadUrl
   if ac.getPatchVersionCode() <= 2651 then
     tagName = latestRelease.author.tag_name
@@ -155,7 +157,9 @@ function handle2651(latestRelease)
   return tagName, releaseAssets, getDownloadUrl
 end
 
-function updateCheckVersion(manual)
+local updateApplyUpdate
+
+local function updateCheckVersion(manual)
   settings.updateLastCheck = os.time()
 
   web.get(releaseURL, function(err, response)
@@ -209,7 +213,7 @@ function updateCheckVersion(manual)
   end)
 end
 
-function updateApplyUpdate(downloadUrl)
+updateApplyUpdate = function(downloadUrl)
   web.get(downloadUrl, function(downloadErr, downloadResponse)
     if downloadErr then
       settings.updateStatus = 4
@@ -249,7 +253,11 @@ end
 ---@param label string @Checkbox label shown in the UI.
 ---@param key string @settings field name to read/toggle.
 local function settingsCheckbox(label, key)
-  if ui.checkbox(label, settings[key]) then settings[key] = not settings[key] end
+  if
+    ui.checkbox(label, settings[key] --[[@as boolean]])
+  then
+    settings[key] = not settings[key]
+  end
 end
 
 function script.windowMain(dt)
@@ -332,11 +340,6 @@ function script.windowMain(dt)
         ui.text('\t')
         ui.sameLine()
         settingsCheckbox('Use MPH Instead', 'essentialsSpeedNumMPH')
-        if settings.essentialsSpeedNumMPH then
-          speedText = 'MP/H'
-        else
-          speedText = 'KM/H'
-        end
       end
       settingsCheckbox('Show Gears', 'essentialsGears')
       settingsCheckbox('Show RPM Numbers', 'essentialsRpmNum')

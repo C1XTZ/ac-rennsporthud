@@ -35,20 +35,16 @@ function script.fuel(dt)
       end
     end
 
-    if settings.fuelGallons and not settings.fuelLaps then
-      fuelLevel = math.round(playerCar().fuel * 0.264172, 1)
-      fuelMaxLevel = math.round(playerCar().maxFuel * 0.264172, 1)
-      fuelText = 'gal'
-      fuelValue = fuelLevel
-    end
-
     if settings.fuelLaps and fuelPerLap > 0 then
       fuelText = 'Laps'
       fuelValue = math.round(fuelLevel / fuelPerLap, 1)
+    elseif settings.fuelGallons and not settings.fuelLaps then
+      fuelText = 'gal'
+      fuelValue = math.round(fuelLevel * 0.264172, 1)
     end
 
     ui.setCursor(vec2(0, vertOffset))
-    ui.childWindow('FuelValue', vec2(scale(150), position.fuel.valueheight), function()
+    ui.childWindow('FuelValue', vec2(position.fuel.barsize.x, position.fuel.valueheight), function()
       ui.drawRectFilled(vec2(0, 0), vec2(ui.windowWidth(), position.fuel.valueheight), setColorMult(color.black, 50))
       ui.pushDWriteFont(app.font.black)
       ui.dwriteDrawText('FUEL REMAINING', scale(10), position.fuel.txtpos)

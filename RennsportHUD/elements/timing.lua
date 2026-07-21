@@ -1,28 +1,25 @@
 local totalSectors = #ac.getSim().lapSplits
 
 --- Calculates the ideal lap time in milliseconds from the best overall splits.
----@param doOnce boolean @This is here so this is only executed once.
 ---@return integer @The ideal lap time in milliseconds.
-function idealLapTime(doOnce)
-  if doOnce then
-    doOnce = false
-    local IdealMs = 0
-    for i = 0, totalSectors - 1 do
-      IdealMs = IdealMs + playerCar().bestSplits[i]
-    end
-    return IdealMs
+local function idealLapTime()
+  local idealMs = 0
+  for i = 0, totalSectors - 1 do
+    idealMs = idealMs + playerCar().bestSplits[i]
   end
+  return idealMs
 end
 
 local emptyTimeString = '--:--.---'
 local timeColor = rgbm.colors.white
 local sectors, previousLaps, currentLap, lapCount, idealLap
+local previouslastTimedSector, lastTimedSector
 
 --- Resets the timing.
 ---@param all boolean @Determines if all timings should be reset.
-function resetTiming(all)
+local function resetTiming(all)
   sectors = {}
-  for i = 1, totalSectors do
+  for _ = 1, totalSectors do
     table.insert(sectors, 0)
   end
 
@@ -78,7 +75,6 @@ end
 
 function script.timing(dt)
   local position = getPositionTable()
-  local playerSession = ac.getSim()
   local vertOffset = app.padding
   local horiOffset = 0
   local fontSizeSmall = scale(14)
@@ -117,7 +113,7 @@ function script.timing(dt)
     end
 
     if currentLap.lapTime <= playerCar().bestLapTimeMs or playerCar().bestLapTimeMs == 0 then
-      for i, lap in ipairs(previousLaps) do
+      for _, lap in ipairs(previousLaps) do
         lap.delta = math.max(0, lap.lapTime - playerCar().bestLapTimeMs)
       end
     end
@@ -133,15 +129,15 @@ function script.timing(dt)
     if #previousLaps > 5 then table.remove(previousLaps, 1) end
 
     resetTiming(false)
-    idealLap = formatTime(idealLapTime(true), false, true, true, true)
+    idealLap = formatTime(idealLapTime(), false, true, true, true)
   end
 
   if settings.timingShowCurrentLap then
     local labelStr = 'CURRENT TIME'
     local contentStr = formatTime(playerCar().lapTimeMs, false, true, true, true)
 
-    local labelSize = measureText(labelStr, app.font.black, fontSizeSmall)
-    local contentSize = measureBox(contentStr, app.font.medium, scale(42), scaleVec2(204, 34))
+    local labelSize = measureText(labelStr, app.font.black, fontSizeSmall, true)
+    local contentSize = measureBox(contentStr, app.font.medium, scale(42), scaleVec2(204, 34), nil, true)
 
     local boxWidth = math.round(math.max(position.timing.currentLap.x, position.timing.pos.currentLapTxt.x * 2 + labelSize.x, position.timing.pos.currentLapContent.x * 2 + contentSize.x))
     local boxHeight = math.round(math.max(position.timing.currentLap.y, position.timing.pos.currentLapContent.y + contentSize.y + position.timing.pos.currentLapTxt.y))
@@ -188,8 +184,8 @@ function script.timing(dt)
       table.insert(statValues, idealContentTxt)
     end
 
-    local labelWidth = measureBoxMax(statLabels, app.font.black, fontSizeSmall, vec2(0, 0), scale(12)).x
-    local valueWidth = measureBoxMax(statValues, app.font.black, fontSizeSmall, vec2(0, 0), scale(10)).x
+    local labelWidth = measureBoxMax(statLabels, app.font.black, fontSizeSmall, vec2(0, 0), scale(12), true).x
+    local valueWidth = measureBoxMax(statValues, app.font.black, fontSizeSmall, vec2(0, 0), scale(10), true).x
     local statWidth = math.round(labelWidth + scale(6) + valueWidth)
 
     if settings.timingLapStatsBest then
@@ -209,6 +205,7 @@ function script.timing(dt)
 
   if settings.timingShowTable then
     local columSpace = scale(4)
+    local secPos
 
     local lapItems, timeItems, deltaItems, sectorItems = { 'Lap' }, { 'Time' }, { 'Delta Best' }, {}
     for i = 1, totalSectors do
@@ -231,10 +228,10 @@ function script.timing(dt)
     end
 
     local headerH, contentH = position.timing.table.header.y, position.timing.table.contentheight
-    local lapColW = measureBoxMax(lapItems, app.font.black, fontSizeSmall, vec2(position.timing.table.lap, 0)).x
-    local timeColW = measureBoxMax(timeItems, app.font.black, fontSizeSmall, vec2(position.timing.table.time, 0)).x
-    local deltaColW = measureBoxMax(deltaItems, app.font.black, fontSizeSmall, vec2(position.timing.table.time, 0)).x
-    local sectorColW = measureBoxMax(sectorItems, app.font.black, fontSizeSmall, vec2(position.timing.table.time, 0)).x
+    local lapColW = measureBoxMax(lapItems, app.font.black, fontSizeSmall, vec2(position.timing.table.lap, 0), nil, true).x
+    local timeColW = measureBoxMax(timeItems, app.font.black, fontSizeSmall, vec2(position.timing.table.time, 0), nil, true).x
+    local deltaColW = measureBoxMax(deltaItems, app.font.black, fontSizeSmall, vec2(position.timing.table.time, 0), nil, true).x
+    local sectorColW = measureBoxMax(sectorItems, app.font.black, fontSizeSmall, vec2(position.timing.table.time, 0), nil, true).x
 
     local mainTableW = lapColW + columSpace + timeColW + columSpace + deltaColW + columSpace
     local sectorsTableW = (sectorColW + columSpace) * totalSectors
@@ -276,7 +273,7 @@ function script.timing(dt)
       if currentLap.delta > 0 then currLapDelta = formatTime(currentLap.delta, false, true, true, true) end
       ui.drawRectFilled(vec2(0, 0), vec2(mainTableW, contentH), setColorMult(color.black, 50))
       ui.pushDWriteFont(app.font.black)
-      ui.dwriteTextAligned(lapCount + 1, fontSizeSmall, 0, 0, vec2(lapColW, contentH), false, color.white)
+      ui.dwriteTextAligned(tostring(lapCount + 1), fontSizeSmall, 0, 0, vec2(lapColW, contentH), false, color.white)
       horiOffset = 0 + lapColW + columSpace
       ui.setCursor(vec2(horiOffset, 0))
       ui.dwriteTextAligned(currLapTime, fontSizeSmall, -1, 0, vec2(timeColW, contentH), false, timeColor)

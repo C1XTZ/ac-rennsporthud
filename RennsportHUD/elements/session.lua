@@ -12,7 +12,7 @@ local sessionTypes = {
 --- Converts a session type to a string.
 ---@param sessionType ac.SessionType @The session type to be converted.
 ---@return string @The name of the session as a string.
-function getSessionTypeString(sessionType)
+local function getSessionTypeString(sessionType)
   if not settings.sessionTimerType then return sessionTypes[0] end
 
   local sessionTypeString = sessionTypes[sessionType] or sessionTypes[0]
@@ -36,6 +36,7 @@ function script.session(dt)
       local hiddenCars = 0
       for i = playerSession.carsCount - 1, 0, -1 do
         local car = ac.getCar(i)
+        if not car then return end
         if car.isConnected and car.isHidingLabels then hiddenCars = hiddenCars + 1 end
       end
       sessionCarsTotal = string.format('%02d', playerSession.connectedCars - hiddenCars)
