@@ -1,49 +1,114 @@
 on:
   push:
     tags:
-      - 'v*'  
+      - 'v*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
-    - uses: actions/checkout@master
-    - name: Archive Release
-      uses: thedoctor0/zip-release@0.7.1
-      with:
-        type: 'zip'
-        filename: 'RennsportHUD.zip'
-        path: './RennsportHUD/'
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 0
 
-    - name: Create Release
-      uses: ncipollo/release-action@v1.12.0
-      with:
-        artifacts: "RennsportHUD.zip"
-        tag: ${{ github.ref }}
-        name: "RennsportHUD ${{ github.ref_name }}"
-        body: |
-          **Supported CSP Versions: CSP 0.2.0 (2651) and newer**
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
 
-          ## Added:
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "No previous tag found, using all commits"
+            COMMITS=$(git log --pretty=format:"%h: %s%n%b" | sed '/^$/d')
+            DIFF_SECTION=""
+          else
+            echo "Previous tag: $PREVIOUS_TAG"
+            echo "Current tag: $CURRENT_TAG"
+            COMMITS=$(git log --pretty=format:"%h: %s%n%b" $PREVIOUS_TAG..HEAD | sed '/^$/d')
+            DIFF_SECTION="## Compare all changes:"$'\n'"[Compare $PREVIOUS_TAG...$CURRENT_TAG](https://github.com/${{ github.repository }}/compare/$PREVIOUS_TAG...$CURRENT_TAG)"$'\n'
+          fi
 
-          ## Changes:
+          ADDED=""
+          CHANGED=""
 
-          ## Updating & Installation:
+          while IFS= read -r line; do
+            if [[ $line == *"add:"* ]]; then
+              ITEM=$(echo "$line" | sed 's/.*add: //')
+              ADDED="$ADDED- $ITEM"$'\n'
+            elif [[ $line == *"chg:"* ]]; then
+              ITEM=$(echo "$line" | sed 's/.*chg: //')
+              CHANGED="$CHANGED- $ITEM"$'\n'
+            fi
+          done <<< "$COMMITS"
 
-          ### Updating Ingame:
-            ![](https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/main/.github/img/updater.png)
-          1. Open the RennsportHUD Settings Ingame
-          2. Select the `Update` Tab
-          3. Click the `Check for Update` button
-          4. Click the `Install Update` button
+          ADDED=$(echo "$ADDED" | sed '/^$/d')
+          CHANGED=$(echo "$CHANGED" | sed '/^$/d')
 
-          ### Automatic Installation via Content Manager: 
-          1. Download `RennsportHUD.zip`
-          2. Drag & Drop `RennsportHUD.zip` into Content Manager and click `Install`
+          ADDED_SECTION=""
+          CHANGED_SECTION=""
 
-          ### Manual Installation: 
-          1. Download `RennsportHUD.zip`
-          2. Extract and place the `RennsportHUD` folder inside the `\apps\lua` folder of your Assetto Corsa installation
-          (By default: `C:\Steam\steamapps\common\assettocorsa\apps\lua`)
+          if [ -n "$ADDED" ]; then
+            ADDED_SECTION="## Added:"$'\n'"$ADDED"$'\n'
+          fi
+
+          if [ -n "$CHANGED" ]; then
+            CHANGED_SECTION="## Changes:"$'\n'"$CHANGED"$'\n'
+          fi
+
+          echo "ADDED_SECTION<<EOF" >> $GITHUB_OUTPUT
+          echo "$ADDED_SECTION" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "CHANGED_SECTION<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_SECTION" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "DIFF_SECTION<<EOF" >> $GITHUB_OUTPUT
+          echo "$DIFF_SECTION" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@0.7.1
+        with:
+          type: 'zip'
+          filename: 'RennsportHUD.zip'
+          path: './RennsportHUD/'
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          artifacts: 'RennsportHUD.zip'
+          tag: ${{ github.ref }}
+          name: 'RennsportHUD ${{ github.ref_name }}'
+          makeLatest: true
+          body: |
+            ${{ steps.changelog.outputs.ADDED_SECTION }}${{ steps.changelog.outputs.CHANGED_SECTION }}${{ steps.changelog.outputs.DIFF_SECTION }}
+
+            **Supported CSP Versions: CSP 0.2.0 (2651) and newer**
+
+            ## Updating & Installation:
+
+            > [!IMPORTANT]
+            > **Manual Update May Be Required**
+            > If you are updating from a version older than **v1.27**, a manual updating of the app is required.
+            > Using the in-game updater on older versions will cause the app to crash on startup and remain unuseable until reinstalled.
+            > Your user settings are safe and will not be affected by reinstalling.
+
+            ### Updating Ingame:
+              ![](https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/main/.github/img/updater.png)
+            1. Open the RennsportHUD Settings Ingame
+            2. Select the `Update` Tab
+            3. Click the `Check for Update` button
+            4. Click the `Install Update` button
+
+            ### Automatic Installation via Content Manager:
+            1. Download `RennsportHUD.zip`
+            2. Drag & Drop `RennsportHUD.zip` into Content Manager and click `Install`
+
+            ### Manual Installation:
+            1. Download `RennsportHUD.zip`
+            2. Extract and place the `RennsportHUD` folder inside the `\apps\lua` folder of your Assetto Corsa installation.
+               (By default: `C:\Steam\steamapps\common\assettocorsa\apps\lua`)
