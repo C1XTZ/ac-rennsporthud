@@ -85,6 +85,8 @@ jobs:
           name: 'RennsportHUD ${{ github.ref_name }}'
           makeLatest: true
           body: |
+            <p align="center"><img src="https://github.com/C1XTZ/ac-rennsporthud/blob/main/.github/img/repopreview.png" width="700"/></p>
+
             ${{ steps.changelog.outputs.ADDED_SECTION }}${{ steps.changelog.outputs.CHANGED_SECTION }}${{ steps.changelog.outputs.DIFF_SECTION }}
 
             **Supported CSP Versions: CSP 0.2.0 (2651) and newer**
