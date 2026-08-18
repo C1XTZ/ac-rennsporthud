@@ -1,0 +1,76 @@
+name: Bug Report
+description: Report a problem or unexpected behavior
+title: '[Bug] '
+labels:
+  - Bug
+  - Pending
+assignees:
+  - C1XTZ
+
+body:
+  - type: input
+    id: app-version
+    attributes:
+      label: App Version
+      description: Which version of the app are you using?
+      placeholder: 'Example: 1.2.3'
+    validations:
+      required: true
+
+  - type: input
+    id: csp-version
+    attributes:
+      label: Custom Shaders Patch Version
+      description: |
+        Please provide the CSP version name and ID.
+
+        In Content Manager, go to `Settings > Custom Shaders Patch > About & Updates`
+        and look for the **Currently active Shaders Patch version ID**.
+
+        If you need the ID of a version you don't currently have installed, [this
+        website](https://c1xtz.github.io/csp-logs/versions/) has a full list.
+
+        Example: `0.2.11 (3465)`
+      placeholder: 'Example: 0.2.11 (3465)'
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug
+    attributes:
+      label: Bug Explanation
+      description: |
+        Describe what happened and provide the steps needed to reproduce the issue.
+
+        Please include:
+        1. What you expected to happen
+        2. What actually happened
+        3. Steps to reproduce the issue
+      placeholder: |
+        What happened?
+
+        Expected behavior:
+        ...
+
+        Actual behavior:
+        ...
+
+        Steps to reproduce:
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: debug-screenshot
+    attributes:
+      label: Lua Debug Window
+      description: |
+        Please attach a screenshot of the Lua Debug window showing the error.
+
+        Drag and drop the screenshot into this field. If there is no error,
+        please include a screenshot of the Lua Debug window anyway.
+      placeholder: Drag and drop your Lua Debug window screenshot here.
+    validations:
+      required: true

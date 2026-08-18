@@ -1,0 +1,37 @@
+name: Feature Request
+description: Suggest a feature or improvement for the app
+title: '[Feature] '
+labels:
+  - Feature
+  - Pending
+assignees:
+  - C1XTZ
+
+body:
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature
+      description: What feature would you like to see?
+      placeholder: Describe the feature you'd like to have.
+    validations:
+      required: true
+
+  - type: textarea
+    id: explanation
+    attributes:
+      label: Explanation
+      description: Explain how you think the feature should work and why it would be useful.
+      placeholder: Explain what you have in mind.
+    validations:
+      required: true
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: User Settings
+      description: List any user-configurable settings this feature would have. Leave empty if none.
+      placeholder: |
+        Example:
+        - Checkboxes to hide X and Y
+        - Slider to adjust Z
