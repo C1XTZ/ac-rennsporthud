@@ -2,6 +2,9 @@
 
 ---@diagnostic disable-next-line: lowercase-global
 settings = ac.storage {
+  applySettingsOnLoad = true,
+  includeSettingsOnSave = true,
+
   changeScale = false,
   scale = 1,
 
@@ -14,6 +17,9 @@ settings = ac.storage {
   updateStatus = 0,
   updateAvailable = false,
   updateURL = '',
+
+  lastUsedPreset = '',
+  lastUsedRes = vec2(0, 0),
 
   essentialsCompactMode = false,
   essentialsRpmBar = true,
@@ -102,6 +108,7 @@ settings = ac.storage {
 require('utils/helpers')
 require('utils/tables')
 require('utils/layout')
+require('utils/presets')
 
 ---@diagnostic disable-next-line: lowercase-global
 app = getAppTable()
@@ -260,11 +267,45 @@ local function settingsCheckbox(label, key)
   end
 end
 
+--- Draws one preset row: name, then load button, then optionally a delete button.
+---@param rowKey string @Unique ID for this row.
+---@param name string @Display name.
+---@param buttonOffset number @Horizontal offset for the buttons.
+---@param onLoad fun() @Called when the load button is pressed.
+---@param onDelete? fun() @If set, adds a delete button. Omit for the default preset.
+local function presetRow(rowKey, name, buttonOffset, onLoad, onDelete)
+  ui.pushID(rowKey)
+  ui.offsetCursorY(3)
+  ui.text(name)
+  ui.sameLine(buttonOffset)
+  ui.offsetCursorY(-3)
+  if ui.iconButton(ui.Icons.Undo) then onLoad() end
+  if ui.itemHovered() then ui.tooltip(function() ui.text('Load preset') end) end
+
+  if onDelete then
+    ui.sameLine()
+    if ui.iconButton(ui.Icons.Cancel) then onDelete() end
+    if ui.itemHovered() then ui.tooltip(function() ui.text('Delete preset') end) end
+  end
+  ui.popID()
+end
+
+function script.update(dt)
+  --- Reapplies the last used preset if the resolution changes to correct positioning.
+  if settings.lastUsedPreset == '' then return end
+
+  local currentRes = ac.getUI().windowSize
+  if currentRes.x <= 0 or currentRes.y <= 0 then return end
+
+  if currentRes.x ~= settings.lastUsedRes.x or currentRes.y ~= settings.lastUsedRes.y then setTimeout(function() loadPreset(settings.lastUsedPreset) end, 1, 'FixPos') end
+end
+
+local newPresetName = ''
 function script.windowMain(dt)
   ui.tabBar('Elements', function()
     if ac.getPatchVersionCode() < 2651 then
-      ui.textColored('You are using a version of CSP older than 0.2.0!\nIf anything breaks update to the latest version\n ', rgbm.colors.red)
-      ui.newLine(-25)
+      ui.textColored('You are using a CSP version older than 0.2.0!\nIf anything breaks, please update Custom Shaders Patch in Content Manager!', rgbm.colors.red)
+      ui.separator()
     end
     if ac.getPatchVersionCode() >= 2651 then
       ui.tabItem('Update', function()
@@ -305,6 +346,49 @@ function script.windowMain(dt)
         end
       end)
     end
+    ui.tabItem('Preset', function()
+      if ac.getPatchVersionCode() >= 3044 then
+        settingsCheckbox('Save user settings to preset', 'includeSettingsOnSave')
+        if ui.itemHovered() then ui.tooltip(function() ui.text('If disabled only saves window positions\nSaves your app settings to the preset') end) end
+        settingsCheckbox('Load user settings from preset', 'applySettingsOnLoad')
+        if ui.itemHovered() then ui.tooltip(function() ui.text('If disabled only loads window positions\nOnly works if the preset was saved with settings included') end) end
+        ui.separator()
+
+        local customPresets = listCustomPresets()
+        local buttonOffset = 193
+        for _, preset in ipairs(customPresets) do
+          local width = ui.measureText(preset.name).x + 53
+          if width > buttonOffset then buttonOffset = width end
+        end
+        local inputTextWidth = 165
+
+        presetRow('default', 'Default', buttonOffset, function() loadPreset('default', settings.applySettingsOnLoad) end)
+
+        for _, preset in ipairs(customPresets) do
+          presetRow(preset.key, preset.name, buttonOffset, function() loadPreset(preset.key, settings.applySettingsOnLoad) end, function() deletePreset(preset.key) end)
+        end
+
+        ui.newLine(0)
+        ui.setNextItemWidth(inputTextWidth)
+        newPresetName = ui.inputText('Preset name...', newPresetName, ui.InputTextFlags.Placeholder)
+
+        ui.sameLine()
+        if ui.iconButton(ui.Icons.Save) then
+          if savePreset(newPresetName, settings.includeSettingsOnSave) then newPresetName = '' end
+        end
+        if ui.itemHovered() then ui.tooltip(function() ui.text('Save preset') end) end
+
+        ui.sameLine()
+        if ui.iconButton(ui.Icons.Folder) then os.openInExplorer(ac.getFolder(ac.FolderID.ScriptOrigin) .. '/presets') end
+        if ui.itemHovered() then ui.tooltip(function() ui.text('Open preset folder') end) end
+
+        ui.sameLine()
+        if ui.iconButton(ui.Icons.Reset) then rescanPresets() end
+        if ui.itemHovered() then ui.tooltip(function() ui.text('Rescan preset folder') end) end
+      else
+        ui.textColored('This feature is only available on CSP version 0.2.3 and newer!\nUpdate Custom Shaders Patch in Content Manager if you want to use it.', rgbm.colors.red)
+      end
+    end)
     ui.tabItem('General', function()
       settingsCheckbox('Custom App Scaling', 'changeScale')
       if settings.changeScale then
@@ -313,7 +397,7 @@ function script.windowMain(dt)
         settings.scale = ui.slider('##AppScale', settings.scale, 0.5, 5, 'App Scale: ' .. '%.01f%')
         if settings.changeScale and app.scale ~= settings.scale then app.scale = settings.scale end
       else
-        settings.changeScale = 1
+        settings.scale = 1
       end
       settingsCheckbox('Show Own Stats When Spectating', 'ignorefocus')
       settingsCheckbox('Show Decorations', 'decor')
