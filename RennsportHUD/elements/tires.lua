@@ -170,12 +170,10 @@ local function drawWheel(position, name, wheelIdx, hueRow, wearColor, side, optB
       ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - position.tires.wearsize.y), wearBg)
       ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + position.tires.wearsize.x, ui.getCursorY() - (position.tires.wearsize.y * (1 - playerCar().wheels[wheelIdx].tyreWear))), wearColor)
       ui.setCursor(vec2(ui.getCursorX() - scale(6), ui.getCursorY() + scale(1)))
-      ui.pushDWriteFont(app.font.black)
       local wearTxt = tostring(math.round((1 - playerCar().wheels[wheelIdx].tyreWear) * 100))
       local wearBox = scaleVec2(17, 12)
       local wearFontSize = fitFontSize(wearTxt, app.font.black, scale(9), wearBox)
       ui.dwriteTextAligned(wearTxt, wearFontSize, 0, 0, wearBox, false, color.white)
-      ui.popDWriteFont()
     end
 
     if settings.tiresShowBrakeTemp then
@@ -199,12 +197,10 @@ local function drawWheel(position, name, wheelIdx, hueRow, wearColor, side, optB
       if settings.tiresPressureColor then pressColor = tiresFound and hueToRgb(math.lerp(240, 0, math.lerpInvSat(math.max(0, (pressure / fPressOpt) ^ 10), 0, 2))) or color.gray end
 
       ui.setCursor(0)
-      ui.pushDWriteFont(app.font.black)
       local pressText = pressureTxt .. unitTxt
       local pressBox = vec2(position.tires.wheelelement.x, position.tires.pressurepos)
       local pressFontSize = fitFontSize(pressText, app.font.black, scale(10), pressBox)
       ui.dwriteTextAligned(pressText, pressFontSize, 0, 0, pressBox, false, pressColor)
-      ui.popDWriteFont()
     end
   end)
 end
@@ -212,6 +208,7 @@ end
 function script.tires(dt)
   local position = getPositionTable()
   local vertOffset = math.round(app.padding)
+  ui.pushDWriteFont(app.font.black)
 
   local sideConfig = {
     left = { brakeSign = 1, brakeExtra = 0, wearOffsetX = -scale(34) },
@@ -274,9 +271,7 @@ function script.tires(dt)
     ui.childWindow('tiresDecor', position.tires.decorsize, function()
       ui.drawRectFilled(vec2(0, 0), position.tires.decorsize, color.white)
       ui.setCursorX(scale(15))
-      ui.pushDWriteFont(app.font.black)
       ui.dwriteTextAligned('TIRES', scale(14), -1, 0, position.tires.decorsize, false, color.black)
-      ui.popDWriteFont()
     end)
     vertOffset = math.round(vertOffset + position.tires.decorsize.y)
   end
@@ -318,11 +313,9 @@ function script.tires(dt)
       ui.setCursor(vec2(cell.col * cellW, vertOffset + cell.row * cellH))
       ui.childWindow(cell.name, vec2(cellW, cellH), function()
         ui.drawRectFilled(ui.getCursor(), vec2(cellW, cellH), color.black)
-        ui.pushDWriteFont(app.font.black)
         drawTempNum(position, tempTxtL, tempNum[cell.wheelIdx][3])
         drawTempNum(position, tempTxtM, tempNum[cell.wheelIdx][2])
         drawTempNum(position, tempTxtR, tempNum[cell.wheelIdx][1])
-        ui.popDWriteFont()
       end)
     end
 
@@ -339,4 +332,6 @@ function script.tires(dt)
       drawWheel(position, w.name, w.idx, tempHue[w.idx], wearColor[w.idx], w.side, rOptBrakeTemp, vec2((i - 1) * position.tires.wheelelement.x, vertOffset))
     end
   end
+
+  ui.popDWriteFont()
 end

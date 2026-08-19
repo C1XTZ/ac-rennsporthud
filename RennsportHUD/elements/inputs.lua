@@ -13,9 +13,7 @@ local function drawPedalBar(position, name, bgColor, fontBig, lerp, barColor, la
   ui.childWindow(name, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), false, app.flags, function()
     ui.drawRectFilled(vec2(0, 0), vec2(position.inputs.pedalsize.x, position.inputs.pedalheight), bgColor)
     ui.drawRectFilled(vec2(0, 0), vec2(lerp, position.inputs.pedalheight), barColor)
-    ui.pushDWriteFont(app.font.bold)
     ui.dwriteTextAligned(label, fontBig, 0, 0, vec2(position.inputs.pedalsize.x, position.inputs.pedalheight - scale(1)), false, textColor)
-    ui.popDWriteFont()
   end)
 end
 
@@ -30,16 +28,12 @@ end
 local function drawElectronicsBlock(position, fontSmall, txtcolor, x, y, label, value)
   local rowH = position.inputs.electronics.darkbg.y / 2
   ui.setCursor(vec2(x, y))
-  ui.pushDWriteFont(app.font.black)
   ui.dwriteTextAligned(label, fontSmall, 0, 0, vec2(position.inputs.electronics.darkbg.x, rowH), false, txtcolor)
-  ui.popDWriteFont()
 
   ui.setCursor(vec2(x + position.inputs.electronics.darkbg.x, y))
-  ui.pushDWriteFont(app.font.black)
   local valBox = vec2(position.inputs.electronics.val.x, position.inputs.electronics.val.y / 2)
   local valFontSize = fitFontSize(value, app.font.black, fontSmall, valBox)
   ui.dwriteTextAligned(value, valFontSize, 0, 0, valBox, false, txtcolor)
-  ui.popDWriteFont()
 end
 
 function script.inputs(dt)
@@ -126,12 +120,15 @@ function script.inputs(dt)
       { enabled = settings.inputsShowBrake, name = 'Brake', lerp = brakeLerp, color = brakeColor, label = 'BRAKE', textColor = brakeTextColor },
       { enabled = settings.inputsShowGas, name = 'Gas', lerp = gasLerp, color = gasColor, label = 'THROTTLE', textColor = gasTextColor },
     }
+
+    ui.pushDWriteFont(app.font.bold)
     for _, p in ipairs(pedals) do
       if p.enabled then
         drawPedalBar(position, p.name, bgcolor, fontBig, p.lerp, p.color, p.label, p.textColor, vec2(horiOffset, vertOffset))
         vertOffset = math.floor(vertOffset + position.inputs.pedalheight)
       end
     end
+    ui.popDWriteFont()
   end
 
   if settings.inputsShowElectronics then
@@ -177,6 +174,8 @@ function script.inputs(dt)
         { label = 'ABS', value = absfinal, bgColor = ABScolor, y = 0 },
         { label = 'TC', value = tcfinal, bgColor = TCcolor, y = rowH },
       }
+
+      ui.pushDWriteFont(app.font.black)
       for _, block in ipairs(leftBlocks) do
         ui.drawRectFilled(vec2(0, block.y), vec2(position.inputs.electronics.darkbg.x, block.y + rowH), block.bgColor)
         drawElectronicsBlock(position, fontSmall, txtcolor, 0, block.y, block.label, block.value)
@@ -188,9 +187,11 @@ function script.inputs(dt)
         { label = 'BB', value = brakebalance .. '%', y = 0 },
         { label = 'TRB', value = string.format('%.2f', math.round(boost, 2)), y = rowH },
       }
+
       for _, block in ipairs(rightBlocks) do
         drawElectronicsBlock(position, fontSmall, txtcolor, rightX, block.y, block.label, block.value)
       end
+      ui.popDWriteFont()
     end)
   end
 end

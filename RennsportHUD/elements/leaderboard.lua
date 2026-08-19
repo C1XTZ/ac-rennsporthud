@@ -36,9 +36,11 @@ local function updateCar(car, i)
       dex = car.index,
       num = car:driverNumber(),
       name = car:driverName(),
-      car = settings.lbShowBrand and car:name() or removeBrand(car),
+      carFull = car:name(),
+      carNoBrand = removeBrand(car),
       pit = car.isInPitlane,
       dnf = car.currentPenaltyType == ac.PenaltyType.BlackFlag,
+      lap = car.lapCount,
       last = formatLapTime(car.previousLapTimeMs),
       lastMs = car.previousLapTimeMs,
       bestMs = car.bestLapTimeMs,
@@ -49,7 +51,8 @@ local function updateCar(car, i)
       dex = car.index,
       num = car:driverNumber(),
       name = car:driverName(),
-      car = settings.lbShowBrand and car:name() or removeBrand(car),
+      carFull = car:name(),
+      carNoBrand = removeBrand(car),
       pos = car.racePosition,
     }
   end
@@ -146,7 +149,6 @@ local settingsToTable = {
   lbShowPos = 'pos',
   lbShowNum = 'num',
   lbShowName = 'name',
-  lbShowCar = 'car',
   lbShowLap = 'lap',
   lbShowLast = 'last',
   lbShowBest = 'best',
@@ -177,17 +179,17 @@ function script.leaderboard(dt)
   local signWidth = scale(30)
   local horiOffset, vertOffset = 0, app.padding
   local headerTotalWidth = (position.leaderboard.ends * 2) + signWidth
+  ui.pushDWriteFont(app.font.black)
 
   local maxPosLength, maxNumLength, maxLapLength, maxLastLength, maxBestLength, maxIntLength = 0, 0, 0, 0, 0, 0
   if lbTable then
-    ui.pushDWriteFont(app.font.black)
     maxNameLength = math.round(ui.measureDWriteText('Name', fontSizeSmall).x)
     maxCarLength = math.round(ui.measureDWriteText('Car', fontSizeSmall).x)
     for i = 1, #lbTable do
       maxPosLength = math.max(maxPosLength, math.round(ui.measureDWriteText(tostring(lbTable[i].pos) .. '.', fontSizeSmall).x))
       maxNumLength = math.max(maxNumLength, math.round(ui.measureDWriteText(tostring(lbTable[i].num), fontSizeSmall).x))
       maxNameLength = math.max(maxNameLength, math.round(ui.measureDWriteText(lbTable[i].name, fontSizeSmall).x))
-      maxCarLength = math.max(maxCarLength, math.round(ui.measureDWriteText(lbTable[i].car, fontSizeSmall).x))
+      maxCarLength = math.max(maxCarLength, math.round(ui.measureDWriteText(settings.lbShowBrand and lbTable[i].carFull or lbTable[i].carNoBrand, fontSizeSmall).x))
       if not onlineVersionCheck then
         maxLapLength = math.max(maxLapLength, math.round(ui.measureDWriteText(tostring(lbTable[i].lap), fontSizeSmall).x))
         maxLastLength = math.max(maxLastLength, math.round(ui.measureDWriteText(lbTable[i].last, fontSizeSmall).x))
@@ -195,7 +197,6 @@ function script.leaderboard(dt)
         maxIntLength = math.max(maxIntLength, math.round(ui.measureDWriteText(tostring(lbTable[i].int or ''), fontSizeSmall).x))
       end
     end
-    ui.popDWriteFont()
   end
 
   local displayData = {
@@ -214,65 +215,67 @@ function script.leaderboard(dt)
     if settings[setting] == true then headerTotalWidth = headerTotalWidth + data.width + columSpace end
   end
 
-  ui.setCursor(vec2(0, vertOffset))
-  ui.childWindow('LeaderboardHeader', vec2(headerTotalWidth, position.leaderboard.height), function()
-    ui.drawRectFilled(vec2(0, 0), vec2(headerTotalWidth, position.leaderboard.height), setColorMult(color.black, 80))
-    horiOffset = horiOffset + position.leaderboard.ends
+  local headerPos = vec2(0, vertOffset)
+  ui.drawRectFilled(headerPos, headerPos + vec2(headerTotalWidth, position.leaderboard.height), setColorMult(color.black, 80))
+  horiOffset = position.leaderboard.ends
 
-    for _, setting in ipairs(displayOrder) do
-      local data = displayData[setting]
-      if settings[setting] == true then
-        ui.setCursor(vec2(horiOffset + columSpace, 0))
-        ui.pushDWriteFont(app.font.black)
-        ui.dwriteTextAligned(data.str, fontSizeSmall, -1, 0, vec2(data.width, position.leaderboard.height), false, color.white)
-        ui.popDWriteFont()
-        horiOffset = horiOffset + data.width + columSpace
-      end
+  for _, setting in ipairs(displayOrder) do
+    local data = displayData[setting]
+    if settings[setting] == true then
+      ui.setCursor(headerPos + vec2(horiOffset + columSpace, 0))
+      ui.dwriteTextAligned(data.str, fontSizeSmall, -1, 0, vec2(data.width, position.leaderboard.height), false, color.white)
+      horiOffset = horiOffset + data.width + columSpace
     end
-  end)
+  end
 
-  ui.setCursor(vec2(0, position.leaderboard.height))
-  ui.childWindow('LeaderboardEntries', vec2(headerTotalWidth, (position.leaderboard.height * (math.max(1, math.min(carCount, settings.lbMaxCars)) + 3))), function()
-    if lbTable then
-      local maxCars = math.min(#lbTable, settings.lbMaxCars)
-      for i = 1, maxCars do
-        local lbValue = lbTable[i]
-        horiOffset = 0
-        ui.setCursor(vec2(horiOffset, vertOffset))
-        horiOffset = horiOffset + position.leaderboard.ends
-        ui.childWindow('Entry' .. lbValue.dex, vec2(headerTotalWidth, position.leaderboard.height), function()
-          ui.drawRectFilled(vec2(0, 0), vec2(headerTotalWidth, position.leaderboard.height), setColorMult(color.black, 50))
+  ui.setCursor(headerPos)
+  ui.dummy(vec2(headerTotalWidth, position.leaderboard.height))
 
-          if lbValue['dex'] == playerCar().index then ui.drawRectFilled(vec2(0, 0), vec2(position.leaderboard.ends, position.leaderboard.height), color.uired) end
-          if lbValue['dnf'] then
-            ui.setCursor(vec2(headerTotalWidth - signWidth, 0))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + signWidth, ui.getCursorY() + position.leaderboard.height), color.black)
-            ui.pushDWriteFont(app.font.black)
-            ui.dwriteTextAligned('DNF', fontSizeSmall, 0, 0, vec2(signWidth, position.leaderboard.height), false, color.white)
-            ui.popDWriteFont()
-          elseif lbValue['pit'] then
-            ui.setCursor(vec2(headerTotalWidth - signWidth, 0))
-            ui.drawRectFilled(ui.getCursor(), vec2(ui.getCursorX() + signWidth, ui.getCursorY() + position.leaderboard.height), color.white)
-            ui.pushDWriteFont(app.font.black)
-            ui.dwriteTextAligned('PIT', fontSizeSmall, 0, 0, vec2(signWidth, position.leaderboard.height), false, color.black)
-            ui.popDWriteFont()
-          end
+  local entriesBaseY = position.leaderboard.height
+  local entriesHeight = position.leaderboard.height * (math.max(1, math.min(carCount, settings.lbMaxCars)) + 3)
 
-          for _, setting in ipairs(displayOrder) do
-            local data = displayData[setting]
-            if settings[setting] == true then
-              local displayValue = lbValue[settingsToTable[setting]]
-              displayValue = (setting == 'lbShowPos') and displayValue .. '.' or displayValue
-              ui.setCursor(vec2(horiOffset + columSpace, 0))
-              ui.pushDWriteFont(app.font.black)
-              ui.dwriteTextAligned(displayValue, fontSizeSmall, -1, 0, vec2(data.width, position.leaderboard.height), false, color.white)
-              ui.popDWriteFont()
-              horiOffset = horiOffset + data.width + columSpace
-            end
-          end
-        end)
-        vertOffset = vertOffset + position.leaderboard.height
+  if lbTable then
+    local maxCars = math.min(#lbTable, settings.lbMaxCars)
+    for i = 1, maxCars do
+      local lbValue = lbTable[i]
+      local rowPos = vec2(0, entriesBaseY + vertOffset)
+      horiOffset = position.leaderboard.ends
+
+      ui.drawRectFilled(rowPos, rowPos + vec2(headerTotalWidth, position.leaderboard.height), setColorMult(color.black, 50))
+
+      if lbValue['dex'] == playerCar().index then ui.drawRectFilled(rowPos, rowPos + vec2(position.leaderboard.ends, position.leaderboard.height), color.uired) end
+      if lbValue['dnf'] then
+        ui.setCursor(rowPos + vec2(headerTotalWidth - signWidth, 0))
+        ui.drawRectFilled(ui.getCursor(), ui.getCursor() + vec2(signWidth, position.leaderboard.height), color.black)
+        ui.dwriteTextAligned('DNF', fontSizeSmall, 0, 0, vec2(signWidth, position.leaderboard.height), false, color.white)
+      elseif lbValue['pit'] then
+        ui.setCursor(rowPos + vec2(headerTotalWidth - signWidth, 0))
+        ui.drawRectFilled(ui.getCursor(), ui.getCursor() + vec2(signWidth, position.leaderboard.height), color.white)
+        ui.dwriteTextAligned('PIT', fontSizeSmall, 0, 0, vec2(signWidth, position.leaderboard.height), false, color.black)
       end
+
+      for _, setting in ipairs(displayOrder) do
+        local data = displayData[setting]
+        if settings[setting] == true then
+          local displayValue
+          if setting == 'lbShowPos' then
+            displayValue = lbValue.pos .. '.'
+          elseif setting == 'lbShowCar' then
+            displayValue = settings.lbShowBrand and lbValue.carFull or lbValue.carNoBrand
+          else
+            displayValue = lbValue[settingsToTable[setting]]
+          end
+          ui.setCursor(rowPos + vec2(horiOffset + columSpace, 0))
+          ui.dwriteTextAligned(displayValue, fontSizeSmall, -1, 0, vec2(data.width, position.leaderboard.height), false, color.white)
+          horiOffset = horiOffset + data.width + columSpace
+        end
+      end
+
+      vertOffset = vertOffset + position.leaderboard.height
     end
-  end)
+  end
+
+  ui.setCursor(vec2(0, entriesBaseY))
+  ui.dummy(vec2(headerTotalWidth, entriesHeight))
+  ui.popDWriteFont()
 end

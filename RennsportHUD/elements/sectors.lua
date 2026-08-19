@@ -24,6 +24,8 @@ function script.sectors(dt)
   local horiOffset = 0
   local position = getPositionTable()
   local playerSession = ac.getSim()
+  ui.pushDWriteFont(app.font.black)
+
   if #ac.getSim().lapSplits > 0 and settings.sectorsDisable then
     settings.sectorsDisable = false
   elseif #ac.getSim().lapSplits < 1 and not settings.sectorsDisable then
@@ -88,9 +90,7 @@ function script.sectors(dt)
       ui.childWindow('Sector' .. i, vec2(position.sectors.sectorwidth, position.sectors.sectorheight), function()
         ui.drawRectFilled(vec2(0, 0), vec2(position.sectors.sectorwidth, position.sectors.sectorheight), timedSectorColor[i])
         ui.setCursor(0)
-        ui.pushDWriteFont(app.font.black)
         ui.dwriteTextAligned('S' .. i, scale(14), 0, 0, vec2(position.sectors.sectorwidth, position.sectors.sectorheight), false, color.white)
-        ui.popDWriteFont()
       end)
       horiOffset = horiOffset + math.floor(position.sectors.sectorwidth)
     end
@@ -109,12 +109,10 @@ function script.sectors(dt)
       if playerCar().isInPitlane then
         ui.drawRectFilled(vec2(0, 0), vec2(ui.availableSpaceX(), position.sectors.pitheight), pitColor)
         ui.setCursor(0)
-        ui.pushDWriteFont(app.font.black)
         local pitTxt = 'IN PIT LANE. CURRENT SPEED: ' .. playerSpeed .. speedLimit
         local pitBox = vec2(position.sectors.sectorwidth * totalSectors, position.sectors.sectorheight)
         local pitFontSize = fitFontSize(pitTxt, app.font.black, scale(14), pitBox)
         ui.dwriteTextAligned(pitTxt, pitFontSize, 0, 0, pitBox, false, color.black)
-        ui.popDWriteFont()
       end
     end)
     vertOffset = math.round(vertOffset + position.sectors.pitheight)
@@ -164,12 +162,12 @@ function script.sectors(dt)
           ui.drawRectFilled(vec2(0, 0), vec2(ui.availableSpaceX(), position.sectors.pitheight), flagColor)
         end
         ui.setCursor(0)
-        ui.pushDWriteFont(app.font.black)
         local flagBox = vec2(position.sectors.sectorwidth * totalSectors, position.sectors.pitheight)
         local flagFontSize = fitFontSize(flagTxt, app.font.black, flagTxtSize, flagBox)
         ui.dwriteTextAligned(flagTxt, flagFontSize, 0, 0, flagBox, false, txtColor)
-        ui.popDWriteFont()
       end
     end)
   end
+
+  ui.popDWriteFont()
 end
