@@ -94,10 +94,10 @@ jobs:
             ## Updating & Installation:
 
             > [!IMPORTANT]
-            > **Manual Update May Be Required**
-            > If you are updating from a version older than **v1.27**, a manual updating of the app is required.
-            > Using the in-game updater on older versions will cause the app to crash on startup and remain unuseable until reinstalled.
-            > Your user settings are safe and will not be affected by reinstalling.
+            > **Manual Reinstall Required (< v1.27)**
+            > If you are updating from a version older than v1.27, you must manually reinstall the app.
+            > Using the in-game updater on older versions will cause the app to crash on startup.
+            > Your user settings will not be affected by reinstalling.
 
             ### Updating Ingame:
               ![](https://raw.githubusercontent.com/C1XTZ/ac-rennsporthud/main/.github/img/updater.png)
