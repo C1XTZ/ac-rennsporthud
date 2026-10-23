@@ -10,7 +10,7 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -71,19 +71,17 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Archive Release
-        uses: thedoctor0/zip-release@0.7.1
-        with:
-          type: 'zip'
-          filename: 'RennsportHUD.zip'
-          path: './RennsportHUD/'
+        run: zip -r RennsportHUD.zip RennsportHUD/
 
       - name: Create Release
-        uses: ncipollo/release-action@v1.12.0
+        uses: ncipollo/release-action@v1.20.0
         with:
+          immutableCreate: true
           artifacts: 'RennsportHUD.zip'
           tag: ${{ github.ref }}
           name: 'RennsportHUD ${{ github.ref_name }}'
-          makeLatest: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          makeLatest: ${{ !contains(github.ref_name, '-') }}
           body: |
             <p align="center"><img src="https://github.com/C1XTZ/ac-rennsporthud/blob/main/.github/img/repopreview.png" width="700"/></p>
 
