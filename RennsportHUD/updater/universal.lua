@@ -139,10 +139,14 @@ function Updater.applyUpdate()
 
         if filePath ~= mainFile then
           local fullPath = appFolder .. filePath
-          io.createFileDir(fullPath)
-          if io.save(fullPath, content) then
-            ac.log('Updating: ' .. file)
-            updatedFiles[filePath] = true
+          updatedFiles[filePath] = true
+          if io.load(fullPath) ~= content then
+            io.createFileDir(fullPath)
+            if io.save(fullPath, content) then
+              ac.log('Updating: ' .. file)
+            else
+              ac.log('Failed to write: ' .. file)
+            end
           end
         end
       end
